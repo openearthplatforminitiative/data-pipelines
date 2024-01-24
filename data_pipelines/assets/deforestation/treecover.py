@@ -7,19 +7,17 @@ from dagster import (
 )
 
 from data_pipelines.partitions import gfc_area_partitions
-from data_pipelines.resources.gfc_io_manager import GFCTileIOManager
+from data_pipelines.resources.gfc_io_manager import COGIOManager
 
 GFC_BASE_URL = (
     "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10"
 )
 
-CHUNK_SIZE = 3 * 1024
-
 
 @asset(
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
-    io_manager_def=GFCTileIOManager(base_path="./data", chunk_size=CHUNK_SIZE),
+    io_manager_def=COGIOManager(base_path="./data"),
 )
 def treecover2000(context: AssetExecutionContext) -> Output[DatasetReader]:
     area = context.asset_partition_key_for_output()
