@@ -7,7 +7,6 @@ from dagster import (
 )
 
 from data_pipelines.partitions import gfc_area_partitions
-from data_pipelines.resources.gfc_io_manager import COGIOManager
 
 GFC_BASE_URL = (
     "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10"
@@ -17,7 +16,7 @@ GFC_BASE_URL = (
 @asset(
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
-    io_manager_def=COGIOManager(base_path="./data"),
+    io_manager_key="cog_io_manager",
 )
 def treecover2000(context: AssetExecutionContext) -> Output[DatasetReader]:
     area = context.asset_partition_key_for_output()
