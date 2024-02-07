@@ -1,19 +1,13 @@
 import os
 
-from dagster import (
-    asset,
-    AssetExecutionContext,
-    AssetKey,
-    AssetIn,
-    SourceAsset,
-)
 import dask.dataframe as dd
-from flox.xarray import xarray_reduce
-from geocube.api.core import make_geocube
 import geopandas as gpd
 import rioxarray
-from rio_cogeo import cog_info
 import xarray as xr
+from dagster import AssetExecutionContext, AssetIn, AssetKey, SourceAsset, asset
+from flox.xarray import xarray_reduce
+from geocube.api.core import make_geocube
+from rio_cogeo import cog_info
 
 from data_pipelines.partitions import gfc_area_partitions
 from data_pipelines.resources.dask_resource import DaskResource

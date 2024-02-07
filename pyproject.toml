@@ -22,6 +22,12 @@ geopandas = "^0.14.1"
 zarr = "^2.16.1"
 geocube = "^0.5.0"
 flox = "^0.9.0"
+cdsapi = "^0.6.1"
+dagster-pyspark = "^0.22.2"
+netcdf4 = "^1.6.5"
+eccodes = "^1.6.1"
+ecmwflibs = "0.5.2"
+cfgrib = "^0.9.10.4"
 
 
 [tool.poetry.group.dev.dependencies]

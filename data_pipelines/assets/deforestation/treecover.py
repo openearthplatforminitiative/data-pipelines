@@ -1,10 +1,6 @@
 import rasterio
+from dagster import AssetExecutionContext, Output, asset
 from rasterio.io import DatasetReader
-from dagster import (
-    asset,
-    Output,
-    AssetExecutionContext,
-)
 
 from data_pipelines.partitions import gfc_area_partitions
 

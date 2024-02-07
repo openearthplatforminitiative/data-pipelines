@@ -1,6 +1,7 @@
+from contextlib import contextmanager
+
 from dagster import ConfigurableResource, InitResourceContext
 from dask.distributed import Client, LocalCluster
-from contextlib import contextmanager
 
 
 class DaskResource(ConfigurableResource):
