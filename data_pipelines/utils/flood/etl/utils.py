@@ -1,4 +1,6 @@
 import xarray as xr
+import pandas as pd
+import dask.dataframe as dd
 
 
 def open_dataset(file_path, engine=None, **kwargs):
@@ -22,10 +24,10 @@ def restrict_dataset_area(ds, lat_min, lat_max, lon_min, lon_max, buffer=0.0125)
         longitude=slice(lon_min - buffer, lon_max + buffer),
     )
 
-import pandas as pd
-import dask.dataframe as dd
 
-def add_geometry(df: pd.DataFrame | dd.core.DataFrame, half_grid_size: float, precision: int) -> pd.DataFrame | dd.core.DataFrame:
+def add_geometry(
+    df: pd.DataFrame | dd.core.DataFrame, half_grid_size: float, precision: int
+) -> pd.DataFrame | dd.core.DataFrame:
     """
     Add a geometry column to the DataFrame.
 
@@ -39,22 +41,33 @@ def add_geometry(df: pd.DataFrame | dd.core.DataFrame, half_grid_size: float, pr
     df["max_latitude"] = (df["latitude"] + half_grid_size).round(precision)
     df["min_longitude"] = (df["longitude"] - half_grid_size).round(precision)
     df["max_longitude"] = (df["longitude"] + half_grid_size).round(precision)
-    
+
     df["wkt"] = (
-        "POLYGON ((" +
-        df["min_longitude"].astype(str) + " " +
-        df["min_latitude"].astype(str) + "," +
-        df["min_longitude"].astype(str) + " " +
-        df["max_latitude"].astype(str) + "," +
-        df["max_longitude"].astype(str) + " " +
-        df["max_latitude"].astype(str) + "," +
-        df["max_longitude"].astype(str) + " " +
-        df["min_latitude"].astype(str) + "," +
-        df["min_longitude"].astype(str) + " " +
-        df["min_latitude"].astype(str) +
-        "))"
+        "POLYGON (("
+        + df["min_longitude"].astype(str)
+        + " "
+        + df["min_latitude"].astype(str)
+        + ","
+        + df["min_longitude"].astype(str)
+        + " "
+        + df["max_latitude"].astype(str)
+        + ","
+        + df["max_longitude"].astype(str)
+        + " "
+        + df["max_latitude"].astype(str)
+        + ","
+        + df["max_longitude"].astype(str)
+        + " "
+        + df["min_latitude"].astype(str)
+        + ","
+        + df["min_longitude"].astype(str)
+        + " "
+        + df["min_latitude"].astype(str)
+        + "))"
     )
-    
-    df = df.drop(["min_latitude", "max_latitude", "min_longitude", "max_longitude"], axis=1)
-    
+
+    df = df.drop(
+        ["min_latitude", "max_latitude", "min_longitude", "max_longitude"], axis=1
+    )
+
     return df

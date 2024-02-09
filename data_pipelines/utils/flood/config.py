@@ -1,7 +1,7 @@
 # PYTHON_PREFIX = "/dbfs"
-PYTHON_PREFIX = "/home/giltinde" #"/Users/gil"
+PYTHON_PREFIX = "/home/giltinde"  # "/Users/gil"
 # DBUTILS_PREFIX = "dbfs:"
-DBUTILS_PREFIX = "/home/giltinde" #"/Users/gil"
+DBUTILS_PREFIX = "/home/giltinde"  # "/Users/gil"
 GLOFAS_API_URL = "https://cds.climate.copernicus.eu/api/v2"
 S3_OPEN_EPI_PATH = "mnt/openepi-storage"
 S3_GLOFAS_PATH = "mnt/openepi-storage/glofas"
@@ -58,8 +58,8 @@ LEADTIME_HOURS = [
     "72",
     "96",
     "120",
-"144",
-"168",
+    "144",
+    "168",
     "192",
     "216",
     "240",
@@ -84,12 +84,12 @@ LEADTIME_HOURS = [
     "696",
     "720",
 ]
-#LEADTIME_HOURS = [
-    # "24",
-    # "48",
- #   "72",
- #   "96",
- #   "120",
+# LEADTIME_HOURS = [
+# "24",
+# "48",
+#   "72",
+#   "96",
+#   "120",
 #    "144",
 #    "168",
-#]
+# ]

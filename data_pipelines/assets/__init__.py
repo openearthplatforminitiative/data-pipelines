@@ -13,6 +13,4 @@ river_basin_assets = load_assets_from_package_module(
     package_module=basins, group_name=BASINS
 )
 
-flood_assets =load_assets_from_package_module(
-    package_module=flood, group_name=FLOOD
-)
+flood_assets = load_assets_from_package_module(package_module=flood, group_name=FLOOD)
