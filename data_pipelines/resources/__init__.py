@@ -6,6 +6,7 @@ from .io_managers import (
     ParquetIOManager,
 )
 
+
 RESOURCES = {
     "dask_resource": DaskResource(),
     "geotiff_io_manager": GeoTIFFIOManager(),

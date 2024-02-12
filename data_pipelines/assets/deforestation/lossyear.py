@@ -2,9 +2,11 @@ import os
 
 from dagster import (
     asset,
+    AllPartitionMapping,
     AssetExecutionContext,
     AssetKey,
     AssetIn,
+    BackfillPolicy,
     SourceAsset,
 )
 import dask.dataframe as dd
@@ -26,7 +28,7 @@ DATA_BASE_PATH = "/home/aleks/projects/OpenEPI/data-pipelines/data"
 
 
 @asset(
-    io_manager_key="geotiff_io_manager",
+    io_manager_key="cog_io_manager",
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
 )
@@ -46,7 +48,7 @@ def treeloss_per_year(
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
 ) -> xr.DataArray:
-    lossyear = lossyear.chunk({"y": 2000, "x": 40_000})
+    lossyear = lossyear.chunk({"y": 200, "x": 40_000})
 
     year_masks = [
         (lossyear == y).expand_dims({"year": [y + 2000]}) for y in range(1, 23)
@@ -58,24 +60,31 @@ def treeloss_per_year(
 
 
 @asset(
+    ins={
+        "lossyear": AssetIn(
+            key_prefix="deforestation", partition_mapping=AllPartitionMapping()
+        )
+    },
     io_manager_key="parquet_io_manager",
-    partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
     compute_kind="dask",
 )
 def lossyear_points(
     context: AssetExecutionContext,
-    lossyear: xr.DataArray,
+    lossyear: dict[str, xr.DataArray],
     dask_resource: DaskResource,
-) -> dd.DataFrame:
-    lossyear = lossyear.chunk({"y": 200, "x": 40_000})
-    df = (
-        lossyear.drop_vars(["band", "spatial_ref"])
-        .rename("lossyear")
-        .to_dask_dataframe(dim_order=["y", "x"])
-    )
-    df = df.loc[df["lossyear"] > 0]
-    return df.repartition(partition_size="100MB")
+) -> list[dd.DataFrame]:
+    out_data = []
+    for lossyear_tile in lossyear.values():
+        lossyear_tile = lossyear_tile.squeeze(drop=True).chunk({"y": 200, "x": 40_000})
+        df = (
+            lossyear_tile.drop_vars(["spatial_ref"])
+            .rename("lossyear")
+            .to_dask_dataframe(dim_order=["y", "x"])
+        )
+        df = df.loc[df["lossyear"] > 0].repartition(partition_size="100MB")
+        out_data.append(df)
+    return out_data
 
 
 def make_geocube_like_dask(
@@ -85,10 +94,6 @@ def make_geocube_like_dask(
     fill: int = 0,
     **kwargs,
 ) -> xr.DataArray:
-    """This function is based on a solution by user jessjaco in the geocube repo:
-    https://github.com/corteva/geocube/issues/41#issuecomment-885911090
-    """
-
     def rasterize_block(block):
         return (
             make_geocube(df, measurements=[groups], like=block, fill=fill, **kwargs)
@@ -104,10 +109,26 @@ def make_geocube_like_dask(
     )
 
 
+def get_bbox_from_GFC_area(area: str) -> tuple[int, int, int, int]:
+    # Split the area into latitude and longitude parts
+    lat_str, lon_str = area.split("_")
+
+    # Extract numerical values and direction indicators
+    lon_num, lon_dir = int(lon_str[:-1]), lon_str[-1]
+    lat_num, lat_dir = int(lat_str[:-1]), lat_str[-1]
+
+    # Convert to positive or negative degrees based on direction
+    lon = lon_num if lon_dir == "E" else -lon_num
+    lat = lat_num if lat_dir == "N" else -lat_num
+
+    return lon, lat, lon + 10, lat - 10
+
+
 basins = SourceAsset(key=AssetKey(["basins", "basins"]))
 
 
 @asset(
+    io_manager_key="parquet_io_manager",
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
     deps=[basins],
@@ -117,16 +138,10 @@ def treeloss_per_basin(
     context: AssetExecutionContext,
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
-):
-    area = context.asset_partition_key_for_output()
-    # Open lossyear data
-    lossyear_path = os.path.join(
-        DATA_BASE_PATH, "deforestation", "lossyear", f"{area}.tif"
-    )
-    lossyear = rioxarray.open_rasterio(
-        lossyear_path, chunks={"y": 200, "x": 40_000}
-    ).rename("lossyear")
-    bbox = cog_info(lossyear_path).GEO.BoundingBox
+) -> dd.DataFrame:
+
+    lossyear = lossyear.chunk({"y": 200, "x": 40_000}).rename("lossyear")
+    bbox = get_bbox_from_GFC_area(context.asset_partition_key_for_input("lossyear"))
 
     # Open basin data
     basins = gpd.read_file(
@@ -147,12 +162,7 @@ def treeloss_per_basin(
         func="count",
         expected_groups=(basins.HYBAS_ID.unique(), list(range(1, 23))),
     )
+
     # The resulting dataframe has 3 columns: "HYBAS_ID", "year" and "tree_loss_incidents"
     loss_per_basin_df = loss_per_basin.drop_vars("spatial_ref").to_dask_dataframe()
-
-    # Write to parquet
-    out_path = os.path.join(
-        DATA_BASE_PATH, "deforestation", "treeloss_per_basin", f"{area}.nc"
-    )
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    loss_per_basin_df.to_parquet(out_path, write_index=False, overwrite=True)
+    return loss_per_basin_df
