@@ -216,7 +216,7 @@ def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
     threshold_filepath = os.path.join(
         DBUTILS_PREFIX, S3_GLOFAS_AUX_DATA_PATH, GLOFAS_PROCESSED_THRESH_FILENAME
     )
-    threshold_df = dd.read_parquet(threshold_filepath, engine="pyarrow", chunks="auto")
+    threshold_df = dd.read_parquet(threshold_filepath, engine="pyarrow")
 
     threshold_cols = [
         f"threshold_{int(threshold)}y" for threshold in GLOFAS_RET_PRD_THRESH_VALS
