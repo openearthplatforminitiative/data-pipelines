@@ -119,7 +119,11 @@ def rp_combined_thresh_pq(context: AssetExecutionContext, dask_resource: DaskRes
         dataframes.append(df)
 
     # Concatenate dataframes
-    combined_df = dd.concat(dataframes)
+    combined_df = dataframes[0]
+    for next_df in dataframes[1:]:
+        combined_df = combined_df.merge(
+            next_df, on=["latitude", "longitude"], how="inner"
+        )
 
     # Assuming the rest of the operations are similar and compatible with Dask dataframes
     combined_df = add_geometry(combined_df, GLOFAS_RESOLUTION / 2, GLOFAS_PRECISION)
