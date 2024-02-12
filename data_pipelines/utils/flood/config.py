@@ -32,7 +32,7 @@ GLOFAS_PROCESSED_THRESH_FILENAME = "processed_thresholds.parquet"
 # }
 
 GLOFAS_ROI_CENTRAL_AFRICA = {
-    "lat_min": -2.8,
+    "lat_min": -3.8,
     "lat_max": -2.0,
     "lon_min": 33.5,
     "lon_max": 34.5,

@@ -1,25 +1,10 @@
-import json
+from dagster import AssetExecutionContext, asset
 import os
-
-import requests
-from dagster import AssetExecutionContext, MaterializeResult, asset
-from dotenv import load_dotenv
 from data_pipelines.resources.dask_resource import DaskResource
-
 from data_pipelines.utils.flood.config import *
 from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
 from data_pipelines.utils.flood.etl.utils import add_geometry
-
-
-# @asset(key_prefix=["discharge"])
-# def rp_2y_thresh_nc() -> MaterializeResult:
-#     # Read NetCDF file
-#     ds = xr.open_dataset(
-#         os.path.join(DISCHARGE_DATA_PATH, "RP2ythresholds_GloFASv40.nc"),
-#         engine="netcdf",
-#     )
-#     # Return the dataset
-#     return MaterializeResult(asset_key=None, metadata_entries=[], value=ds)
+import dask.dataframe as dd
 
 
 @asset(key_prefix=["flood"], compute_kind="xarray")
@@ -111,10 +96,6 @@ def rp_20y_thresh_pq(context):
     # Log the contents of the target folder
     context.log.info(f"Contents of {target_parquet_folder}:")
     context.log.info(os.listdir(target_parquet_folder))
-
-
-import dask.dataframe as dd
-import os
 
 
 @asset(

@@ -1,3 +1,4 @@
+"""
 import os
 from datetime import datetime, timedelta
 import numpy as np
@@ -205,7 +206,7 @@ def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
     forecast_df = dd.read_parquet(
         processed_discharge_filepath,
         engine="pyarrow",
-        chunksize="100MB",
+        blocksize="100MB",
     )
 
     context.log.info(f"Joined dataframe: {forecast_df.head()}")
@@ -520,3 +521,4 @@ def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
     # Log the contents of the target folder
     context.log.info(f"Contents of {target_folder_db}:")
     context.log.info(os.listdir(target_folder_db))
+"""

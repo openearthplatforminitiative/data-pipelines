@@ -1,33 +1,8 @@
 import logging
 
 import cdsapi
-from dagster import Field  # , resource_config
-from dagster import ConfigurableResource, StringSource, resource
+from dagster import ConfigurableResource
 from pydantic import PrivateAttr
-
-# class CDSClient(ConfigurableResource):
-#     name: str = "cems-glofas-forecast"
-#     _client: cdsapi.Client = PrivateAttr()
-#     api_url: str
-#     api_key: str
-
-#     # def __init__(self, api_url, api_key, name="cems-glofas-forecast"):
-#     #     self.client = cdsapi.Client(url=api_url, key=api_key)
-#     #     self.name = name
-
-#     def setup_for_execution(self, context) -> None:
-#         self._client = cdsapi.Client(url=self.api_url, key=self.api_key)
-
-#     def fetch_data(self, request_params, output_path):
-#         """
-#         Fetch data from CDS.
-#         """
-#         try:
-#             logging.info("Fetching data from CDS...")
-#             self._client.retrieve(self.name, request_params, output_path)
-#             logging.info(f"CDS data saved to {output_path}")
-#         except Exception as e:
-#             logging.error(f"Error fetching data from CDS: {e}")
 
 
 class CDSClient(ConfigurableResource):
@@ -45,28 +20,6 @@ class CDSClient(ConfigurableResource):
             logging.info(f"CDS data saved to {output_path}")
         except Exception as e:
             logging.error(f"Error fetching data from CDS: {e}")
-
-
-# class CDSClientResource(ConfigurableResource):
-#     def __init__(self, api_url, api_key, name="cems-glofas-forecast"):
-#         self.api_url = api_url
-#         self.api_key = api_key
-#         self.name = name
-
-#     def get_client(self):
-#         return cdsapi.Client(url=self.api_url, key=self.api_key)
-
-#     def fetch_data(self, request_params, output_path):
-#         """
-#         Fetch data from CDS.
-#         """
-#         client = self.get_client()
-#         try:
-#             logging.info("Fetching data from CDS...")
-#             client.retrieve(self.name, request_params, output_path)
-#             logging.info(f"CDS data saved to {output_path}")
-#         except Exception as e:
-#             logging.error(f"Error fetching data from CDS: {e}")
 
 
 class CDSConfig:
