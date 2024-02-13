@@ -1,20 +1,15 @@
-import os
-
 from dagster import (
     asset,
     AllPartitionMapping,
     AssetExecutionContext,
     AssetKey,
     AssetIn,
-    BackfillPolicy,
     SourceAsset,
 )
 import dask.dataframe as dd
 from flox.xarray import xarray_reduce
 from geocube.api.core import make_geocube
 import geopandas as gpd
-import rioxarray
-from rio_cogeo import cog_info
 import xarray as xr
 
 from data_pipelines.partitions import gfc_area_partitions
@@ -23,8 +18,6 @@ from data_pipelines.resources.dask_resource import DaskResource
 GFC_BASE_URL = (
     "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10"
 )
-
-DATA_BASE_PATH = "/home/aleks/projects/OpenEPI/data-pipelines/data"
 
 
 @asset(
@@ -49,7 +42,6 @@ def treeloss_per_year(
     dask_resource: DaskResource,
 ) -> xr.DataArray:
     lossyear = lossyear.chunk({"y": 200, "x": 40_000})
-
     year_masks = [
         (lossyear == y).expand_dims({"year": [y + 2000]}) for y in range(1, 23)
     ]
