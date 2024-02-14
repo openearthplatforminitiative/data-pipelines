@@ -1,11 +1,9 @@
-import os
 from dagster import Definitions
 
 from .assets import (
     deforestation_assets,
     river_basin_assets,
 )
-
 from .resources import RESOURCES
 
 all_assets = [

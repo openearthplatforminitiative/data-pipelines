@@ -1,5 +1,6 @@
 data/
-dagster/
+dagster_home/
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
