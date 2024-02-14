@@ -1,9 +1,11 @@
 # PYTHON_PREFIX = "/dbfs"
+TIMEDELTA = 1
 PYTHON_PREFIX = "/home/giltinde"  # "/Users/gil"
 # DBUTILS_PREFIX = "dbfs:"
 DBUTILS_PREFIX = "/home/giltinde"  # "/Users/gil"
 GLOFAS_API_URL = "https://cds.climate.copernicus.eu/api/v2"
 S3_OPEN_EPI_PATH = "mnt/openepi-storage"
+OPENEPI_BASE_PATH = PYTHON_PREFIX + "/" + S3_OPEN_EPI_PATH
 S3_GLOFAS_PATH = "mnt/openepi-storage/glofas"
 S3_GLOFAS_DOWNLOADS_PATH = "tmp/openepi-storage/glofas/api-downloads"
 S3_GLOFAS_AUX_DATA_PATH = "mnt/openepi-storage/glofas/auxiliary-data"
@@ -25,10 +27,10 @@ GLOFAS_RET_PRD_THRESH_PARQUET_FILENAMES = {
 }
 GLOFAS_PROCESSED_THRESH_FILENAME = "processed_thresholds.parquet"
 # GLOFAS_ROI_CENTRAL_AFRICA = {
-#     "lat_min": -6.0,
-#     "lat_max": 17.0,
-#     "lon_min": -18.0,
-#     "lon_max": 52.0,
+#    "lat_min": -6.0,
+#    "lat_max": 17.0,
+#    "lon_min": -18.0,
+#    "lon_max": 52.0,
 # }
 
 GLOFAS_ROI_CENTRAL_AFRICA = {

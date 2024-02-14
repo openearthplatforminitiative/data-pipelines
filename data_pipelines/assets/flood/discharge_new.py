@@ -18,10 +18,21 @@ from data_pipelines.utils.flood.etl.utils import add_geometry, restrict_dataset_
 from data_pipelines.partitions import discharge_partitions
 
 
-@asset(key_prefix=["flood"], partitions_def=discharge_partitions)
-def discharge(context: AssetExecutionContext, client: CDSClient) -> MaterializeResult:
-    date_for_request = datetime.utcnow()  # - timedelta(days=1)
-    formatted_date = date_for_request.strftime("%Y-%m-%d")
+def make_path(*args) -> str:
+    path = os.path.join(*args)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return path
+
+
+@asset(
+    key_prefix=["flood"],
+    partitions_def=discharge_partitions,
+    io_manager_key="grib_io_manager",
+)
+def raw_discharge(
+    context: AssetExecutionContext, client: CDSClient
+) -> MaterializeResult:
+    date_for_request = datetime.utcnow() - timedelta(days=TIMEDELTA)
 
     query_buffer = GLOFAS_RESOLUTION * GLOFAS_BUFFER_MULT
     lat_min = GLOFAS_ROI_CENTRAL_AFRICA["lat_min"]
@@ -43,15 +54,13 @@ def discharge(context: AssetExecutionContext, client: CDSClient) -> MaterializeR
         product_type = "ensemble_perturbed_forecasts"
         print("Retrieving only ensemble")
 
-    target_folder = os.path.join(
-        PYTHON_PREFIX, S3_GLOFAS_DOWNLOADS_PATH, formatted_date
-    )
-    os.makedirs(target_folder, exist_ok=True)
-
-    # Define target filepath
     l_hour = context.asset_partition_key_for_output()
-    target_filename = f"download-{l_hour}.grib"
-    target_file_path = os.path.join(target_folder, target_filename)
+    target_file_path = make_path(
+        OPENEPI_BASE_PATH,
+        *context.asset_key.path,
+        f"{l_hour}.grib",
+    )
+    os.makedirs(os.path.dirname(target_file_path), exist_ok=True)
 
     # Define the config
     config = CDSConfig(
@@ -70,22 +79,22 @@ def discharge(context: AssetExecutionContext, client: CDSClient) -> MaterializeR
     client.fetch_data(request_params, target_file_path)
 
     # get the list of files in the folder
-    files = os.listdir(target_folder)
+    files = os.listdir(os.path.dirname(target_file_path))
 
     # Log the contents of the target folder
-    context.log.info(f"Contents of {target_folder}:")
+    context.log.info(f"Contents of {os.path.dirname(target_file_path)}:")
     context.log.info(files)
 
 
 @asset(
     key_prefix=["flood"],
-    deps=[discharge],
     compute_kind="xarray",
     partitions_def=discharge_partitions,
+    io_manager_key="multi_partition_parquet_io_manager",
 )
-def transformed_discharge(context: AssetExecutionContext):
-    date_for_request = datetime.utcnow()  # - timedelta(days=2)
-    formatted_date = date_for_request.strftime("%Y-%m-%d")
+def transformed_discharge(
+    context: AssetExecutionContext, raw_discharge: xr.Dataset, upstream_area: xr.Dataset
+) -> pd.DataFrame:
 
     buffer = GLOFAS_RESOLUTION / GLOFAS_BUFFER_DIV
     lat_min = GLOFAS_ROI_CENTRAL_AFRICA["lat_min"]
@@ -95,48 +104,22 @@ def transformed_discharge(context: AssetExecutionContext):
 
     converter = RasterConverter()
 
-    # Create target folder
-    filtered_parquet_folder = os.path.join(
-        PYTHON_PREFIX, S3_GLOFAS_FILTERED_PATH, formatted_date
-    )
-    os.makedirs(filtered_parquet_folder, exist_ok=True)
-
     # Open upstream area NetCDF file and restrict to area of interest
-    upstream_file_path = os.path.join(
-        PYTHON_PREFIX, S3_GLOFAS_AUX_DATA_PATH, GLOFAS_UPSTREAM_FILENAME
-    )
-    ds_upstream = xr.open_dataset(upstream_file_path)
+    # upstream_file_path = os.path.join(
+    #    PYTHON_PREFIX, S3_GLOFAS_AUX_DATA_PATH, GLOFAS_UPSTREAM_FILENAME
+    # )
+    # ds_upstream = xr.open_dataset(upstream_file_path)
+
+    ds_upstream = upstream_area
 
     if USE_CONTROL_MEMBER_IN_ENSEMBLE:
         print("Combining control and ensemble")
     else:
         print("Using only ensemble")
 
-    l_hour = context.asset_partition_key_for_output()
-    discharge_filename = f"download-{l_hour}.grib"
-    discharge_file_path = os.path.join(
-        PYTHON_PREFIX, S3_GLOFAS_DOWNLOADS_PATH, formatted_date, discharge_filename
-    )
-
-    # Load control forecast (cf)
-    # Could be emty if it wasn't downloaded i API query
-    ds_cf = xr.open_dataset(
-        discharge_file_path, backend_kwargs={"filter_by_keys": {"dataType": "cf"}}
-    )
-
-    # Load perturbed forecast (pf)
-    ds_pf = xr.open_dataset(
-        discharge_file_path, backend_kwargs={"filter_by_keys": {"dataType": "pf"}}
-    )
-
-    if USE_CONTROL_MEMBER_IN_ENSEMBLE:
-        ds_discharge = xr.concat([ds_cf, ds_pf], dim="number")
-    else:
-        ds_discharge = ds_pf
-
     # Restrict discharge data to area of interest
     ds_discharge = restrict_dataset_area(
-        ds_discharge, lat_min, lat_max, lon_min, lon_max, buffer
+        raw_discharge, lat_min, lat_max, lon_min, lon_max, buffer
     )
 
     # Apply upstream filtering
@@ -154,38 +137,26 @@ def transformed_discharge(context: AssetExecutionContext):
         drop_na_subset=["dis24"],
         drop_index=False,
     )
-
-    # Save to Parquet
-    filtered_parquet_filename = f"filtered-{l_hour}.parquet"
-    filtered_parquet_file_path = os.path.join(
-        filtered_parquet_folder, filtered_parquet_filename
-    )
-    converter.dataframe_to_parquet(filtered_df, filtered_parquet_file_path)
-
-    # Log the contents of the target folder
-    context.log.info(f"Contents of {filtered_parquet_folder}:")
-    context.log.info(os.listdir(filtered_parquet_folder))
+    return filtered_df
 
 
 @asset(
     key_prefix=["flood"],
-    deps=[transformed_discharge, rp_combined_thresh_pq],
+    # deps=[rp_combined_thresh_pq],
     compute_kind="dask",
+    io_manager_key="new_parquet_io_manager",
 )
-def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
-    date_for_request = datetime.utcnow()  # - timedelta(days=2)
-    formatted_date = date_for_request.strftime("%Y-%m-%d")
+def detailed_forecast(
+    context: AssetExecutionContext,
+    dask_resource: DaskResource,
+    transformed_discharge: dd.DataFrame,
+    rp_combined_thresh_pq: dd.DataFrame,
+):
+    # Determine the number of distinct values in the step column
+    step_values = transformed_discharge["step"].unique().compute()
+    context.log.info(f"STEP VALUES: {step_values}")
 
-    # Define your file path
-    processed_discharge_filepath = os.path.join(
-        DBUTILS_PREFIX, S3_GLOFAS_FILTERED_PATH, formatted_date, "filtered-*.parquet"
-    )
-
-    # open all filtered parquet files from the transformed_discharge asset
-    forecast_df = dd.read_parquet(
-        processed_discharge_filepath,
-        engine="pyarrow",
-    )
+    forecast_df = transformed_discharge
 
     context.log.info(f"Joined dataframe: {forecast_df.head()}")
     context.log.info(f"Joined dataframe: {forecast_df.dtypes}")
@@ -213,18 +184,20 @@ def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
     context.log.info(f"Joined dataframe: {forecast_df.dtypes}")
 
     # open threshold parquet dataset from public s3 bucket with pandas and dask
-    threshold_filepath = os.path.join(
-        DBUTILS_PREFIX, S3_GLOFAS_AUX_DATA_PATH, GLOFAS_PROCESSED_THRESH_FILENAME
+    # threshold_filepath = os.path.join(
+    #    DBUTILS_PREFIX, S3_GLOFAS_AUX_DATA_PATH, GLOFAS_PROCESSED_THRESH_FILENAME
+    # )
+    threshold_df = (
+        rp_combined_thresh_pq  # dd.read_parquet(threshold_filepath, engine="pyarrow")
     )
-    threshold_df = dd.read_parquet(threshold_filepath, engine="pyarrow")
 
     threshold_cols = [
         f"threshold_{int(threshold)}y" for threshold in GLOFAS_RET_PRD_THRESH_VALS
     ]
 
     # Round all latitudes and longitudes to GLOFAS_PRECISION decimal places
-    threshold_df["latitude"] = threshold_df["latitude"].round(GLOFAS_PRECISION)
-    threshold_df["longitude"] = threshold_df["longitude"].round(GLOFAS_PRECISION)
+    # threshold_df["latitude"] = threshold_df["latitude"].round(GLOFAS_PRECISION)
+    # threshold_df["longitude"] = threshold_df["longitude"].round(GLOFAS_PRECISION)
 
     ##########################################################################################
     ############################ COMPUTE DETAILED FORECAST ###################################
@@ -281,6 +254,29 @@ def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
     detailed_forecast_df = dd.merge(
         res, control_df, on=["latitude", "longitude"], how="left"
     )
+
+    ##########################################################################################
+    ######################### SAVE SUMMARY AND DETAILED FORECAST #############################
+    ##########################################################################################
+
+    detailed_forecast_df = add_geometry(
+        detailed_forecast_df, GLOFAS_RESOLUTION / 2, GLOFAS_PRECISION
+    )
+
+    return detailed_forecast_df
+
+
+@asset(
+    key_prefix=["flood"],
+    compute_kind="dask",
+    io_manager_key="new_parquet_io_manager",
+)
+def summary_forecast(
+    context: AssetExecutionContext,
+    dask_resource: DaskResource,
+    detailed_forecast: dd.DataFrame,
+):
+    detailed_forecast_df = detailed_forecast.drop(columns=["wkt"])
 
     ##########################################################################################
     ############################## COMPUTE PEAK TIMING #######################################
@@ -445,35 +441,5 @@ def forecast(context: AssetExecutionContext, dask_resource: DaskResource):
     summary_forecast_df = add_geometry(
         summary_forecast_df, GLOFAS_RESOLUTION / 2, GLOFAS_PRECISION
     )
-    detailed_forecast_df = add_geometry(
-        detailed_forecast_df, GLOFAS_RESOLUTION / 2, GLOFAS_PRECISION
-    )
 
-    target_folder = os.path.join(S3_GLOFAS_PROCESSED_PATH, "newest")
-    target_folder_db = os.path.join(DBUTILS_PREFIX, target_folder)
-
-    # Define summary forecast file path
-    summary_forecast_file_path = os.path.join(
-        target_folder_db, GLOFAS_PROCESSED_SUMMARY_FORECAST_FILENAME
-    )
-    print(summary_forecast_file_path)
-
-    # Define detailed forecast file path
-    detailed_forecast_file_path = os.path.join(
-        target_folder_db, GLOFAS_PROCESSED_DETAILED_FORECAST_FILENAME
-    )
-    print(detailed_forecast_file_path)
-
-    os.makedirs(target_folder_db, exist_ok=True)
-
-    # Overwrite the detailed and summary dataframes to parquet
-    summary_forecast_df.to_parquet(
-        summary_forecast_file_path, write_index=False, overwrite=True
-    )
-    detailed_forecast_df.to_parquet(
-        detailed_forecast_file_path, write_index=False, overwrite=True
-    )
-
-    # Log the contents of the target folder
-    context.log.info(f"Contents of {target_folder_db}:")
-    context.log.info(os.listdir(target_folder_db))
+    return summary_forecast_df
