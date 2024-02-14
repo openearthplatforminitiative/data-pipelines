@@ -1,0 +1,20 @@
+dagster-user-deployments:
+  enabled: true
+  deployments:
+    - name: "k8s-example-user-code-1"
+      image:
+        repository: "docker.io/dagster/user-code-example"
+        tag: latest
+        pullPolicy: Always
+      dagsterApiGrpcArgs:
+        - "--python-file"
+        - "/example_project/example_repo/repo.py"
+      port: 3030
+
+postgresql:
+  enabled: false
+
+  # Used by init container to check that db is running. (Even if enabled:false)
+  image:
+    repository: "library/postgres"
+    pullPolicy: IfNotPresent
