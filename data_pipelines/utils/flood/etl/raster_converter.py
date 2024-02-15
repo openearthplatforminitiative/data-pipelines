@@ -1,42 +1,54 @@
 import logging
+import dagster
 
-from data_pipelines.utils.flood.etl.utils import open_dataset
+import pandas as pd
+import xarray as xr
 
 logging.basicConfig(level=logging.INFO)
 
 
 class RasterConverter:
+    """
+    Class for converting raster (NetCDF and GRIB) files
+    to pandas dataframes and parquet files.
+    """
+
     def file_to_parquet(
         self,
-        input_path,
-        output_path,
-        read_engine=None,
-        write_engine="pyarrow",
-        compression="snappy",
-        cols_to_drop=None,
-        cols_to_rename=None,
-        drop_na_subset=None,
-        drop_index=False,
-        save_index=None,
-        context=None,
-    ):
+        input_path: str,
+        output_path: str,
+        read_engine: str | None = None,
+        write_engine: str = "pyarrow",
+        compression: str = "snappy",
+        cols_to_drop: list | None = None,
+        cols_to_rename: dict | None = None,
+        drop_na_subset: list | None = None,
+        drop_index: bool = False,
+        save_index: bool = None,
+        context: dagster.AssetExecutionContext = None,
+    ) -> None:
         """
         Convert a raster (GRIB or NetCDF) file to Parquet format.
 
-        :param input_path: Path to the raster file.
-        :param output_path: Path to save the resulting Parquet file.
-        :param read_engine: The engine to use for reading the raster file.
-        :param write_engine: The engine to use for writing the Parquet file.
-        :param compression: The compression algorithm to use for writing the Parquet file.
-        :param cols_to_drop: List of columns to drop from the resulting dataframe.
-        :param cols_to_rename: Dictionary where keys are original column names and values are the new names.
-        :param drop_na_subset: List of columns to use for dropping rows with NA values.
-        :param drop_index: Whether to drop the index column when resetting the index.
-        :param save_index: Whether to save the index column.
+        - Args:
+        - input_path (str): Path to the raster file.
+        - output_path (str): Path to save the resulting Parquet file.
+        - read_engine (str): The engine to use for reading the raster file.
+        - write_engine (str): The engine to use for writing the Parquet file.
+        - compression (str): The compression algorithm to use for writing the Parquet file.
+        - cols_to_drop (list): List of columns to drop from the resulting dataframe.
+        - cols_to_rename (dict): Dictionary where keys are original column names and values are the new names.
+        - drop_na_subset (list): List of columns to use for dropping rows with NA values.
+        - drop_index (bool): Whether to drop the index column when resetting the index.
+        - save_index (bool): Whether to save the index column.
+        - context (dagster.AssetExecutionContext): The context object for the asset.
+
+        - Returns:
+        None
         """
         try:
             # Read the raster file into an xarray Dataset
-            ds = open_dataset(input_path, engine=read_engine)
+            ds = xr.open_dataset(input_path, engine=read_engine)
 
             # Convert the xarray Dataset to a Pandas DataFrame
             df = ds.to_dataframe().reset_index(drop=drop_index)
@@ -80,15 +92,23 @@ class RasterConverter:
                 )
 
     def dataset_to_dataframe(
-        self, ds, cols_to_drop=None, drop_na_subset=None, drop_index=False
-    ):
+        self,
+        ds: xr.Dataset,
+        cols_to_drop: list | None = None,
+        drop_na_subset: list | None = None,
+        drop_index: bool = False,
+    ) -> pd.DataFrame:
         """
         Convert a raster in xarray.dataset format to a pandas dataframe.
 
-        :param ds: The xarray dataset.
-        :param cols_to_drop: List of columns to drop from the resulting dataframe.
-        :param drop_na_subset: List of columns to use for dropping rows with NA values.
-        :param drop_index: Whether to drop the index column when resetting the index.
+        - Args:
+        - ds (xarray.Dataset): The xarray dataset.
+        - cols_to_drop (list): List of columns to drop from the resulting dataframe.
+        - drop_na_subset (list): List of columns to use for dropping rows with NA values.
+        - drop_index (bool): Whether to drop the index column when resetting the index.
+
+        - Returns:
+        pd.DataFrame: The resulting pandas dataframe.
         """
         try:
             df = ds.to_dataframe()
@@ -117,20 +137,24 @@ class RasterConverter:
 
     def dataframe_to_parquet(
         self,
-        df,
-        output_path,
-        write_engine="pyarrow",
-        compression="snappy",
-        save_index=None,
-    ):
+        df: pd.DataFrame,
+        output_path: str,
+        write_engine: str = "pyarrow",
+        compression: str = "snappy",
+        save_index: bool | None = None,
+    ) -> None:
         """
         Save a pandas dataframe in Parquet format.
 
-        :param df: The pandas dataframe.
-        :param output_path: Path to save the resulting Parquet file.
-        :param write_engine: The engine to use for writing the Parquet file.
-        :param compression: The compression algorithm to use for writing the Parquet file.
-        :param save_index: Whether to save the index column.
+        - Args:
+        - df (pd.DataFrame): The pandas dataframe.
+        - output_path (str): Path to save the resulting Parquet file.
+        - write_engine (str): The engine to use for writing the Parquet file.
+        - compression (str): The compression algorithm to use for writing the Parquet file.
+        - save_index (bool): Whether to save the index column.
+
+        - Returns:
+        None
         """
         try:
             df.to_parquet(
