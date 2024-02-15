@@ -320,9 +320,10 @@ class NetdCDFIOManager(UPathIOManager):
     def __init__(self, **kwargs):
         super().__init__(base_path=UPath(self.base_path), **kwargs)
 
-    def dump_to_path(self, context: OutputContext, obj: str, path: UPath):
-        ds = xr.open_dataset(obj)
-        ds.to_netcdf(path)
+    def dump_to_path(self, context: OutputContext, obj: str, path: UPath) -> None:
+        raise NotImplementedError(
+            "This IO Manager doesn't support writing NetCDF data."
+        )
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
         return xr.open_dataset(path)
