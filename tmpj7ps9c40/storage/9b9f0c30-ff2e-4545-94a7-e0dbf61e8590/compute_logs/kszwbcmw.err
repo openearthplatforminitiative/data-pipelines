@@ -1,312 +1,0 @@
-[32m2024-02-16 13:21:32 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 9b9f0c30-ff2e-4545-94a7-e0dbf61e8590 - 41263 - LOGS_CAPTURED - Started capturing logs in process (pid: 41263).
-[32m2024-02-16 13:21:32 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 9b9f0c30-ff2e-4545-94a7-e0dbf61e8590 - 41263 - flood__raw_discharge_seq - STEP_START - Started execution of step "flood__raw_discharge_seq".
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:32,708 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:32,708 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:32,868 INFO Request is completed
-INFO:cdsapi:Request is completed
-2024-02-16 13:21:32,868 INFO Downloading https://download-0003-clone.copernicus-climate.eu/cache-compute-0003/cache/data7/adaptor.mars.external-1708076826.067471-847-2-86db5158-a166-49f3-88a1-80ef781ed018.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/24.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0003-clone.copernicus-climate.eu/cache-compute-0003/cache/data7/adaptor.mars.external-1708076826.067471-847-2-86db5158-a166-49f3-88a1-80ef781ed018.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/24.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 93%|█████████▎| 78.0k/83.7k [00:00<00:00, 635kB/s]                                                   2024-02-16 13:21:33,284 INFO Download rate 201.3K/s
-INFO:cdsapi:Download rate 201.3K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/24.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:33,384 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:33,384 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:33,586 INFO Downloading https://download-0021.copernicus-climate.eu/cache-compute-0021/cache/data6/adaptor.mars.external-1708077018.763137-8205-13-1bfb9770-c464-4204-90e3-5e2c9b8c6f99.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/48.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0021.copernicus-climate.eu/cache-compute-0021/cache/data6/adaptor.mars.external-1708077018.763137-8205-13-1bfb9770-c464-4204-90e3-5e2c9b8c6f99.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/48.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 88%|████████▊ | 74.0k/83.7k [00:00<00:00, 612kB/s]                                                   2024-02-16 13:21:33,984 INFO Download rate 210.1K/s
-INFO:cdsapi:Download rate 210.1K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/48.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:34,085 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:34,085 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:34,268 INFO Downloading https://download-0007-clone.copernicus-climate.eu/cache-compute-0007/cache/data0/adaptor.mars.external-1708077156.1681974-7121-13-b042dca7-7672-4497-aa73-7f9c1c6f6c51.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/72.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0007-clone.copernicus-climate.eu/cache-compute-0007/cache/data0/adaptor.mars.external-1708077156.1681974-7121-13-b042dca7-7672-4497-aa73-7f9c1c6f6c51.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/72.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 51%|█████▏    | 43.0k/83.7k [00:00<00:00, 379kB/s]                                                   2024-02-16 13:21:34,696 INFO Download rate 195.5K/s
-INFO:cdsapi:Download rate 195.5K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/72.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:34,794 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:34,794 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:34,930 INFO Downloading https://download-0011-clone.copernicus-climate.eu/cache-compute-0011/cache/data6/adaptor.mars.external-1708077216.3555908-9348-11-57b376c8-9832-4512-97a2-3029cedb0a33.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/96.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0011-clone.copernicus-climate.eu/cache-compute-0011/cache/data6/adaptor.mars.external-1708077216.3555908-9348-11-57b376c8-9832-4512-97a2-3029cedb0a33.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/96.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 82%|████████▏ | 69.0k/83.7k [00:00<00:00, 541kB/s]                                                   2024-02-16 13:21:35,356 INFO Download rate 196.4K/s
-INFO:cdsapi:Download rate 196.4K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/96.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:35,452 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:35,452 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:35,588 INFO Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data8/adaptor.mars.external-1708077258.3081403-20271-6-c717844e-a989-4c53-b07e-8e5995f5e3dc.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/120.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data8/adaptor.mars.external-1708077258.3081403-20271-6-c717844e-a989-4c53-b07e-8e5995f5e3dc.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/120.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 88%|████████▊ | 74.0k/83.7k [00:00<00:00, 557kB/s]                                                   2024-02-16 13:21:36,020 INFO Download rate 193.7K/s
-INFO:cdsapi:Download rate 193.7K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/120.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:36,122 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:36,123 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:36,239 INFO Downloading https://download-0007-clone.copernicus-climate.eu/cache-compute-0007/cache/data5/adaptor.mars.external-1708077300.1600997-2493-17-b7f2bda9-1c80-452f-a533-061151c9ee73.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/144.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0007-clone.copernicus-climate.eu/cache-compute-0007/cache/data5/adaptor.mars.external-1708077300.1600997-2493-17-b7f2bda9-1c80-452f-a533-061151c9ee73.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/144.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 51%|█████▏    | 43.0k/83.7k [00:00<00:00, 388kB/s]                                                   2024-02-16 13:21:36,457 INFO Download rate 384.8K/s
-INFO:cdsapi:Download rate 384.8K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/144.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:36,558 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:36,559 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:36,681 INFO Downloading https://download-0018.copernicus-climate.eu/cache-compute-0018/cache/data3/adaptor.mars.external-1708077343.5939546-12923-18-209cd005-30b7-409a-ba89-9a4113c394da.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/168.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0018.copernicus-climate.eu/cache-compute-0018/cache/data3/adaptor.mars.external-1708077343.5939546-12923-18-209cd005-30b7-409a-ba89-9a4113c394da.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/168.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 71%|███████   | 59.0k/83.7k [00:00<00:00, 518kB/s]                                                   2024-02-16 13:21:37,061 INFO Download rate 219.9K/s
-INFO:cdsapi:Download rate 219.9K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/168.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:37,165 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:37,165 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:37,313 INFO Downloading https://download-0001-clone.copernicus-climate.eu/cache-compute-0001/cache/data7/adaptor.mars.external-1708077397.581909-27337-1-bde30868-4208-453d-8c07-825d2c089231.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/192.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0001-clone.copernicus-climate.eu/cache-compute-0001/cache/data7/adaptor.mars.external-1708077397.581909-27337-1-bde30868-4208-453d-8c07-825d2c089231.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/192.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 71%|███████   | 59.0k/83.7k [00:00<00:00, 486kB/s]                                                   2024-02-16 13:21:37,724 INFO Download rate 203.6K/s
-INFO:cdsapi:Download rate 203.6K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/192.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:37,824 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:37,824 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:37,948 INFO Downloading https://download-0004-clone.copernicus-climate.eu/cache-compute-0004/cache/data7/adaptor.mars.external-1708077441.5671954-1282-5-707abc68-b0d2-4028-a8dc-66f3f6b7e49f.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/216.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0004-clone.copernicus-climate.eu/cache-compute-0004/cache/data7/adaptor.mars.external-1708077441.5671954-1282-5-707abc68-b0d2-4028-a8dc-66f3f6b7e49f.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/216.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 41%|████      | 34.0k/83.7k [00:00<00:00, 301kB/s] 84%|████████▎ | 70.0k/83.7k [00:00<00:00, 317kB/s]                                                   2024-02-16 13:21:38,453 INFO Download rate 165.9K/s
-INFO:cdsapi:Download rate 165.9K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/216.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:38,569 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:38,569 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:38,702 INFO Downloading https://download-0009-clone.copernicus-climate.eu/cache-compute-0009/cache/data3/adaptor.mars.external-1708077473.4433138-10626-12-2c204f38-b337-4338-adae-d14dca541e85.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/240.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0009-clone.copernicus-climate.eu/cache-compute-0009/cache/data3/adaptor.mars.external-1708077473.4433138-10626-12-2c204f38-b337-4338-adae-d14dca541e85.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/240.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 80%|████████  | 67.0k/83.7k [00:00<00:00, 544kB/s]                                                   2024-02-16 13:21:39,154 INFO Download rate 185.4K/s
-INFO:cdsapi:Download rate 185.4K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/240.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:39,251 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:39,251 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:39,416 INFO Downloading https://download-0020.copernicus-climate.eu/cache-compute-0020/cache/data7/adaptor.mars.external-1708077507.8689237-15787-13-692b2444-74b2-48ad-b448-77e5db6439c1.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/264.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0020.copernicus-climate.eu/cache-compute-0020/cache/data7/adaptor.mars.external-1708077507.8689237-15787-13-692b2444-74b2-48ad-b448-77e5db6439c1.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/264.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 93%|█████████▎| 78.0k/83.7k [00:00<00:00, 621kB/s]                                                   2024-02-16 13:21:39,827 INFO Download rate 203.6K/s
-INFO:cdsapi:Download rate 203.6K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/264.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:39,925 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:39,925 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:40,128 INFO Downloading https://download-0017.copernicus-climate.eu/cache-compute-0017/cache/data3/adaptor.mars.external-1708077579.6891778-32652-7-8667f8e2-05ae-41cf-8585-de903abe20f3.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/288.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0017.copernicus-climate.eu/cache-compute-0017/cache/data3/adaptor.mars.external-1708077579.6891778-32652-7-8667f8e2-05ae-41cf-8585-de903abe20f3.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/288.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 73%|███████▎  | 61.0k/83.7k [00:00<00:00, 482kB/s]                                                   2024-02-16 13:21:40,556 INFO Download rate 195.7K/s
-INFO:cdsapi:Download rate 195.7K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/288.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:40,654 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:40,654 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:40,747 INFO Downloading https://download-0011-clone.copernicus-climate.eu/cache-compute-0011/cache/data6/adaptor.mars.external-1708081267.6999907-22416-10-ca6fd6c7-540d-4644-98c5-91a011a9d9df.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/312.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0011-clone.copernicus-climate.eu/cache-compute-0011/cache/data6/adaptor.mars.external-1708081267.6999907-22416-10-ca6fd6c7-540d-4644-98c5-91a011a9d9df.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/312.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 91%|█████████ | 76.0k/83.7k [00:00<00:00, 579kB/s]                                                   2024-02-16 13:21:40,930 INFO Download rate 455.8K/s
-INFO:cdsapi:Download rate 455.8K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/312.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:41,026 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:41,027 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:41,135 INFO Downloading https://download-0004-clone.copernicus-climate.eu/cache-compute-0004/cache/data5/adaptor.mars.external-1708081334.0952208-6624-11-f21d488e-99e9-467e-8b0f-248150cc7a64.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/336.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0004-clone.copernicus-climate.eu/cache-compute-0004/cache/data5/adaptor.mars.external-1708081334.0952208-6624-11-f21d488e-99e9-467e-8b0f-248150cc7a64.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/336.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 41%|████      | 34.0k/83.7k [00:00<00:00, 310kB/s]                                                   2024-02-16 13:21:41,367 INFO Download rate 360.3K/s
-INFO:cdsapi:Download rate 360.3K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/336.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:41,466 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:41,466 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:41,565 INFO Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data7/adaptor.mars.external-1708081367.922197-2755-15-ec3e383b-2869-4e53-846a-7a98a227fe9e.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/360.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data7/adaptor.mars.external-1708081367.922197-2755-15-ec3e383b-2869-4e53-846a-7a98a227fe9e.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/360.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 98%|█████████▊| 82.0k/83.7k [00:00<00:00, 628kB/s]                                                   2024-02-16 13:21:41,761 INFO Download rate 428.1K/s
-INFO:cdsapi:Download rate 428.1K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/360.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:41,857 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:41,857 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:41,967 INFO Downloading https://download-0012-clone.copernicus-climate.eu/cache-compute-0012/cache/data6/adaptor.mars.external-1708081463.722702-3695-9-dcf7e44e-279f-4630-815a-82587321c275.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/384.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0012-clone.copernicus-climate.eu/cache-compute-0012/cache/data6/adaptor.mars.external-1708081463.722702-3695-9-dcf7e44e-279f-4630-815a-82587321c275.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/384.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 88%|████████▊ | 74.0k/83.7k [00:00<00:00, 616kB/s]                                                   2024-02-16 13:21:42,381 INFO Download rate 202.3K/s
-INFO:cdsapi:Download rate 202.3K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/384.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:42,480 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:42,480 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:42,607 INFO Downloading https://download-0017.copernicus-climate.eu/cache-compute-0017/cache/data7/adaptor.mars.external-1708081533.6347516-23628-15-a5b6bdf0-ccfe-49a9-a195-71b168fb4202.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/408.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0017.copernicus-climate.eu/cache-compute-0017/cache/data7/adaptor.mars.external-1708081533.6347516-23628-15-a5b6bdf0-ccfe-49a9-a195-71b168fb4202.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/408.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 69%|██████▉   | 58.0k/83.7k [00:00<00:00, 456kB/s]                                                   2024-02-16 13:21:42,800 INFO Download rate 434.9K/s
-INFO:cdsapi:Download rate 434.9K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/408.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:42,904 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:42,904 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:42,976 INFO Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data2/adaptor.mars.external-1708081574.075169-22898-3-a2a8a4bf-d6ef-40a8-9823-4bcc518bf0e1.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/432.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data2/adaptor.mars.external-1708081574.075169-22898-3-a2a8a4bf-d6ef-40a8-9823-4bcc518bf0e1.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/432.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 93%|█████████▎| 78.0k/83.7k [00:00<00:00, 641kB/s]                                                   2024-02-16 13:21:43,146 INFO Download rate 493.4K/s
-INFO:cdsapi:Download rate 493.4K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/432.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:43,246 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:43,246 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:43,392 INFO Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data3/adaptor.mars.external-1708081616.1674087-25288-5-566286fc-9229-40fa-b045-15562eec408a.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/456.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data3/adaptor.mars.external-1708081616.1674087-25288-5-566286fc-9229-40fa-b045-15562eec408a.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/456.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 88%|████████▊ | 74.0k/83.7k [00:00<00:00, 664kB/s]                                                   2024-02-16 13:21:43,776 INFO Download rate 217.9K/s
-INFO:cdsapi:Download rate 217.9K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/456.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:43,874 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:43,874 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:43,983 INFO Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data3/adaptor.mars.external-1708081658.1082022-16666-5-d2752fe2-7ce5-4af1-8525-9356e0c977cb.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/480.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data3/adaptor.mars.external-1708081658.1082022-16666-5-d2752fe2-7ce5-4af1-8525-9356e0c977cb.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/480.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s]                                           2024-02-16 13:21:44,028 INFO Download rate 1.8M/s
-INFO:cdsapi:Download rate 1.8M/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/480.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:44,142 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:44,142 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:44,265 INFO Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data8/adaptor.mars.external-1708081782.155893-17401-7-0ba3e69e-d140-4947-9f21-e910f575cd0e.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/504.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data8/adaptor.mars.external-1708081782.155893-17401-7-0ba3e69e-d140-4947-9f21-e910f575cd0e.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/504.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s]                                           2024-02-16 13:21:44,351 INFO Download rate 973.2K/s
-INFO:cdsapi:Download rate 973.2K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/504.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:44,449 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:44,449 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:44,545 INFO Downloading https://download-0003-clone.copernicus-climate.eu/cache-compute-0003/cache/data9/adaptor.mars.external-1708081858.9007206-568-12-b0b7bc79-cf35-40dd-a3b1-fc88388a5ab6.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/528.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0003-clone.copernicus-climate.eu/cache-compute-0003/cache/data9/adaptor.mars.external-1708081858.9007206-568-12-b0b7bc79-cf35-40dd-a3b1-fc88388a5ab6.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/528.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 93%|█████████▎| 78.0k/83.7k [00:00<00:00, 582kB/s]                                                   2024-02-16 13:21:44,937 INFO Download rate 213.6K/s
-INFO:cdsapi:Download rate 213.6K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/528.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:45,038 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:45,038 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:45,131 INFO Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data1/adaptor.mars.external-1708081911.9794788-5895-3-864be082-2ba7-419e-94f3-4c9e2fb17f86.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/552.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0019.copernicus-climate.eu/cache-compute-0019/cache/data1/adaptor.mars.external-1708081911.9794788-5895-3-864be082-2ba7-419e-94f3-4c9e2fb17f86.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/552.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 98%|█████████▊| 82.0k/83.7k [00:00<00:00, 727kB/s]                                                   2024-02-16 13:21:45,288 INFO Download rate 535.5K/s
-INFO:cdsapi:Download rate 535.5K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/552.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:45,409 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:45,409 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:45,548 INFO Downloading https://download-0001-clone.copernicus-climate.eu/cache-compute-0001/cache/data8/adaptor.mars.external-1708081956.6186597-24790-4-0a054505-c4a2-4f19-a022-22aedf6e1e94.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/576.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0001-clone.copernicus-climate.eu/cache-compute-0001/cache/data8/adaptor.mars.external-1708081956.6186597-24790-4-0a054505-c4a2-4f19-a022-22aedf6e1e94.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/576.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 73%|███████▎  | 61.0k/83.7k [00:00<00:00, 464kB/s]                                                   2024-02-16 13:21:45,936 INFO Download rate 215.8K/s
-INFO:cdsapi:Download rate 215.8K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/576.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:46,032 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:46,033 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:46,142 INFO Downloading https://download-0016.copernicus-climate.eu/cache-compute-0016/cache/data1/adaptor.mars.external-1708082009.5036495-7383-12-a95c95b1-eda8-4b65-991b-c004fba724c1.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/600.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0016.copernicus-climate.eu/cache-compute-0016/cache/data1/adaptor.mars.external-1708082009.5036495-7383-12-a95c95b1-eda8-4b65-991b-c004fba724c1.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/600.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 84%|████████▎ | 70.0k/83.7k [00:00<00:00, 642kB/s]                                                   2024-02-16 13:21:46,532 INFO Download rate 215.1K/s
-INFO:cdsapi:Download rate 215.1K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/600.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:46,629 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:46,629 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:46,737 INFO Downloading https://download-0021.copernicus-climate.eu/cache-compute-0021/cache/data2/adaptor.mars.external-1708082053.9162996-24494-14-46f387b5-70b1-4859-9e85-a19a43f7678e.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/624.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0021.copernicus-climate.eu/cache-compute-0021/cache/data2/adaptor.mars.external-1708082053.9162996-24494-14-46f387b5-70b1-4859-9e85-a19a43f7678e.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/624.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 92%|█████████▏| 77.0k/83.7k [00:00<00:00, 615kB/s]                                                   2024-02-16 13:21:47,097 INFO Download rate 232.5K/s
-INFO:cdsapi:Download rate 232.5K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/624.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:47,192 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:47,192 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:47,522 INFO Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data0/adaptor.mars.external-1708082095.9487658-32533-17-97940109-e081-4d8d-a972-4a6ac99a68b6.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/648.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0015-clone.copernicus-climate.eu/cache-compute-0015/cache/data0/adaptor.mars.external-1708082095.9487658-32533-17-97940109-e081-4d8d-a972-4a6ac99a68b6.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/648.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 93%|█████████▎| 78.0k/83.7k [00:00<00:00, 588kB/s]                                                   2024-02-16 13:21:47,714 INFO Download rate 437.2K/s
-INFO:cdsapi:Download rate 437.2K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/648.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:47,811 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:47,811 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:47,932 INFO Downloading https://download-0007-clone.copernicus-climate.eu/cache-compute-0007/cache/data2/adaptor.mars.external-1708082135.571999-25874-15-7e337dd4-7c68-474e-9856-bdd122d51549.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/672.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0007-clone.copernicus-climate.eu/cache-compute-0007/cache/data2/adaptor.mars.external-1708082135.571999-25874-15-7e337dd4-7c68-474e-9856-bdd122d51549.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/672.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 50%|█████     | 42.0k/83.7k [00:00<00:00, 378kB/s]                                                   2024-02-16 13:21:48,373 INFO Download rate 189.9K/s
-INFO:cdsapi:Download rate 189.9K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/672.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:48,478 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:48,478 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:48,580 INFO Downloading https://download-0006-clone.copernicus-climate.eu/cache-compute-0006/cache/data3/adaptor.mars.external-1708082185.2815466-7793-14-a15d2250-6939-40cb-bfaa-41bfcec6c390.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/696.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0006-clone.copernicus-climate.eu/cache-compute-0006/cache/data3/adaptor.mars.external-1708082185.2815466-7793-14-a15d2250-6939-40cb-bfaa-41bfcec6c390.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/696.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 88%|████████▊ | 74.0k/83.7k [00:00<00:00, 678kB/s]                                                   2024-02-16 13:21:48,973 INFO Download rate 212.9K/s
-INFO:cdsapi:Download rate 212.9K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/696.grib
-INFO:root:Fetching data from CDS...
-2024-02-16 13:21:49,073 INFO Welcome to the CDS
-INFO:cdsapi:Welcome to the CDS
-2024-02-16 13:21:49,073 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-INFO:cdsapi:Sending request to https://cds.climate.copernicus.eu/api/v2/resources/cems-glofas-forecast
-2024-02-16 13:21:49,228 INFO Downloading https://download-0000-clone.copernicus-climate.eu/cache-compute-0000/cache/data2/adaptor.mars.external-1708082233.2789268-7826-10-8c2e396e-f47f-424b-a051-28b6bc0ab0db.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/720.grib (83.7K)
-INFO:cdsapi:Downloading https://download-0000-clone.copernicus-climate.eu/cache-compute-0000/cache/data2/adaptor.mars.external-1708082233.2789268-7826-10-8c2e396e-f47f-424b-a051-28b6bc0ab0db.grib to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/720.grib (83.7K)
-  0%|          | 0.00/83.7k [00:00<?, ?B/s] 73%|███████▎  | 61.0k/83.7k [00:00<00:00, 512kB/s]                                                   2024-02-16 13:21:49,627 INFO Download rate 209.7K/s
-INFO:cdsapi:Download rate 209.7K/s
-INFO:root:CDS data saved to /home/giltinde/mnt/openepi-storage/flood/raw_discharge_seq_partitioned/720.grib
-[32m2024-02-16 13:21:49 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 9b9f0c30-ff2e-4545-94a7-e0dbf61e8590 - 41263 - flood__raw_discharge_seq - STEP_OUTPUT - Yielded output "result" of type "Nothing". (Type check passed).
-INFO:alembic.runtime.migration:Context impl SQLiteImpl.
-INFO:alembic.runtime.migration:Will assume non-transactional DDL.
-INFO:alembic.runtime.migration:Context impl SQLiteImpl.
-INFO:alembic.runtime.migration:Will assume non-transactional DDL.
-INFO:alembic.runtime.migration:Running stamp_revision  -> 46b412388816
-[32m2024-02-16 13:21:49 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 9b9f0c30-ff2e-4545-94a7-e0dbf61e8590 - 41263 - flood__raw_discharge_seq - ASSET_MATERIALIZATION - Materialized value flood raw_discharge_seq.
-[32m2024-02-16 13:21:49 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 9b9f0c30-ff2e-4545-94a7-e0dbf61e8590 - 41263 - flood__raw_discharge_seq - STEP_SUCCESS - Finished execution of step "flood__raw_discharge_seq" in 17.33s.
