@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 import xarray as xr
-from dagster import AssetExecutionContext, MaterializeResult, asset
+from dagster import AssetExecutionContext, asset
 import dask.dataframe as dd
 
 from data_pipelines.resources.dask_resource import DaskResource
@@ -34,9 +34,7 @@ def make_path(*args) -> str:
     partitions_def=discharge_partitions,
     io_manager_key="grib_io_manager",
 )
-def raw_discharge(
-    context: AssetExecutionContext, client: CDSClient
-) -> MaterializeResult:
+def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
     date_for_request = datetime.utcnow()  # - timedelta(days=TIMEDELTA)
 
     query_buffer = GLOFAS_RESOLUTION * GLOFAS_BUFFER_MULT
@@ -151,7 +149,7 @@ def detailed_forecast(
     dask_resource: DaskResource,
     transformed_discharge: dd.DataFrame,
     rp_combined_thresh_pq: dd.DataFrame,
-):
+) -> dd.DataFrame:
     # Determine the number of distinct values in the step column
     step_values = transformed_discharge["step"].unique().compute()
     context.log.info(f"STEP VALUES: {step_values}")
@@ -224,7 +222,7 @@ def summary_forecast(
     context: AssetExecutionContext,
     dask_resource: DaskResource,
     detailed_forecast: dd.DataFrame,
-):
+) -> dd.DataFrame:
     detailed_forecast_df = detailed_forecast.drop(columns=["wkt"])
 
     ##########################################################################################
