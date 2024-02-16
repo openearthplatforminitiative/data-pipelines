@@ -1,0 +1,87 @@
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - LOGS_CAPTURED - Started capturing logs in process (pid: 50685).
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - STEP_START - Started execution of step "flood__detailed_forecast".
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running stamp_revision  -> 46b412388816
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Loading file from: /home/giltinde/mnt/openepi-storage/flood/rp_combined_thresh_pq.parquet using ParquetIOManagerNew...
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - ASSET_OBSERVATION - DagsterEventType.ASSET_OBSERVATION for step flood__detailed_forecast
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - LOADED_INPUT - Loaded input "rp_combined_thresh_pq" using input manager "new_parquet_io_manager"
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Loading all partitions from /home/giltinde/mnt/openepi-storage/flood/transformed_discharge/*.parquet
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - LOADED_INPUT - Loaded input "transformed_discharge" using input manager "multi_partition_parquet_io_manager"
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - STEP_INPUT - Got input "rp_combined_thresh_pq" of type "DataFrame". (Type check passed).
+[32m2024-02-16 13:24:15 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - STEP_INPUT - Got input "transformed_discharge" of type "DataFrame". (Type check passed).
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - STEP VALUES: 0     1 days
+1     2 days
+2     3 days
+3     4 days
+4     5 days
+5     6 days
+6     7 days
+7     8 days
+8     9 days
+9    10 days
+10   11 days
+11   12 days
+12   13 days
+13   14 days
+14   15 days
+15   16 days
+16   17 days
+17   18 days
+18   19 days
+19   20 days
+20   21 days
+21   22 days
+22   23 days
+23   24 days
+24   25 days
+25   26 days
+26   27 days
+27   28 days
+28   29 days
+29   30 days
+Name: step, dtype: timedelta64[ns]
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Joined dataframe:    latitude  longitude  number       time   step valid_time      dis24
+0    -2.925     29.925       0 2024-02-16 1 days 2024-02-17  11.796875
+1    -2.925     29.925       1 2024-02-16 1 days 2024-02-17  11.796875
+2    -2.925     29.925       2 2024-02-16 1 days 2024-02-17  11.796875
+3    -2.925     29.925       3 2024-02-16 1 days 2024-02-17  11.796875
+4    -2.925     29.925       4 2024-02-16 1 days 2024-02-17  11.796875
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Joined dataframe: latitude              float64
+longitude             float64
+number                  int64
+time           datetime64[ns]
+step          timedelta64[ns]
+valid_time     datetime64[ns]
+dis24                 float32
+dtype: object
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - index: Dask Index Structure:
+npartitions=30
+    int64
+      ...
+    ...  
+      ...
+      ...
+dtype: int64
+Dask Name: read-parquet-index, 2 graph layers
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Joined dataframe:    latitude  longitude  number  step      dis24   issued_on   valid_for
+0    -2.925     29.925       0     1  11.796875  2024-02-16  2024-02-16
+1    -2.925     29.925       1     1  11.796875  2024-02-16  2024-02-16
+2    -2.925     29.925       2     1  11.796875  2024-02-16  2024-02-16
+3    -2.925     29.925       3     1  11.796875  2024-02-16  2024-02-16
+4    -2.925     29.925       4     1  11.796875  2024-02-16  2024-02-16
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mINFO[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Joined dataframe: latitude             float64
+longitude            float64
+number                 int64
+step                   int64
+dis24                float32
+issued_on    string[pyarrow]
+valid_for    string[pyarrow]
+dtype: object
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
+[32m2024-02-16 13:24:16 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - flood__detailed_forecast - Writing file at: /home/giltinde/mnt/openepi-storage/flood/detailed_forecast.parquet using ParquetIOManagerNew...
+[32m2024-02-16 13:24:30 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - ASSET_MATERIALIZATION - Materialized value flood detailed_forecast.
+[32m2024-02-16 13:24:30 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - HANDLED_OUTPUT - Handled output "result" using IO manager "new_parquet_io_manager"
+[32m2024-02-16 13:24:30 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2bb32293-7c29-4a2d-a28b-106fccbaa5ec - 50685 - flood__detailed_forecast - STEP_SUCCESS - Finished execution of step "flood__detailed_forecast" in 14.55s.

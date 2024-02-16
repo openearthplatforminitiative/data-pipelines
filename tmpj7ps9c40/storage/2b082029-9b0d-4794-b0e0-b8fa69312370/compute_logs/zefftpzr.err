@@ -1,0 +1,10 @@
+[32m2024-02-16 13:22:43 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2b082029-9b0d-4794-b0e0-b8fa69312370 - 44555 - LOGS_CAPTURED - Started capturing logs in process (pid: 44555).
+[32m2024-02-16 13:22:43 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2b082029-9b0d-4794-b0e0-b8fa69312370 - 44555 - flood__raw_discharge_seq_partitioned - STEP_START - Started execution of step "flood__raw_discharge_seq_partitioned".
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running stamp_revision  -> 46b412388816
+[32m2024-02-16 13:22:43 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2b082029-9b0d-4794-b0e0-b8fa69312370 - 44555 - flood__raw_discharge_seq_partitioned - STEP_OUTPUT - Yielded output "result" of type "Nothing". (Type check passed).
+[32m2024-02-16 13:22:44 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2b082029-9b0d-4794-b0e0-b8fa69312370 - 44555 - flood__raw_discharge_seq_partitioned - ASSET_MATERIALIZATION - Materialized value flood raw_discharge_seq_partitioned.
+[32m2024-02-16 13:22:44 +0100[0m - dagster - [34mDEBUG[0m - __ASSET_JOB_1 - 2b082029-9b0d-4794-b0e0-b8fa69312370 - 44555 - flood__raw_discharge_seq_partitioned - STEP_SUCCESS - Finished execution of step "flood__raw_discharge_seq_partitioned" in 161ms.

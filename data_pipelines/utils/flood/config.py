@@ -61,6 +61,7 @@ GLOFAS_FLOOD_PEAK_TIMINGS = {
 }
 USE_FIRST_AS_CONTROL = 1
 USE_CONTROL_MEMBER_IN_ENSEMBLE = 1
+
 LEADTIME_HOURS = [
     "24",
     "48",
@@ -93,12 +94,9 @@ LEADTIME_HOURS = [
     "696",
     "720",
 ]
+
 # LEADTIME_HOURS = [
-# "24",
-# "48",
-#   "72",
-#   "96",
-#   "120",
-#    "144",
-#    "168",
+#    "24",
+#    "48",
+#    "72",
 # ]
