@@ -15,7 +15,6 @@ def generate_upstream_filtering_test_data(
     fill_upstream_threshold=300000.0,
     seed=42,
 ):
-
     np.random.seed(seed)
 
     number = np.arange(num_forecasts)

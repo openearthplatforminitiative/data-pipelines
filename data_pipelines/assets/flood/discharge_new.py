@@ -171,7 +171,6 @@ def transformed_discharge(
     raw_discharge_seq_partitioned: xr.Dataset,  # or use raw_discharge_seq
     uparea_glofas_v4_0: xr.Dataset,
 ) -> pd.DataFrame:
-
     buffer = GLOFAS_RESOLUTION / GLOFAS_BUFFER_DIV
     lat_min = GLOFAS_ROI_CENTRAL_AFRICA["lat_min"]
     lat_max = GLOFAS_ROI_CENTRAL_AFRICA["lat_max"]
@@ -226,7 +225,6 @@ def detailed_forecast(
     transformed_discharge: dd.DataFrame,
     rp_combined_thresh_pq: dd.DataFrame,
 ) -> dd.DataFrame:
-
     forecast_df = transformed_discharge
 
     # Perform operations on the columns

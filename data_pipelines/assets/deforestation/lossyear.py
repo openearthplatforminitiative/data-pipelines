@@ -131,7 +131,6 @@ def treeloss_per_basin(
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
 ) -> dd.DataFrame:
-
     lossyear = lossyear.chunk({"y": 200, "x": 40_000}).rename("lossyear")
     bbox = get_bbox_from_GFC_area(context.asset_partition_key_for_input("lossyear"))
 

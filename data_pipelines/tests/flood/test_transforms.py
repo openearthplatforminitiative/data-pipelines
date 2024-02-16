@@ -124,7 +124,6 @@ class TestUtilities(unittest.TestCase):
 
     # @unittest.skip("Skipping test_compute_flood_tendency")
     def test_compute_flood_tendency(self):
-
         INCREASING_VAL = GLOFAS_FLOOD_TENDENCIES["increasing"]
         STAGNANT_VAL = GLOFAS_FLOOD_TENDENCIES["stagnant"]
         DECREASING_VAL = GLOFAS_FLOOD_TENDENCIES["decreasing"]
@@ -388,7 +387,6 @@ class TestUtilities(unittest.TestCase):
 
     # @unittest.skip("Skipping test_compute_flood_intensity")
     def test_compute_flood_intensity(self):
-
         PURPLE = GLOFAS_FLOOD_INTENSITIES["purple"]
         RED = GLOFAS_FLOOD_INTENSITIES["red"]
         YELLOW = GLOFAS_FLOOD_INTENSITIES["yellow"]
@@ -599,7 +597,6 @@ class TestUtilities(unittest.TestCase):
 
     # @unittest.skip("Skipping test_compute_peak_timing")
     def test_compute_peak_timing(self):
-
         BLACK_BORDER = GLOFAS_FLOOD_PEAK_TIMINGS["black_border"]
         GRAYED_COLOR = GLOFAS_FLOOD_PEAK_TIMINGS["grayed_color"]
         GRAY_BORDER = GLOFAS_FLOOD_PEAK_TIMINGS["gray_border"]
@@ -4007,7 +4004,6 @@ class TestUtilities(unittest.TestCase):
 
     # @unittest.skip("Skipping test_compute_flood_threshold_percentages")
     def test_compute_flood_threshold_percentages(self):
-
         FORECAST_SCHEMA = [
             "number",
             "latitude",
@@ -4170,7 +4166,6 @@ class TestUtilities(unittest.TestCase):
 
     # @unittest.skip("Skipping test_add_geometry")
     def test_add_geometry(self):
-
         SCHEMA = [
             "latitude",
             "longitude",

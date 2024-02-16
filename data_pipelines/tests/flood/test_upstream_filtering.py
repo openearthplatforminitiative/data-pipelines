@@ -18,7 +18,6 @@ class TestUpstreamFiltering(unittest.TestCase):
     """
 
     def test_filter_discharge_by_uparea_simple_case(self):
-
         seed = 42
         num_forecasts = 50
         num_steps = 30
@@ -33,19 +32,22 @@ class TestUpstreamFiltering(unittest.TestCase):
 
         converter = RasterConverter()
 
-        ds_discharge, ds_upstream, random_lat_indices, random_lon_indices = (
-            generate_upstream_filtering_test_data(
-                discharge_latitudes,
-                discharge_longitudes,
-                upstream_latitudes,
-                upstream_longitudes,
-                num_forecasts=num_forecasts,
-                num_steps=num_steps,
-                num_random_cells=num_random_cells,
-                fill_discharge=fill_discharge,
-                fill_upstream_threshold=fill_upstream_threshold,
-                seed=seed,
-            )
+        (
+            ds_discharge,
+            ds_upstream,
+            random_lat_indices,
+            random_lon_indices,
+        ) = generate_upstream_filtering_test_data(
+            discharge_latitudes,
+            discharge_longitudes,
+            upstream_latitudes,
+            upstream_longitudes,
+            num_forecasts=num_forecasts,
+            num_steps=num_steps,
+            num_random_cells=num_random_cells,
+            fill_discharge=fill_discharge,
+            fill_upstream_threshold=fill_upstream_threshold,
+            seed=seed,
         )
 
         ground_truth_df = create_ground_truth_upstream_filtering_dataframe(
