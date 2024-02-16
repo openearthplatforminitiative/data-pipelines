@@ -109,39 +109,6 @@ class ParquetIOManager(UPathIOManager):
         return dd.read_parquet(path)
 
 
-"""
-class GribIOManager(ConfigurableIOManager):
-    base_path: str = OPENEPI_BASE_PATH
-    use_control_member_in_ensemble: int = USE_CONTROL_MEMBER_IN_ENSEMBLE
-
-    def _get_path(self, context: InputContext | OutputContext) -> str:
-        return os.path.join(
-            self.base_path,
-            *context.asset_key.path,
-            f"{context.asset_partition_key}.grib",
-        )
-
-    def handle_output(self, context: OutputContext, data: xr.Dataset) -> None:
-        pass
-
-    def load_input(self, context: InputContext) -> xr.Dataset:
-        path = self._get_path(context)
-        ds_cf = xr.open_dataset(
-            path, backend_kwargs={"filter_by_keys": {"dataType": "cf"}}
-        )
-        ds_pf = xr.open_dataset(
-            path, backend_kwargs={"filter_by_keys": {"dataType": "pf"}}
-        )
-
-        if self.use_control_member_in_ensemble:
-            ds_discharge = xr.concat([ds_cf, ds_pf], dim="number")
-        else:
-            ds_discharge = ds_pf
-
-        return ds_discharge
-"""
-
-
 class GribIOManager(UPathIOManager):
     base_path: str = OPENEPI_BASE_PATH
     use_control_member_in_ensemble: int = USE_CONTROL_MEMBER_IN_ENSEMBLE
@@ -169,84 +136,6 @@ class GribIOManager(UPathIOManager):
             ds_discharge = ds_pf
 
         return ds_discharge
-
-
-"""
-class GilsParquetIOManager(ConfigurableIOManager):
-
-    base_path: str = OPENEPI_BASE_PATH
-    engine: str = "pyarrow"
-    compression: str = "snappy"
-
-    def _get_path(self, context) -> str:
-        if context.has_partition_key:
-            return os.path.join(
-                self.base_path,
-                *context.asset_key.path,
-                f"{context.asset_partition_key}.parquet",
-            )
-        else:
-            return os.path.join(
-                self.base_path,
-                *context.asset_key.path,
-                f"*.parquet",
-            )
-
-    def handle_output(self, context: OutputContext, obj) -> None:
-        os.makedirs(os.path.dirname(self._get_path(context)), exist_ok=True)
-        obj.to_parquet(
-            self._get_path(context),
-            index=False,
-            engine=self.engine,
-            compression=self.compression,
-        )
-
-    def load_input(self, context: InputContext) -> dd.DataFrame:
-        return dd.read_parquet(
-            self._get_path(context),
-            engine=self.engine,
-        )
-
-
-class GilsSecondParquetIOManager(ConfigurableIOManager):
-
-    base_path: str = OPENEPI_BASE_PATH
-    engine: str = "pyarrow"
-    compression: str = "snappy"
-
-    def _get_path(self, context) -> str:
-        if context.has_partition_key:
-            return os.path.join(
-                self.base_path,
-                *context.asset_key.path,
-                f"{context.asset_partition_key}.parquet",
-            )
-        # return "/".join(context.asset_key.path + [context.asset_partition_key])
-        else:
-            return os.path.join(
-                self.base_path,
-                *context.asset_key.path,
-                f"{context.asset_key.path[-1]}.parquet",
-            )
-            # return "/".join(context.asset_key.path)
-
-    def handle_output(self, context: OutputContext, obj) -> None:
-        os.makedirs(os.path.dirname(self._get_path(context)), exist_ok=True)
-        obj.to_parquet(
-            self._get_path(context),
-            write_index=False,
-            engine=self.engine,
-            compression=self.compression,
-        )
-        # write_csv(self._get_path(context), obj)
-
-    def load_input(self, context: InputContext) -> dd.DataFrame:
-        return dd.read_parquet(
-            self._get_path(context),
-            engine=self.engine,
-        )
-        # return read_csv(self._get_path(context))
-"""
 
 
 class ParquetIOManagerNew(UPathIOManager):
