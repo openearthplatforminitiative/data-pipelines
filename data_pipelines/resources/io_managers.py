@@ -22,6 +22,7 @@ from data_pipelines.utils.flood.config import (
     USE_CONTROL_MEMBER_IN_ENSEMBLE,
 )
 
+# DATA_BASE_PATH = "s3://openepi-data"
 DATA_BASE_PATH = "/home/aleks/projects/OpenEPI/data-pipelines/data"
 
 
