@@ -29,6 +29,9 @@ def make_path(*args) -> str:
     return path
 
 
+# This is the partitioned version of the raw_discharge asset
+# It performs prallelized queries of the CDS API for each leadtime hour
+# Such parallelization can cause the pipeline to fail with no clear error message
 """
 @asset(
     key_prefix=["flood"],
@@ -91,6 +94,8 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
 """
 
 
+# This is the non-partitioned version of the raw_discharge asset
+# It performs a sequential queries of the CDS API for all leadtime hours
 @asset(
     key_prefix=["flood"],
 )
@@ -142,6 +147,9 @@ def raw_discharge_seq(context: AssetExecutionContext, client: CDSClient) -> None
         client.fetch_data(request_params, target_file_path)
 
 
+# This is a wrapper around the raw_discharge_seq asset
+# It partitions the raw_discharge_seq assset so that
+# it can be passed directly to the transformed_discharge asset
 @asset(
     key_prefix=["flood"],
     partitions_def=discharge_partitions,
