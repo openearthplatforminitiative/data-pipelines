@@ -1,0 +1,7 @@
+run_queue:
+  max_concurrent_runs: 1
+  # This doesn't work
+  # tag_concurrency_limits:
+  #  - key: "dagster/concurrency_key"
+  #    value: "conc_test"
+  #    limit: 1

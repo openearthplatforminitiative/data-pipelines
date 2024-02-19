@@ -32,11 +32,11 @@ def make_path(*args) -> str:
 # This is the partitioned version of the raw_discharge asset
 # It performs prallelized queries of the CDS API for each leadtime hour
 # Such parallelization can cause the pipeline to fail with no clear error message
-"""
 @asset(
     key_prefix=["flood"],
     partitions_def=discharge_partitions,
     io_manager_key="grib_io_manager",
+    #    op_tags={"dagster/concurrency_key": "conc_test"}, # this doesn't work
 )
 def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
     date_for_request = datetime.utcnow()  # - timedelta(days=TIMEDELTA)
@@ -61,7 +61,7 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
         product_type = "ensemble_perturbed_forecasts"
         print("Retrieving only ensemble")
 
-    l_hour = context.asset_partition_key_for_output()
+    l_hour = context.partition_key
     target_file_path = make_path(
         OPENEPI_BASE_PATH,
         *context.asset_key.path,
@@ -91,9 +91,9 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
     # Log the contents of the target folder
     context.log.info(f"Contents of {os.path.dirname(target_file_path)}:")
     context.log.info(files)
+
+
 """
-
-
 # This is the non-partitioned version of the raw_discharge asset
 # It performs a sequential queries of the CDS API for all leadtime hours
 @asset(
@@ -145,8 +145,10 @@ def raw_discharge_seq(context: AssetExecutionContext, client: CDSClient) -> None
 
         # Fetch the data
         client.fetch_data(request_params, target_file_path)
+"""
 
 
+"""
 # This is a wrapper around the raw_discharge_seq asset
 # It partitions the raw_discharge_seq assset so that
 # it can be passed directly to the transformed_discharge asset
@@ -158,6 +160,7 @@ def raw_discharge_seq(context: AssetExecutionContext, client: CDSClient) -> None
 )
 def raw_discharge_seq_partitioned(context: AssetExecutionContext) -> None:
     return None
+"""
 
 
 @asset(
@@ -168,7 +171,7 @@ def raw_discharge_seq_partitioned(context: AssetExecutionContext) -> None:
 )
 def transformed_discharge(
     context: AssetExecutionContext,
-    raw_discharge_seq_partitioned: xr.Dataset,  # or use raw_discharge_seq
+    raw_discharge: xr.Dataset,  # or use raw_discharge_seq_partitioned
     uparea_glofas_v4_0: xr.Dataset,
 ) -> pd.DataFrame:
     buffer = GLOFAS_RESOLUTION / GLOFAS_BUFFER_DIV
@@ -188,7 +191,7 @@ def transformed_discharge(
 
     # Restrict discharge data to area of interest
     ds_discharge = restrict_dataset_area(
-        raw_discharge_seq_partitioned,  # or use raw_discharge_seq
+        raw_discharge,  # or use raw_discharge_seq_partitioned
         lat_min,
         lat_max,
         lon_min,
