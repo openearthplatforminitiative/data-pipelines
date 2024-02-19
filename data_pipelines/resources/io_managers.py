@@ -171,7 +171,9 @@ class ParquetIOManagerNew(UPathIOManager):
         for df in df_iter:
             df.to_parquet(path, **kwargs)
 
-    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
+    def load_from_path(
+        self, context: InputContext, path: UPath | list[UPath]
+    ) -> dd.DataFrame:
         return dd.read_parquet(path, engine=self.engine)
 
     def load_input(self, context: InputContext) -> Any | Dict[str, Any]:
@@ -180,15 +182,17 @@ class ParquetIOManagerNew(UPathIOManager):
             and context.has_asset_partitions
             and context.dagster_type.typing_type != dict
         ):
-            path = self._get_path_without_extension(context)
-            path = UPath(
-                os.path.join(
-                    path,
-                    "*.parquet",
+            partitions = context.asset_partition_keys
+            paths = [
+                UPath(
+                    os.path.join(
+                        self._get_path_without_extension(context),
+                        partition + ".parquet",
+                    )
                 )
-            )
-            context.log.info(f"Loading all partitions from {path}")
-            return self.load_from_path(context=context, path=path)
+                for partition in partitions
+            ]
+            return self.load_from_path(context=context, path=paths)
         else:
             return super().load_input(context)
 
