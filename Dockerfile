@@ -1,7 +1,14 @@
-FROM python:3.11-slim
+FROM python:3.11.6-slim
+
+RUN mkdir -p /opt/dagster/dagster_home /opt/dagster/app
+
 ENV POETRY_VIRTUALENVS_CREATE=false
-WORKDIR /code
+WORKDIR /opt/dagster/app
 RUN pip install poetry
-COPY pyproject.toml poetry.lock /code/
+COPY pyproject.toml poetry.lock /opt/dagster/app/
 RUN poetry install --without dev
-COPY data_pipelines/ /code/data_pipelines/
+
+ENV DAGSTER_HOME=/opt/dagster/dagster_home/
+COPY data_pipelines/ /opt/dagster/app/data_pipelines/
+
+EXPOSE 3000
