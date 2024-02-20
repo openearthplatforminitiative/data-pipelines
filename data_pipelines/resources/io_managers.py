@@ -1,62 +1,56 @@
+import os
 from typing import Iterable
-from upath import UPath
-from urllib.request import urlretrieve
 
 import dask.dataframe as dd
-from rasterio.io import DatasetReader
 import rioxarray
-from rio_cogeo import cog_info, cog_profiles, cog_translate
 import xarray as xr
-
 from dagster import (
+    ConfigurableIOManager,
     InputContext,
     OutputContext,
-    MetadataValue,
+    ResourceDependency,
     UPathIOManager,
 )
+from upath import UPath
 
-# DATA_BASE_PATH = "s3://openepi-data"
-DATA_BASE_PATH = "/home/aleks/projects/OpenEPI/data-pipelines/data"
+from .rio_session import RIOSession
 
 
-class COGIOManager(UPathIOManager):
-    base_path: str = DATA_BASE_PATH
-    extension: str = ".tif"
+class COGIOManager(ConfigurableIOManager):
+    base_path: str
+    rio_env: ResourceDependency[RIOSession]
 
-    def __init__(self, **kwargs):
-        super().__init__(base_path=UPath(self.base_path), **kwargs)
+    def get_path(self, context: InputContext | OutputContext) -> str:
+        return os.path.join(
+            self.base_path,
+            *context.asset_key.path,
+            f"{context.partition_key}.tif",
+        )
 
-    def dump_to_path(
-        self, context: OutputContext, obj: DatasetReader, path: UPath
+    def handle_output(
+        self, context: OutputContext, data: xr.DataArray | xr.Dataset | None
     ) -> None:
-        cog_translate(obj, path, cog_profiles["deflate"])
+        context.log.debug("COGIOManager was used.")
+        if data is None:
+            context.log.info(
+                "Received value of None for the data argument in COGIOManager.handle_output. "
+                "Skipping output handling, assuming that the output was handled within the asset definition."
+            )
+            return
 
-    def load_from_path(self, context: InputContext, path: UPath) -> xr.DataArray:
+        path = self.get_path(context)
+        data.to_raster(path)
+
+    def load_input(self, context: InputContext) -> xr.DataArray:
+        path = self.get_path(context)
         return rioxarray.open_rasterio(path)
 
 
-class GeoTIFFIOManager(UPathIOManager):
-    extension: str = ".tif"
-
-    def __init__(self, base_path: str = DATA_BASE_PATH, **kwargs):
-        super().__init__(base_path=UPath(base_path), **kwargs)
-
-    def dump_to_path(self, context: OutputContext, obj: str, path: UPath):
-        urlretrieve(obj, path)
-        info = cog_info(path)
-        context.add_output_metadata({"GEO": MetadataValue.json(info.GEO.model_dump())})
-
-    def load_from_path(self, context: InputContext, path: UPath) -> xr.DataArray:
-        tile = rioxarray.open_rasterio(path)
-        return tile
-
-
 class ZarrIOManager(UPathIOManager):
-    base_path: str = DATA_BASE_PATH
     extension: str = ".zarr"
 
-    def __init__(self, **kwargs):
-        super().__init__(base_path=UPath(self.base_path), **kwargs)
+    def __init__(self, base_path: str):
+        super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
@@ -68,11 +62,10 @@ class ZarrIOManager(UPathIOManager):
 
 
 class ParquetIOManager(UPathIOManager):
-    base_path: str = DATA_BASE_PATH
     extension: str = ".parquet"
 
-    def __init__(self, **kwargs):
-        super().__init__(base_path=UPath(self.base_path), **kwargs)
+    def __init__(self, base_path: str):
+        super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(
         self,
