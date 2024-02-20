@@ -1,9 +1,9 @@
 from abc import abstractmethod
+from contextlib import contextmanager
 
 from dagster import ConfigurableResource, InitResourceContext, ResourceDependency
 from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster
-from contextlib import contextmanager
 from pydantic import PrivateAttr
 
 
