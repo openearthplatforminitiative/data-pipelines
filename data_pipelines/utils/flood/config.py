@@ -27,17 +27,10 @@ GLOFAS_RET_PRD_THRESH_PARQUET_FILENAMES = {
 }
 GLOFAS_PROCESSED_THRESH_FILENAME = "processed_thresholds.parquet"
 # GLOFAS_ROI_CENTRAL_AFRICA = {
-#    "lat_min": -6.0,
-#    "lat_max": 17.0,
-#    "lon_min": -18.0,
-#    "lon_max": 52.0,
-# }
-
-# GLOFAS_ROI_CENTRAL_AFRICA = {
-#    "lat_min": -3.8,
-#    "lat_max": -2.0,
-#   "lon_min": 33.5,
-#    "lon_max": 34.5,
+#     "lat_min": -6.0,
+#     "lat_max": 17.0,
+#     "lon_min": -18.0,
+#     "lon_max": 52.0,
 # }
 
 GLOFAS_ROI_CENTRAL_AFRICA = {
@@ -94,9 +87,3 @@ LEADTIME_HOURS = [
     "696",
     "720",
 ]
-
-# LEADTIME_HOURS = [
-#    "24",
-#    "48",
-#    "72",
-# ]
