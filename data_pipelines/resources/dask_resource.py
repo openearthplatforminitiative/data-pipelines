@@ -6,6 +6,8 @@ from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster
 from pydantic import PrivateAttr
 
+from data_pipelines.settings import settings
+
 
 class DaskResource(ConfigurableResource):
     _cluster = PrivateAttr()
@@ -45,7 +47,7 @@ class DaskFargateResource(DaskResource):
             "Launching Dask cluster with %s workers with AWS Fargate.", self.n_workers
         )
         with FargateCluster(
-            image="astangeland/data-pipelines:latest",
+            image=settings.dask_cluster_image,
             n_workers=self.n_workers,
             security=False,
             task_role_policies=["arn:aws:iam::aws:policy/AmazonS3FullAccess"],
