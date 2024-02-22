@@ -46,11 +46,8 @@ def lists_to_dict(data_schema: list, data: list):
 
 class TestUtilities(unittest.TestCase):
     """
-    To run this test, run the following command from the root directory:
-    >>> python3 -m unittest tests.test_transforms
-
     To run all tests, run the following command from the root directory:
-    >>> python3 -m unittest discover test
+    >>> poetry run pytest
     """
 
     # @unittest.skip("Skipping test_rounding")

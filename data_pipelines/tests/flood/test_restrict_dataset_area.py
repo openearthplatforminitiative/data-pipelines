@@ -7,11 +7,8 @@ from data_pipelines.tests.flood.data_generation import (
 
 class TestRestrictArea(unittest.TestCase):
     """
-    To run this test, run the following command from the root directory:
-    >>> python3 -m unittest test.test_restrict_dataset_area
-
     To run all tests, run the following command from the root directory:
-    >>> python3 -m unittest discover test
+    >>> poetry run pytest
     """
 
     def test_restrict_dataset_area(self):

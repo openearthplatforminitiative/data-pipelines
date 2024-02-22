@@ -10,11 +10,8 @@ from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
 
 class TestUpstreamFiltering(unittest.TestCase):
     """
-    To run this test, run the following command from the root directory:
-    >>> python3 -m unittest test.test_upstream_filtering
-
     To run all tests, run the following command from the root directory:
-    >>> python3 -m unittest discover test
+    >>> poetry run pytest
     """
 
     def test_filter_discharge_by_uparea_simple_case(self):
