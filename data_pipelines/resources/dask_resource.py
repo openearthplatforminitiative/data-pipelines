@@ -30,7 +30,6 @@ class DaskResource(ConfigurableResource):
 
 
 class DaskLocalResource(DaskResource):
-
     @contextmanager
     def _provision_cluster(self, context: InitResourceContext, *args, **kwargs):
         context.log.debug("Launching local Dask cluster.")
