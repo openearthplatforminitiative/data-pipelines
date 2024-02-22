@@ -1,23 +1,39 @@
-from dagster import (
-    asset,
-    AllPartitionMapping,
-    AssetExecutionContext,
-    AssetKey,
-    AssetIn,
-    SourceAsset,
-)
+import os
+from tempfile import NamedTemporaryFile
+from urllib.request import urlretrieve
+
 import dask.dataframe as dd
-from flox.xarray import xarray_reduce
-from geocube.api.core import make_geocube
 import geopandas as gpd
 import xarray as xr
+from dagster import (
+    AllPartitionMapping,
+    AssetExecutionContext,
+    AssetIn,
+    AssetKey,
+    SourceAsset,
+    asset,
+)
+from flox.xarray import xarray_reduce
+from geocube.api.core import make_geocube
+from rio_cogeo import cog_profiles, cog_translate
+from upath import UPath
 
 from data_pipelines.partitions import gfc_area_partitions
 from data_pipelines.resources.dask_resource import DaskResource
+from data_pipelines.settings import settings
 
-GFC_BASE_URL = (
-    "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10"
+GLOBAL_FOREST_WATCH_URL_TEMPLATE = (
+    "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10/"
+    "Hansen_GFC-2022-v1.10_{product}_{area}.tif"
 )
+
+
+def get_path(base_path: str, context: AssetExecutionContext) -> str:
+    return os.path.join(
+        base_path,
+        *context.asset_key.path,
+        f"{context.partition_key}.tif",
+    )
 
 
 @asset(
@@ -25,10 +41,19 @@ GFC_BASE_URL = (
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
 )
-def lossyear(context: AssetExecutionContext) -> str:
-    area = context.asset_partition_key_for_output()
-    url = f"{GFC_BASE_URL}/Hansen_GFC-2022-v1.10_lossyear_{area}.tif"
-    return url
+def lossyear(context: AssetExecutionContext) -> None:
+    url = GLOBAL_FOREST_WATCH_URL_TEMPLATE.format(
+        product="lossyear", area=context.partition_key
+    )
+
+    path = get_path(settings.base_data_path, context)
+    context.log.debug("Reading GeoTIFF from %s", url)
+    with NamedTemporaryFile() as tmp_file:
+        urlretrieve(url, tmp_file.name)
+        context.log.debug("Writing COG to %s", path)
+        cog_translate(tmp_file.name, tmp_file.name, cog_profiles["deflate"])
+        with UPath(path).open("wb") as out_file:
+            out_file.write(tmp_file.read())
 
 
 @asset(
@@ -41,7 +66,7 @@ def treeloss_per_year(
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
 ) -> xr.DataArray:
-    lossyear = lossyear.chunk({"y": 200, "x": 40_000})
+    lossyear = lossyear.chunk({"y": 4096, "x": 4096})
     year_masks = [
         (lossyear == y).expand_dims({"year": [y + 2000]}) for y in range(1, 23)
     ]
@@ -68,7 +93,7 @@ def lossyear_points(
 ) -> list[dd.DataFrame]:
     out_data = []
     for lossyear_tile in lossyear.values():
-        lossyear_tile = lossyear_tile.squeeze(drop=True).chunk({"y": 200, "x": 40_000})
+        lossyear_tile = lossyear_tile.squeeze(drop=True).chunk({"y": 512, "x": 40_000})
         df = (
             lossyear_tile.drop_vars(["spatial_ref"])
             .rename("lossyear")
