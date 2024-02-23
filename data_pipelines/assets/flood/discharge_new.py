@@ -32,14 +32,14 @@ def make_path(*args) -> str:
 # This is the partitioned version of the raw_discharge asset
 # It performs prallelized queries of the CDS API for each leadtime hour
 # Such parallelization can cause the pipeline to fail with no clear error message
+# Using a tag for limiting concurrency can help prevent this
 @asset(
     key_prefix=["flood"],
     partitions_def=discharge_partitions,
     io_manager_key="grib_io_manager",
-    # op_tags={"dagster/concurrency_key": "conc_test"}, # this doesn't work
 )
 def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
-    date_for_request = datetime.utcnow()  # - timedelta(days=TIMEDELTA)
+    date_for_request = datetime.utcnow() - timedelta(days=TIMEDELTA)
 
     query_buffer = GLOFAS_RESOLUTION * GLOFAS_BUFFER_MULT
     lat_min = GLOFAS_ROI_CENTRAL_AFRICA["lat_min"]
@@ -93,76 +93,6 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
     context.log.info(files)
 
 
-"""
-# This is the non-partitioned version of the raw_discharge asset
-# It performs a sequential queries of the CDS API for all leadtime hours
-@asset(
-    key_prefix=["flood"],
-)
-def raw_discharge_seq(context: AssetExecutionContext, client: CDSClient) -> None:
-    date_for_request = datetime.utcnow()  # - timedelta(days=TIMEDELTA)
-
-    query_buffer = GLOFAS_RESOLUTION * GLOFAS_BUFFER_MULT
-    lat_min = GLOFAS_ROI_CENTRAL_AFRICA["lat_min"]
-    lat_max = GLOFAS_ROI_CENTRAL_AFRICA["lat_max"]
-    lon_min = GLOFAS_ROI_CENTRAL_AFRICA["lon_min"]
-    lon_max = GLOFAS_ROI_CENTRAL_AFRICA["lon_max"]
-
-    area = [
-        lat_max + query_buffer,
-        lon_min - query_buffer,
-        lat_min - query_buffer,
-        lon_max + query_buffer,
-    ]
-
-    if USE_CONTROL_MEMBER_IN_ENSEMBLE:
-        product_type = ["control_forecast", "ensemble_perturbed_forecasts"]
-        print("Retrieving both control and ensemble")
-    else:
-        product_type = "ensemble_perturbed_forecasts"
-        print("Retrieving only ensemble")
-
-    for l_hour in LEADTIME_HOURS:
-        target_file_path = make_path(
-            OPENEPI_BASE_PATH,
-            *context.asset_key.path[:-1],
-            context.asset_key.path[-1] + "_partitioned",
-            f"{l_hour}.grib",
-        )
-
-        # Define the config
-        config = CDSConfig(
-            year=date_for_request.year,
-            month=date_for_request.month,
-            day=date_for_request.day,
-            leadtime_hour=l_hour,
-            area=area,
-            product_type=product_type,
-        )
-
-        # Convert config to a dictionary
-        request_params = config.to_dict()
-
-        # Fetch the data
-        client.fetch_data(request_params, target_file_path)
-"""
-
-
-"""
-# This is a wrapper around the raw_discharge_seq asset
-# It partitions the raw_discharge_seq assset so that
-# it can be passed directly to the transformed_discharge asset
-@asset(
-    key_prefix=["flood"],
-    partitions_def=discharge_partitions,
-    io_manager_key="grib_io_manager",
-    deps=[raw_discharge_seq],
-)
-def raw_discharge_seq_partitioned(context: AssetExecutionContext) -> None:
-    return None
-"""
-
-
 @asset(
     key_prefix=["flood"],
     compute_kind="xarray",
@@ -171,7 +101,7 @@ def raw_discharge_seq_partitioned(context: AssetExecutionContext) -> None:
 )
 def transformed_discharge(
     context: AssetExecutionContext,
-    raw_discharge: xr.Dataset,  # or use raw_discharge_seq_partitioned
+    raw_discharge: xr.Dataset,
     uparea_glofas_v4_0: xr.Dataset,
 ) -> pd.DataFrame:
     buffer = GLOFAS_RESOLUTION / GLOFAS_BUFFER_DIV
@@ -191,7 +121,7 @@ def transformed_discharge(
 
     # Restrict discharge data to area of interest
     ds_discharge = restrict_dataset_area(
-        raw_discharge,  # or use raw_discharge_seq_partitioned
+        raw_discharge,
         lat_min,
         lat_max,
         lon_min,
@@ -248,14 +178,6 @@ def detailed_forecast(
 
     threshold_df = rp_combined_thresh_pq
 
-    # Round all latitudes and longitudes to GLOFAS_PRECISION decimal places
-    # threshold_df["latitude"] = threshold_df["latitude"].round(GLOFAS_PRECISION)
-    # threshold_df["longitude"] = threshold_df["longitude"].round(GLOFAS_PRECISION)
-
-    ##########################################################################################
-    ############################ COMPUTE DETAILED FORECAST ###################################
-    ##########################################################################################
-
     detailed_forecast_df = compute_flood_threshold_percentages(
         forecast_df, threshold_df
     )
@@ -290,27 +212,9 @@ def summary_forecast(
 ) -> dd.DataFrame:
     detailed_forecast_df = detailed_forecast.drop(columns=["wkt"])
 
-    ##########################################################################################
-    ############################## COMPUTE PEAK TIMING #######################################
-    ##########################################################################################
-
     peak_timing_df = compute_flood_peak_timing(detailed_forecast_df)
-
-    ##########################################################################################
-    ################################# COMPUTE TENDENCY #######################################
-    ##########################################################################################
-
     tendency_df = compute_flood_tendency(detailed_forecast_df)
-
-    ##########################################################################################
-    ################################# COMPUTE INTENSITY ######################################
-    ##########################################################################################
-
     intensity_df = compute_flood_intensity(detailed_forecast_df)
-
-    ##########################################################################################
-    ################################# SAVE SUMMARY FORECAST ##################################
-    ##########################################################################################
 
     # Merge all three dataframes together
     intermediate_df = dd.merge(

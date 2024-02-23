@@ -1,5 +1,4 @@
 from dagster import StaticPartitionsDefinition
-from data_pipelines.utils.flood.config import LEADTIME_HOURS
 
 gfc_area_partitions = StaticPartitionsDefinition(
     [
@@ -18,4 +17,37 @@ gfc_area_partitions = StaticPartitionsDefinition(
     ]
 )
 
-discharge_partitions = StaticPartitionsDefinition(LEADTIME_HOURS)
+discharge_partitions = StaticPartitionsDefinition(
+    [
+        "24",
+        "48",
+        "72",
+        "96",
+        "120",
+        "144",
+        "168",
+        "192",
+        "216",
+        "240",
+        "264",
+        "288",
+        "312",
+        "336",
+        "360",
+        "384",
+        "408",
+        "432",
+        "456",
+        "480",
+        "504",
+        "528",
+        "552",
+        "576",
+        "600",
+        "624",
+        "648",
+        "672",
+        "696",
+        "720",
+    ]
+)

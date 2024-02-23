@@ -4,6 +4,5 @@ run_queue:
   
   # ...but we can also limit by tag
   tag_concurrency_limits:
-   - key: "dagster/concurrency_key"
-     value: "conc_test"
+   - key: "sequential_backfill"
      limit: 1
