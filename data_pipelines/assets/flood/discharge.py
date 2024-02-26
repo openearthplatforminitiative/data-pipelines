@@ -62,11 +62,11 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
         product_type = "ensemble_perturbed_forecasts"
         print("Retrieving only ensemble")
 
-    l_hour = context.partition_key
+    leadtime_hour = context.partition_key
     target_file_path = make_path(
         settings.base_data_path,
         *context.asset_key.path,
-        f"{l_hour}.grib",
+        f"{leadtime_hour}.grib",
     )
     os.makedirs(os.path.dirname(target_file_path), exist_ok=True)
 
@@ -78,7 +78,7 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
         "year": date_for_request.year,
         "month": date_for_request.month,
         "day": date_for_request.day,
-        "leadtime_hour": l_hour,
+        "leadtime_hour": leadtime_hour,
         "area": area,
         "product_type": product_type,
     }
