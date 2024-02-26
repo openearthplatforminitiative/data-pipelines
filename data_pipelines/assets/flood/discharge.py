@@ -5,6 +5,7 @@ import pandas as pd
 import xarray as xr
 from dagster import AssetExecutionContext, asset
 import dask.dataframe as dd
+from data_pipelines.settings import settings
 
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.resources.glofas_resource import CDSClient
@@ -63,7 +64,7 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
 
     l_hour = context.partition_key
     target_file_path = make_path(
-        OPENEPI_BASE_PATH,
+        settings.base_data_path,
         *context.asset_key.path,
         f"{l_hour}.grib",
     )
