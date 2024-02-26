@@ -18,7 +18,6 @@ class CDSClient(ConfigurableResource):
         return f"{self.user_id}:{self.api_key}"
 
     def setup_for_execution(self, context) -> None:
-        context.log.info(f"Setting up CDS client with user key {self._user_key}")
         self._client = cdsapi.Client(url=self.api_url, key=self._user_key)
 
     def fetch_data(self, request_params, output_path):
