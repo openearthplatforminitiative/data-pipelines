@@ -7,7 +7,7 @@ from dagster import AssetExecutionContext, asset
 import dask.dataframe as dd
 
 from data_pipelines.resources.dask_resource import DaskResource
-from data_pipelines.resources.glofas_resource import CDSClient, CDSConfig
+from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.utils.flood.config import *
 from data_pipelines.utils.flood.etl.filter_by_upstream import apply_upstream_threshold
 from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
@@ -69,18 +69,18 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
     )
     os.makedirs(os.path.dirname(target_file_path), exist_ok=True)
 
-    # Define the config
-    config = CDSConfig(
-        year=date_for_request.year,
-        month=date_for_request.month,
-        day=date_for_request.day,
-        leadtime_hour=l_hour,
-        area=area,
-        product_type=product_type,
-    )
-
-    # Convert config to a dictionary
-    request_params = config.to_dict()
+    request_params = {
+        "system_version": "operational",
+        "hydrological_model": "lisflood",
+        "variable": "river_discharge_in_the_last_24_hours",
+        "format": "grib",
+        "year": date_for_request.year,
+        "month": date_for_request.month,
+        "day": date_for_request.day,
+        "leadtime_hour": l_hour,
+        "area": area,
+        "product_type": product_type,
+    }
 
     # Fetch the data
     client.fetch_data(request_params, target_file_path)
