@@ -130,7 +130,7 @@ class ParquetIOManagerNew(UPathIOManager):
     def __init__(self, base_path: str, read_all_partitions: bool = False):
         super().__init__(base_path=UPath(base_path))
         self.read_all_partitions = read_all_partitions
-    
+
     def dump_to_path(
         self,
         context: OutputContext,
