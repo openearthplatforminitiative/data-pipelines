@@ -16,7 +16,6 @@ from dagster import (
 )
 
 from data_pipelines.utils.flood.config import (
-    OPENEPI_BASE_PATH,
     USE_CONTROL_MEMBER_IN_ENSEMBLE,
 )
 from upath import UPath
@@ -95,12 +94,11 @@ class ParquetIOManager(UPathIOManager):
 
 
 class GribIOManager(UPathIOManager):
-    base_path: str = OPENEPI_BASE_PATH
     use_control_member_in_ensemble: int = USE_CONTROL_MEMBER_IN_ENSEMBLE
     extension: str = ".grib"
 
-    def __init__(self, **kwargs):
-        super().__init__(base_path=UPath(self.base_path), **kwargs)
+    def __init__(self, base_path: str):
+        super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
@@ -124,17 +122,15 @@ class GribIOManager(UPathIOManager):
 
 
 class ParquetIOManagerNew(UPathIOManager):
-    base_path: str = OPENEPI_BASE_PATH
     extension: str = ".parquet"
     engine: str = "pyarrow"
     compression: str = "snappy"
     read_all_partitions: bool = False
 
-    def __init__(self, **kwargs):
-        if "read_all_partitions" in kwargs:
-            self.read_all_partitions = kwargs.pop("read_all_partitions")
-        super().__init__(base_path=UPath(self.base_path), **kwargs)
-
+    def __init__(self, base_path: str, read_all_partitions: bool = False):
+        super().__init__(base_path=UPath(base_path))
+        self.read_all_partitions = read_all_partitions
+    
     def dump_to_path(
         self,
         context: OutputContext,
@@ -192,11 +188,10 @@ class ParquetIOManagerNew(UPathIOManager):
 
 
 class NetdCDFIOManager(UPathIOManager):
-    base_path: str = OPENEPI_BASE_PATH
     extension: str = ".nc"
 
-    def __init__(self, **kwargs):
-        super().__init__(base_path=UPath(self.base_path), **kwargs)
+    def __init__(self, base_path: str):
+        super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(self, context: OutputContext, obj: str, path: UPath) -> None:
         raise NotImplementedError(
