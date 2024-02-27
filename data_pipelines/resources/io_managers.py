@@ -2,6 +2,7 @@ import os
 from typing import Sequence
 
 import dask.dataframe as dd
+import pandas as pd
 import rioxarray
 import xarray as xr
 from dagster import (
@@ -78,9 +79,9 @@ class DaskParquetIOManager(UPathIOManager):
             obj.to_parquet(path, overwrite=True)
 
     def load_from_path(
-        self, context: InputContext, paths: Sequence[UPath]
+        self, context: InputContext, path: UPath | Sequence[UPath]
     ) -> dd.DataFrame:
-        return dd.read_parquet(*paths)
+        return dd.read_parquet(path)
 
     def load_input(self, context: InputContext) -> dd.DataFrame:
         if not context.has_asset_partitions:
@@ -88,30 +89,7 @@ class DaskParquetIOManager(UPathIOManager):
             return self._load_single_input(path, context)
         else:
             paths = self._get_paths_for_partitions(context)
-            return self.load_from_path(context, paths.values())
-
-
-# class PandasParquetIOManager(UPathIOManager):
-#     extension: str = ".parquet"
-
-#     def __init__(self, base_path: str):
-#         super().__init__(base_path=UPath(base_path))
-
-#     def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
-#         obj.to_parquet(path)
-
-#     def load_from_path(
-#         self, context: InputContext, paths: Sequence[UPath]
-#     ) -> dd.DataFrame:
-#         return pd.read_parquet(*paths)
-
-#     def load_input(self, context: InputContext) -> dd.DataFrame:
-#         if not context.has_asset_partitions:
-#             path = self._get_path(context)
-#             return self._load_single_input(path, context)
-#         else:
-#             paths = self._get_paths_for_partitions(context)
-#             return self.load_from_path(context, paths.values())
+            return self.load_from_path(context, list(paths.values()))
 
 
 class GribIOManager(UPathIOManager):
@@ -142,38 +120,6 @@ class GribIOManager(UPathIOManager):
             ds_discharge = ds_pf
 
         return ds_discharge
-
-
-# class ParquetIOManagerNew(UPathIOManager):
-#     extension: str = ".parquet"
-
-#     def __init__(self, base_path: str):
-#         super().__init__(base_path=UPath(base_path))
-
-#     def load_from_path(
-#         self, context: InputContext, path: UPath | list[UPath]
-#     ) -> dd.DataFrame:
-#         return dd.read_parquet(path, engine=self.engine)
-
-#     def load_input(self, context: InputContext) -> Any | Dict[str, Any]:
-#         if (
-#             self.read_all_partitions
-#             and context.has_asset_partitions
-#             and context.dagster_type.typing_type != dict
-#         ):
-#             partitions = context.asset_partition_keys
-#             paths = [
-#                 UPath(
-#                     os.path.join(
-#                         self._get_path_without_extension(context),
-#                         partition + ".parquet",
-#                     )
-#                 )
-#                 for partition in partitions
-#             ]
-#             return self.load_from_path(context=context, path=paths)
-#         else:
-#             return super().load_input(context)
 
 
 class NetdCDFIOManager(UPathIOManager):
