@@ -50,9 +50,14 @@ def lossyear(context: AssetExecutionContext) -> None:
     context.log.debug("Reading GeoTIFF from %s", url)
     with NamedTemporaryFile() as tmp_file:
         urlretrieve(url, tmp_file.name)
-        context.log.debug("Writing COG to %s", path)
         cog_translate(tmp_file.name, tmp_file.name, cog_profiles["deflate"])
-        with UPath(path).open("wb") as out_file:
+        context.log.debug("Writing COG to %s", path)
+        path = UPath(
+            path,
+            key=os.getenv("AWS_ACCESS_KEY_ID_TEST"),
+            secret=os.getenv("AWS_SECRET_ACCESS_KEY_TEST"),
+        )
+        with path.open("wb") as out_file:
             out_file.write(tmp_file.read())
 
 
