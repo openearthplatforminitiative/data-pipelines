@@ -1,13 +1,14 @@
+import xarray as xr
 from dagster import AssetExecutionContext, asset
+
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.utils.flood.config import (
-    GLOFAS_RET_PRD_THRESH_VALS,
     GLOFAS_PRECISION,
     GLOFAS_RESOLUTION,
+    GLOFAS_RET_PRD_THRESH_VALS,
 )
 from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
 from data_pipelines.utils.flood.etl.transforms import add_geometry
-import xarray as xr
 
 
 @asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="netcdf_io_manager")
@@ -25,9 +26,7 @@ def RP20ythresholds_GloFASv40(context):
     return None
 
 
-@asset(
-    key_prefix=["flood"], compute_kind="xarray", io_manager_key="new_parquet_io_manager"
-)
+@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="parquet_io_manager")
 def rp_2y_thresh_pq(context, RP2ythresholds_GloFASv40: xr.Dataset):
     converter = RasterConverter()
     threshold = GLOFAS_RET_PRD_THRESH_VALS[0]
@@ -44,9 +43,7 @@ def rp_2y_thresh_pq(context, RP2ythresholds_GloFASv40: xr.Dataset):
     return df
 
 
-@asset(
-    key_prefix=["flood"], compute_kind="xarray", io_manager_key="new_parquet_io_manager"
-)
+@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="parquet_io_manager")
 def rp_5y_thresh_pq(context, RP5ythresholds_GloFASv40: xr.Dataset):
     converter = RasterConverter()
     threshold = GLOFAS_RET_PRD_THRESH_VALS[1]
@@ -63,9 +60,7 @@ def rp_5y_thresh_pq(context, RP5ythresholds_GloFASv40: xr.Dataset):
     return df
 
 
-@asset(
-    key_prefix=["flood"], compute_kind="xarray", io_manager_key="new_parquet_io_manager"
-)
+@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="parquet_io_manager")
 def rp_20y_thresh_pq(context, RP20ythresholds_GloFASv40: xr.Dataset):
     converter = RasterConverter()
     threshold = GLOFAS_RET_PRD_THRESH_VALS[2]
@@ -85,7 +80,7 @@ def rp_20y_thresh_pq(context, RP20ythresholds_GloFASv40: xr.Dataset):
 @asset(
     key_prefix=["flood"],
     compute_kind="dask",
-    io_manager_key="new_parquet_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def rp_combined_thresh_pq(
     context: AssetExecutionContext,

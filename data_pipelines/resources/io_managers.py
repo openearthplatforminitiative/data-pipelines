@@ -1,8 +1,5 @@
 import os
-from typing import Any, Dict, Iterable
-import pandas as pd
-from upath import UPath
-from urllib.request import urlretrieve
+from typing import Sequence
 
 import dask.dataframe as dd
 import rioxarray
@@ -14,11 +11,9 @@ from dagster import (
     ResourceDependency,
     UPathIOManager,
 )
-
-from data_pipelines.utils.flood.config import (
-    USE_CONTROL_MEMBER_IN_ENSEMBLE,
-)
 from upath import UPath
+
+from data_pipelines.utils.flood.config import USE_CONTROL_MEMBER_IN_ENSEMBLE
 
 from .rio_session import RIOSession
 
@@ -68,29 +63,55 @@ class ZarrIOManager(UPathIOManager):
         return xr.open_dataarray(path)
 
 
-class ParquetIOManager(UPathIOManager):
+class DaskParquetIOManager(UPathIOManager):
     extension: str = ".parquet"
 
     def __init__(self, base_path: str):
         super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(
-        self,
-        context: OutputContext,
-        obj: dd.DataFrame | Iterable[dd.DataFrame],
-        path: UPath,
+        self, context: OutputContext, obj: pd.DataFrame | dd.DataFrame, path: UPath
     ):
-        if isinstance(obj, dd.DataFrame):
-            obj = [obj]
-        df_iter = iter(obj)
-        first_df = next(df_iter)
-        first_df.to_parquet(path, write_index=False, overwrite=True)
+        if isinstance(obj, pd.DataFrame):
+            obj.to_parquet(path)
+        else:
+            obj.to_parquet(path, overwrite=True)
 
-        for df in df_iter:
-            df.to_parquet(path, write_index=False, overwrite=False)
+    def load_from_path(
+        self, context: InputContext, paths: Sequence[UPath]
+    ) -> dd.DataFrame:
+        return dd.read_parquet(*paths)
 
-    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
-        return dd.read_parquet(path)
+    def load_input(self, context: InputContext) -> dd.DataFrame:
+        if not context.has_asset_partitions:
+            path = self._get_path(context)
+            return self._load_single_input(path, context)
+        else:
+            paths = self._get_paths_for_partitions(context)
+            return self.load_from_path(context, paths.values())
+
+
+# class PandasParquetIOManager(UPathIOManager):
+#     extension: str = ".parquet"
+
+#     def __init__(self, base_path: str):
+#         super().__init__(base_path=UPath(base_path))
+
+#     def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
+#         obj.to_parquet(path)
+
+#     def load_from_path(
+#         self, context: InputContext, paths: Sequence[UPath]
+#     ) -> dd.DataFrame:
+#         return pd.read_parquet(*paths)
+
+#     def load_input(self, context: InputContext) -> dd.DataFrame:
+#         if not context.has_asset_partitions:
+#             path = self._get_path(context)
+#             return self._load_single_input(path, context)
+#         else:
+#             paths = self._get_paths_for_partitions(context)
+#             return self.load_from_path(context, paths.values())
 
 
 class GribIOManager(UPathIOManager):
@@ -103,7 +124,9 @@ class GribIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
     ) -> None:
-        raise NotImplementedError("This IO Manager doesn't support writing GRIB data.")
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support writing GRIB data."
+        )
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
         ds_cf = xr.open_dataset(
@@ -121,70 +144,36 @@ class GribIOManager(UPathIOManager):
         return ds_discharge
 
 
-class ParquetIOManagerNew(UPathIOManager):
-    extension: str = ".parquet"
-    engine: str = "pyarrow"
-    compression: str = "snappy"
-    read_all_partitions: bool = False
+# class ParquetIOManagerNew(UPathIOManager):
+#     extension: str = ".parquet"
 
-    def __init__(self, base_path: str, read_all_partitions: bool = False):
-        super().__init__(base_path=UPath(base_path))
-        self.read_all_partitions = read_all_partitions
+#     def __init__(self, base_path: str):
+#         super().__init__(base_path=UPath(base_path))
 
-    def dump_to_path(
-        self,
-        context: OutputContext,
-        obj: (
-            dd.DataFrame
-            | Iterable[dd.DataFrame]
-            | pd.DataFrame
-            | Iterable[pd.DataFrame]
-        ),
-        path: UPath,
-    ):
-        if isinstance(obj, (dd.DataFrame, pd.DataFrame)):
-            obj = [obj]
-        df_iter = iter(obj)
-        first_df = next(df_iter)
+#     def load_from_path(
+#         self, context: InputContext, path: UPath | list[UPath]
+#     ) -> dd.DataFrame:
+#         return dd.read_parquet(path, engine=self.engine)
 
-        kwargs = {"engine": self.engine, "compression": self.compression}
-
-        # Could be a pd.DataFrame or a dd.DataFrame
-        # Need to use "index" for pd.DataFrame and "write_index" for dd.DataFrame
-        if isinstance(first_df, pd.DataFrame):
-            kwargs["index"] = False
-        else:
-            kwargs["write_index"] = False
-            kwargs["overwrite"] = True
-        first_df.to_parquet(path, **kwargs)
-
-        for df in df_iter:
-            df.to_parquet(path, **kwargs)
-
-    def load_from_path(
-        self, context: InputContext, path: UPath | list[UPath]
-    ) -> dd.DataFrame:
-        return dd.read_parquet(path, engine=self.engine)
-
-    def load_input(self, context: InputContext) -> Any | Dict[str, Any]:
-        if (
-            self.read_all_partitions
-            and context.has_asset_partitions
-            and context.dagster_type.typing_type != dict
-        ):
-            partitions = context.asset_partition_keys
-            paths = [
-                UPath(
-                    os.path.join(
-                        self._get_path_without_extension(context),
-                        partition + ".parquet",
-                    )
-                )
-                for partition in partitions
-            ]
-            return self.load_from_path(context=context, path=paths)
-        else:
-            return super().load_input(context)
+#     def load_input(self, context: InputContext) -> Any | Dict[str, Any]:
+#         if (
+#             self.read_all_partitions
+#             and context.has_asset_partitions
+#             and context.dagster_type.typing_type != dict
+#         ):
+#             partitions = context.asset_partition_keys
+#             paths = [
+#                 UPath(
+#                     os.path.join(
+#                         self._get_path_without_extension(context),
+#                         partition + ".parquet",
+#                     )
+#                 )
+#                 for partition in partitions
+#             ]
+#             return self.load_from_path(context=context, path=paths)
+#         else:
+#             return super().load_input(context)
 
 
 class NetdCDFIOManager(UPathIOManager):
