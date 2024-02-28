@@ -102,9 +102,7 @@ class GribIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
     ) -> None:
-        raise NotImplementedError(
-            f"{self.__class__.__name__} does not support writing GRIB data."
-        )
+        raise NotImplementedError(f"GribIOManager does not support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
         ds_cf = xr.open_dataset(
