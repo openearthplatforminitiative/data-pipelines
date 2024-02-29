@@ -68,7 +68,6 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         *context.asset_key.path,
         f"{leadtime_hour}.grib",
     )
-    os.makedirs(os.path.dirname(target_file_path), exist_ok=True)
 
     request_params = {
         "system_version": "operational",
