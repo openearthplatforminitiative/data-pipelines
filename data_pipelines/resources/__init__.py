@@ -7,8 +7,8 @@ from .dask_resource import DaskLocalResource
 from .io_managers import (
     COGIOManager,
     DaskParquetIOManager,
-    GribIOManager,
     NetdCDFIOManager,
+    GribDischargeIOManager,
     ZarrIOManager,
 )
 from .rio_session import RIOAWSSession
@@ -25,7 +25,9 @@ RESOURCES = {
     ),
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),
     "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_path),
-    "client": CDSClient(user_id=EnvVar("CDS_USER_ID"), api_key=EnvVar("CDS_API_KEY")),
-    "grib_io_manager": GribIOManager(base_path=settings.base_data_path),
+    "cds_client": CDSClient(
+        user_id=EnvVar("CDS_USER_ID"), api_key=EnvVar("CDS_API_KEY")
+    ),
+    "grib_io_manager": GribDischargeIOManager(base_path=settings.base_data_path),
     "netcdf_io_manager": NetdCDFIOManager(base_path=settings.base_data_path),
 }

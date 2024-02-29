@@ -92,7 +92,7 @@ class DaskParquetIOManager(UPathIOManager):
             return self.load_from_path(context, list(paths.values()))
 
 
-class GribIOManager(UPathIOManager):
+class GribDischargeIOManager(UPathIOManager):
     use_control_member_in_ensemble: int = USE_CONTROL_MEMBER_IN_ENSEMBLE
     extension: str = ".grib"
 
