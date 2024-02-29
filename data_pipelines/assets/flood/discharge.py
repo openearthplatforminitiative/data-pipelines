@@ -97,7 +97,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
     key_prefix=["flood"],
     compute_kind="xarray",
     partitions_def=discharge_partitions,
-    io_manager_key="multi_partition_parquet_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def transformed_discharge(
     context: AssetExecutionContext,
@@ -148,7 +148,7 @@ def transformed_discharge(
 @asset(
     key_prefix=["flood"],
     compute_kind="dask",
-    io_manager_key="new_parquet_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def detailed_forecast(
     context: AssetExecutionContext,
@@ -201,7 +201,7 @@ def detailed_forecast(
 @asset(
     key_prefix=["flood"],
     compute_kind="dask",
-    io_manager_key="new_parquet_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def summary_forecast(
     context: AssetExecutionContext,
