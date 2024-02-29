@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from data_pipelines.tests.flood.data_generation import (
+from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
+from data_pipelines.utils.flood.raster_converter import dataset_to_dataframe
+from data_pipelines_tests.flood.data_generation import (
     create_ground_truth_upstream_filtering_dataframe,
     generate_upstream_filtering_test_data,
 )
-from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
-from data_pipelines.utils.flood.raster_converter import dataset_to_dataframe
 
 
 class TestUpstreamFiltering(unittest.TestCase):

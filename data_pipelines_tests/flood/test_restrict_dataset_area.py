@@ -1,9 +1,9 @@
 import unittest
 
-from data_pipelines.tests.flood.data_generation import (
+from data_pipelines.utils.flood.utils import restrict_dataset_area
+from data_pipelines_tests.flood.data_generation import (
     generate_restrict_dataset_area_test_dataset,
 )
-from data_pipelines.utils.flood.utils import restrict_dataset_area
 
 
 class TestRestrictArea(unittest.TestCase):
