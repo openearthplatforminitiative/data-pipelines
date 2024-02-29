@@ -7,8 +7,8 @@ from .dask_resource import DaskLocalResource
 from .io_managers import (
     COGIOManager,
     DaskParquetIOManager,
-    NetdCDFIOManager,
     GribDischargeIOManager,
+    NetdCDFIOManager,
     ZarrIOManager,
 )
 from .rio_session import RIOAWSSession

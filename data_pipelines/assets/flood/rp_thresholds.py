@@ -7,7 +7,6 @@ from data_pipelines.utils.flood.config import (
     GLOFAS_RESOLUTION,
     GLOFAS_RET_PRD_THRESH_VALS,
 )
-
 from data_pipelines.utils.flood.raster_converter import dataset_to_dataframe
 from data_pipelines.utils.flood.transforms import add_geometry
 
