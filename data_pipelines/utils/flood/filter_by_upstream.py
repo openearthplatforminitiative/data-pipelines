@@ -1,4 +1,4 @@
-from data_pipelines.utils.flood.etl.utils import restrict_dataset_area
+from data_pipelines.utils.flood.utils import restrict_dataset_area
 import xarray as xr
 
 

@@ -1,5 +1,5 @@
 import unittest
-from data_pipelines.utils.flood.etl.utils import restrict_dataset_area
+from data_pipelines.utils.flood.utils import restrict_dataset_area
 from data_pipelines.tests.flood.data_generation import (
     generate_restrict_dataset_area_test_dataset,
 )

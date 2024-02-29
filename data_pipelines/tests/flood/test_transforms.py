@@ -8,7 +8,7 @@ from data_pipelines.utils.flood.config import (
     GLOFAS_RET_PRD_THRESH_VALS,
 )
 
-from data_pipelines.utils.flood.etl.transforms import (
+from data_pipelines.utils.flood.transforms import (
     compute_flood_tendency,
     compute_flood_intensity,
     compute_flood_peak_timing,

@@ -4,8 +4,8 @@ from data_pipelines.tests.flood.data_generation import (
     generate_upstream_filtering_test_data,
     create_ground_truth_upstream_filtering_dataframe,
 )
-from data_pipelines.utils.flood.etl.filter_by_upstream import apply_upstream_threshold
-from data_pipelines.utils.flood.etl.raster_converter import dataset_to_dataframe
+from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
+from data_pipelines.utils.flood.raster_converter import dataset_to_dataframe
 
 
 class TestUpstreamFiltering(unittest.TestCase):

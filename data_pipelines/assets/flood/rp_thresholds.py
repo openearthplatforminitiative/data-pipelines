@@ -5,8 +5,8 @@ from data_pipelines.utils.flood.config import (
     GLOFAS_PRECISION,
     GLOFAS_RESOLUTION,
 )
-from data_pipelines.utils.flood.etl.raster_converter import dataset_to_dataframe
-from data_pipelines.utils.flood.etl.transforms import add_geometry
+from data_pipelines.utils.flood.raster_converter import dataset_to_dataframe
+from data_pipelines.utils.flood.transforms import add_geometry
 import xarray as xr
 
 

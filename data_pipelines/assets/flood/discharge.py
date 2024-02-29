@@ -10,16 +10,16 @@ from data_pipelines.settings import settings
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.utils.flood.config import *
-from data_pipelines.utils.flood.etl.filter_by_upstream import apply_upstream_threshold
-from data_pipelines.utils.flood.etl.raster_converter import dataset_to_dataframe
-from data_pipelines.utils.flood.etl.transforms import (
+from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
+from data_pipelines.utils.flood.raster_converter import dataset_to_dataframe
+from data_pipelines.utils.flood.transforms import (
     compute_flood_intensity,
     compute_flood_peak_timing,
     compute_flood_tendency,
     compute_flood_threshold_percentages,
     add_geometry,
 )
-from data_pipelines.utils.flood.etl.utils import restrict_dataset_area
+from data_pipelines.utils.flood.utils import restrict_dataset_area
 
 from data_pipelines.partitions import discharge_partitions
 
