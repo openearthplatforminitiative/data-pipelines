@@ -24,9 +24,11 @@ from data_pipelines.utils.flood.utils import restrict_dataset_area
 from data_pipelines.partitions import discharge_partitions
 
 
-def make_path(*args) -> str:
-    path = os.path.join(*args)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+from upath import UPath
+
+def make_path(*args) -> UPath:
+    path = UPath(*args)
+    path.mkdir(parents=True, exist_ok=True)
     return path
 
 
