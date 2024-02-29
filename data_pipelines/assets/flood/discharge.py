@@ -11,7 +11,7 @@ from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.utils.flood.config import *
 from data_pipelines.utils.flood.etl.filter_by_upstream import apply_upstream_threshold
-from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
+from data_pipelines.utils.flood.etl.raster_converter import dataset_to_dataframe
 from data_pipelines.utils.flood.etl.transforms import (
     compute_flood_intensity,
     compute_flood_peak_timing,
@@ -39,7 +39,7 @@ def make_path(*args) -> str:
     partitions_def=discharge_partitions,
     io_manager_key="grib_io_manager",
 )
-def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
+def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None:
     date_for_request = datetime.utcnow() - timedelta(days=TIMEDELTA)
 
     query_buffer = GLOFAS_RESOLUTION * GLOFAS_BUFFER_MULT
@@ -84,7 +84,7 @@ def raw_discharge(context: AssetExecutionContext, client: CDSClient) -> None:
     }
 
     # Fetch the data
-    client.fetch_data(request_params, target_file_path)
+    cds_client.fetch_data(request_params, target_file_path)
 
     # get the list of files in the folder
     files = os.listdir(os.path.dirname(target_file_path))
@@ -110,8 +110,6 @@ def transformed_discharge(
     lat_max = GLOFAS_ROI_CENTRAL_AFRICA["lat_max"]
     lon_min = GLOFAS_ROI_CENTRAL_AFRICA["lon_min"]
     lon_max = GLOFAS_ROI_CENTRAL_AFRICA["lon_max"]
-
-    converter = RasterConverter()
 
     ds_upstream = uparea_glofas_v4_0
 
@@ -139,7 +137,7 @@ def transformed_discharge(
     )
 
     # Convert to pandas dataframe
-    filtered_df = converter.dataset_to_dataframe(
+    filtered_df = dataset_to_dataframe(
         filtered_ds["dis24"],
         cols_to_drop=["surface"],
         drop_na_subset=["dis24"],

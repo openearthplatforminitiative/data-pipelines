@@ -5,7 +5,7 @@ from data_pipelines.tests.flood.data_generation import (
     create_ground_truth_upstream_filtering_dataframe,
 )
 from data_pipelines.utils.flood.etl.filter_by_upstream import apply_upstream_threshold
-from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
+from data_pipelines.utils.flood.etl.raster_converter import dataset_to_dataframe
 
 
 class TestUpstreamFiltering(unittest.TestCase):
@@ -27,7 +27,6 @@ class TestUpstreamFiltering(unittest.TestCase):
         upstream_latitudes = np.linspace(89.975, -59.975, 3000)
         upstream_longitudes = np.linspace(-179.975, 179.975, 7200)
 
-        converter = RasterConverter()
 
         (
             ds_discharge,
@@ -64,7 +63,7 @@ class TestUpstreamFiltering(unittest.TestCase):
             ds_discharge, ds_upstream, threshold_area=upstream_threshold
         )
 
-        filtered_df = converter.dataset_to_dataframe(
+        filtered_df = dataset_to_dataframe(
             filtered_ds["dis24"], drop_na_subset=["dis24"], drop_index=False
         )
 

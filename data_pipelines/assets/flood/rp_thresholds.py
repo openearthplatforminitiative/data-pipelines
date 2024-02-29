@@ -5,7 +5,7 @@ from data_pipelines.utils.flood.config import (
     GLOFAS_PRECISION,
     GLOFAS_RESOLUTION,
 )
-from data_pipelines.utils.flood.etl.raster_converter import RasterConverter
+from data_pipelines.utils.flood.etl.raster_converter import dataset_to_dataframe
 from data_pipelines.utils.flood.etl.transforms import add_geometry
 import xarray as xr
 
@@ -29,10 +29,9 @@ def RP20ythresholds_GloFASv40(context):
     key_prefix=["flood"], compute_kind="xarray", io_manager_key="new_parquet_io_manager"
 )
 def rp_2y_thresh_pq(context, RP2ythresholds_GloFASv40: xr.Dataset):
-    converter = RasterConverter()
     threshold = GLOFAS_RET_PRD_THRESH_VALS[0]
     ds = RP2ythresholds_GloFASv40
-    df = converter.dataset_to_dataframe(ds, cols_to_drop=["wgs_1984"], drop_index=False)
+    df = dataset_to_dataframe(ds, cols_to_drop=["wgs_1984"], drop_index=False)
     df = df.rename(
         columns={
             "lat": "latitude",
@@ -48,10 +47,9 @@ def rp_2y_thresh_pq(context, RP2ythresholds_GloFASv40: xr.Dataset):
     key_prefix=["flood"], compute_kind="xarray", io_manager_key="new_parquet_io_manager"
 )
 def rp_5y_thresh_pq(context, RP5ythresholds_GloFASv40: xr.Dataset):
-    converter = RasterConverter()
     threshold = GLOFAS_RET_PRD_THRESH_VALS[1]
     ds = RP5ythresholds_GloFASv40
-    df = converter.dataset_to_dataframe(ds, cols_to_drop=["wgs_1984"], drop_index=False)
+    df = dataset_to_dataframe(ds, cols_to_drop=["wgs_1984"], drop_index=False)
     df = df.rename(
         columns={
             "lat": "latitude",
@@ -67,10 +65,9 @@ def rp_5y_thresh_pq(context, RP5ythresholds_GloFASv40: xr.Dataset):
     key_prefix=["flood"], compute_kind="xarray", io_manager_key="new_parquet_io_manager"
 )
 def rp_20y_thresh_pq(context, RP20ythresholds_GloFASv40: xr.Dataset):
-    converter = RasterConverter()
     threshold = GLOFAS_RET_PRD_THRESH_VALS[2]
     ds = RP20ythresholds_GloFASv40
-    df = converter.dataset_to_dataframe(ds, cols_to_drop=["wgs_1984"], drop_index=False)
+    df = dataset_to_dataframe(ds, cols_to_drop=["wgs_1984"], drop_index=False)
     df = df.rename(
         columns={
             "lat": "latitude",
