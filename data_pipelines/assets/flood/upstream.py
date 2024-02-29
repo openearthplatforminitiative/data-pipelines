@@ -4,7 +4,7 @@ import httpx
 from data_pipelines.utils.flood.config import UPSTREAM_URL
 
 
-@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="netcdf_io_manager")
+@asset(key_prefix=["flood"], io_manager_key="netcdf_io_manager")
 def uparea_glofas_v4_0(context: AssetExecutionContext) -> None:
     # Directory to save the file
     download_dir = os.path.join(
