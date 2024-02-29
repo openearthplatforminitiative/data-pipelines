@@ -1,7 +1,6 @@
 from dagster import Definitions
 
-from .assets import deforestation_assets, river_basin_assets, flood_assets
-
+from .assets import deforestation_assets, flood_assets, river_basin_assets
 from .resources import RESOURCES
 
 all_assets = [*deforestation_assets, *river_basin_assets, *flood_assets]

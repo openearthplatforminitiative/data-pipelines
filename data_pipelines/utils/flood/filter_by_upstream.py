@@ -1,5 +1,6 @@
-from data_pipelines.utils.flood.utils import restrict_dataset_area
 import xarray as xr
+
+from data_pipelines.utils.flood.utils import restrict_dataset_area
 
 
 def get_filtered_discharge_from_files(

@@ -1,18 +1,18 @@
 from dagster import EnvVar
 
+from data_pipelines.resources.glofas_resource import CDSClient
+
+from ..settings import settings
 from .dask_resource import DaskLocalResource
 from .io_managers import (
     COGIOManager,
     GribDischargeIOManager,
+    NetdCDFIOManager,
+    ParquetIOManager,
     ParquetIOManagerNew,
     ZarrIOManager,
-    ParquetIOManager,
-    NetdCDFIOManager,
 )
-from data_pipelines.resources.glofas_resource import CDSClient
 from .rio_session import RIOAWSSession
-from ..settings import settings
-
 
 RESOURCES = {
     "dask_resource": DaskLocalResource(),
@@ -26,7 +26,9 @@ RESOURCES = {
     ),
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),
     "parquet_io_manager": ParquetIOManager(base_path=settings.base_data_path),
-    "cds_client": CDSClient(user_id=EnvVar("CDS_USER_ID"), api_key=EnvVar("CDS_API_KEY")),
+    "cds_client": CDSClient(
+        user_id=EnvVar("CDS_USER_ID"), api_key=EnvVar("CDS_API_KEY")
+    ),
     "grib_io_manager": GribDischargeIOManager(base_path=settings.base_data_path),
     "multi_partition_parquet_io_manager": ParquetIOManagerNew(
         base_path=settings.base_data_path, read_all_partitions=True

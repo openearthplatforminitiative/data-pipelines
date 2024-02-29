@@ -1,10 +1,9 @@
 import os
 from typing import Any, Dict, Iterable
-import pandas as pd
-from upath import UPath
 from urllib.request import urlretrieve
 
 import dask.dataframe as dd
+import pandas as pd
 import rioxarray
 import xarray as xr
 from dagster import (
@@ -14,11 +13,9 @@ from dagster import (
     ResourceDependency,
     UPathIOManager,
 )
-
-from data_pipelines.utils.flood.config import (
-    USE_CONTROL_MEMBER_IN_ENSEMBLE,
-)
 from upath import UPath
+
+from data_pipelines.utils.flood.config import USE_CONTROL_MEMBER_IN_ENSEMBLE
 
 from .rio_session import RIOSession
 

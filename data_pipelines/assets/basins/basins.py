@@ -1,7 +1,8 @@
-import httpx
+import io
 import os
 import zipfile
-import io
+
+import httpx
 from dagster import asset
 
 

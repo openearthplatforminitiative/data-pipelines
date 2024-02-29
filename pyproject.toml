@@ -43,6 +43,7 @@ pytest = "^8.0.0"
 black = "^23.12.0"
 notebook = "^7.0.6"
 pytest = "^8.0.1"
+isort = "^5.13.2"
 
 
 [tool.dagster]
@@ -51,3 +52,6 @@ module_name = "data_pipelines"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
