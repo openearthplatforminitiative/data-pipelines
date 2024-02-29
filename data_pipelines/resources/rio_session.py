@@ -15,22 +15,23 @@ class RIOSession(ConfigurableResource):
 
     @contextmanager
     def yield_for_execution(self, context: InitResourceContext):
+        context.log.debug("Creating rasterio session.")
         session = self._get_session()
         with rasterio.Env(session):
             yield self
+        context.log.debug("Shutting down rasterio session.")
+        print("Shutting down rasterio session.")
 
 
 class RIOAWSSession(RIOSession):
     aws_access_key_id: str
     aws_secret_access_key: str
-    aws_session_token: str
 
     def _get_session(self) -> rio_session.Session:
         return AWSSession(
             boto3.Session(
                 aws_access_key_id=self.aws_access_key_id,
                 aws_secret_access_key=self.aws_secret_access_key,
-                aws_session_token=self.aws_session_token,
                 region_name="eu-north-1",
             )
         )

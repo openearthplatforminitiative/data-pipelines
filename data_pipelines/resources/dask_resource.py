@@ -39,6 +39,7 @@ class DaskLocalResource(DaskResource):
 
 class DaskFargateResource(DaskResource):
     n_workers: int = 4
+    region: str = "eu-north-1"
 
     @contextmanager
     def _provision_cluster(self, context: InitResourceContext):
@@ -49,6 +50,7 @@ class DaskFargateResource(DaskResource):
             image=settings.dask_cluster_image,
             n_workers=self.n_workers,
             security=False,
+            region_name=self.region,
             task_role_policies=["arn:aws:iam::aws:policy/AmazonS3FullAccess"],
         ) as cluster:
             yield cluster

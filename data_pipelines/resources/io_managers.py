@@ -22,15 +22,13 @@ from .rio_session import RIOSession
 
 
 class COGIOManager(ConfigurableIOManager):
-    base_path: str
     rio_env: ResourceDependency[RIOSession]
+    base_path: ResourceDependency[UPath]
 
     def get_path(self, context: InputContext | OutputContext) -> str:
-        return os.path.join(
-            self.base_path,
-            *context.asset_key.path,
-            f"{context.partition_key}.tif",
-        )
+        return self.base_path.joinpath(
+            *context.asset_key.path, context.partition_key
+        ).with_suffix(".tif")
 
     def handle_output(
         self, context: OutputContext, data: xr.DataArray | xr.Dataset | None
@@ -47,15 +45,15 @@ class COGIOManager(ConfigurableIOManager):
         data.to_raster(path)
 
     def load_input(self, context: InputContext) -> xr.DataArray:
+        context.log.debug("Loading data using COGIOManager.")
         path = self.get_path(context)
+        # with self.rio_env.session(context):
         return rioxarray.open_rasterio(path)
 
 
 class ZarrIOManager(UPathIOManager):
+    base_path: ResourceDependency[UPath]
     extension: str = ".zarr"
-
-    def __init__(self, base_path: str):
-        super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
@@ -67,10 +65,8 @@ class ZarrIOManager(UPathIOManager):
 
 
 class DaskParquetIOManager(UPathIOManager):
+    base_path: ResourceDependency[UPath]
     extension: str = ".parquet"
-
-    def __init__(self, base_path: str):
-        super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(
         self, context: OutputContext, obj: pd.DataFrame | dd.DataFrame, path: UPath
