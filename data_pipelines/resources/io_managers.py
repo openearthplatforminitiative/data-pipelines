@@ -93,7 +93,7 @@ class ParquetIOManager(UPathIOManager):
         return dd.read_parquet(path)
 
 
-class GribIOManager(UPathIOManager):
+class GribDischargeIOManager(UPathIOManager):
     use_control_member_in_ensemble: int = USE_CONTROL_MEMBER_IN_ENSEMBLE
     extension: str = ".grib"
 
