@@ -1,7 +1,6 @@
 TIMEDELTA = 1
 GLOFAS_API_URL = "https://cds.climate.copernicus.eu/api/v2"
 UPSTREAM_URL = "https://confluence.ecmwf.int/download/attachments/242067380/uparea_glofas_v4_0.nc?version=2&modificationDate=1668604690076&api=v2"
-S3_OPEN_EPI_PATH = "mnt/openepi-storage"
 GLOFAS_RET_PRD_THRESH_VALS = [2, 5, 20]
 GLOFAS_ROI_CENTRAL_AFRICA = {
     "lat_min": -6.0,
