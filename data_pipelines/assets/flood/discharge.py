@@ -1,7 +1,9 @@
 import os
 from datetime import datetime, timedelta
+from tempfile import NamedTemporaryFile
 
 import dask.dataframe as dd
+import fsspec
 import pandas as pd
 import xarray as xr
 from dagster import AssetExecutionContext, asset
@@ -26,7 +28,7 @@ from data_pipelines.utils.flood.utils import restrict_dataset_area
 
 def make_path(*args) -> UPath:
     path = UPath(*args)
-    path.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
 
@@ -82,15 +84,9 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         "product_type": product_type,
     }
 
-    # Fetch the data
-    cds_client.fetch_data(request_params, target_file_path)
-
-    # get the list of files in the folder
-    files = os.listdir(os.path.dirname(target_file_path))
-
-    # Log the contents of the target folder
-    context.log.info(f"Contents of {os.path.dirname(target_file_path)}:")
-    context.log.info(files)
+    with NamedTemporaryFile() as tmp_file:
+        cds_client.fetch_data(request_params, tmp_file.name)
+        target_file_path.write_bytes(tmp_file.read())
 
 
 @asset(
