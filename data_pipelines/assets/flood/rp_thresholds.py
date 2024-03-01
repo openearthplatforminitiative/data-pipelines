@@ -12,17 +12,17 @@ from data_pipelines.utils.flood.transforms import add_geometry
 
 
 @asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="netcdf_io_manager")
-def RP2ythresholds_GloFASv40(context):
+def RP2ythresholds_GloFASv40(context) -> None:
     return None
 
 
 @asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="netcdf_io_manager")
-def RP5ythresholds_GloFASv40(context):
+def RP5ythresholds_GloFASv40(context) -> None:
     return None
 
 
 @asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="netcdf_io_manager")
-def RP20ythresholds_GloFASv40(context):
+def RP20ythresholds_GloFASv40(context) -> None:
     return None
 
 
