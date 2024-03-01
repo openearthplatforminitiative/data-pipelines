@@ -2,6 +2,7 @@ import os
 from typing import Sequence
 
 import dask.dataframe as dd
+import fsspec
 import pandas as pd
 import rioxarray
 import xarray as xr
@@ -12,6 +13,7 @@ from dagster import (
     ResourceDependency,
     UPathIOManager,
 )
+from fsspec.implementations.local import LocalFileSystem
 from upath import UPath
 
 from data_pipelines.utils.flood.config import USE_CONTROL_MEMBER_IN_ENSEMBLE
@@ -102,14 +104,28 @@ class GribDischargeIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
     ) -> None:
-        raise NotImplementedError(f"GribIOManager does not support writing data.")
+        raise NotImplementedError("GribIOManager does not support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
+        if isinstance(self.fs, LocalFileSystem):
+            ds_source = path
+        else:
+            # grib files can not be read directly from cloud storage.
+            # The file is instead cached and read locally
+            # ref: https://stackoverflow.com/questions/66229140/xarray-read-remote-grib-file-on-s3-using-cfgrib
+            ds_source = fsspec.open_local(
+                f"simplecache::{path}", filecache={"cache_storage": "/tmp/files"}
+            )
+
         ds_cf = xr.open_dataset(
-            path, backend_kwargs={"filter_by_keys": {"dataType": "cf"}}
+            ds_source,
+            engine="cfgrib",
+            backend_kwargs={"filter_by_keys": {"dataType": "cf"}},
         )
         ds_pf = xr.open_dataset(
-            path, backend_kwargs={"filter_by_keys": {"dataType": "pf"}}
+            ds_source,
+            engine="cfgrib",
+            backend_kwargs={"filter_by_keys": {"dataType": "pf"}},
         )
 
         if self.use_control_member_in_ensemble:
@@ -127,9 +143,7 @@ class NetdCDFIOManager(UPathIOManager):
         super().__init__(base_path=UPath(base_path))
 
     def dump_to_path(self, context: OutputContext, obj: str, path: UPath) -> None:
-        raise NotImplementedError(
-            "This IO Manager doesn't support writing NetCDF data."
-        )
+        raise NotImplementedError("NetdCDFIOManager does not support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
-        return xr.open_dataset(path)
+        return xr.open_dataset(path.open("rb"))
