@@ -1,0 +1,8 @@
+run_queue:
+  # This limits all assets to 1 concurrent run...
+  # max_concurrent_runs: 1
+  
+  # ...but we can also limit by tag
+  tag_concurrency_limits:
+   - key: "sequential_backfill"
+     limit: 1
