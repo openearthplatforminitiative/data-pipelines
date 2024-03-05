@@ -1,17 +1,15 @@
 import os
 from datetime import datetime, timedelta
-from tempfile import NamedTemporaryFile
 
 import dask.dataframe as dd
-import fsspec
 import pandas as pd
 import xarray as xr
 from dagster import AssetExecutionContext, asset
-from upath import UPath
 
 from data_pipelines.partitions import discharge_partitions
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.resources.glofas_resource import CDSClient
+from data_pipelines.resources.io_managers import get_path_in_asset
 from data_pipelines.settings import settings
 from data_pipelines.utils.flood.config import *
 from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
@@ -24,12 +22,6 @@ from data_pipelines.utils.flood.transforms import (
     compute_flood_threshold_percentages,
 )
 from data_pipelines.utils.flood.utils import restrict_dataset_area
-
-
-def make_path(*args) -> UPath:
-    path = UPath(*args)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return path
 
 
 # This is the partitioned version of the raw_discharge asset
@@ -64,13 +56,6 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         product_type = "ensemble_perturbed_forecasts"
         print("Retrieving only ensemble")
 
-    leadtime_hour = context.partition_key
-    target_file_path = make_path(
-        settings.base_data_path,
-        *context.asset_key.path,
-        f"{leadtime_hour}.grib",
-    )
-
     request_params = {
         "system_version": "operational",
         "hydrological_model": "lisflood",
@@ -79,14 +64,14 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         "year": date_for_request.year,
         "month": date_for_request.month,
         "day": date_for_request.day,
-        "leadtime_hour": leadtime_hour,
+        "leadtime_hour": context.partition_key,
         "area": area,
         "product_type": product_type,
     }
 
-    with NamedTemporaryFile() as tmp_file:
-        cds_client.fetch_data(request_params, tmp_file.name)
-        target_file_path.write_bytes(tmp_file.read())
+    out_path = get_path_in_asset(context, settings.base_data_path, ".grib")
+    out_path.mkdir(parents=True, exist_ok=True)
+    cds_client.fetch_data(request_params, out_path)
 
 
 @asset(

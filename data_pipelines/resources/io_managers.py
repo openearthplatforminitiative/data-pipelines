@@ -7,6 +7,7 @@ import pandas as pd
 import rioxarray
 import xarray as xr
 from dagster import (
+    AssetExecutionContext,
     ConfigurableIOManager,
     InputContext,
     OutputContext,
@@ -16,44 +17,56 @@ from dagster import (
 from fsspec.implementations.local import LocalFileSystem
 from upath import UPath
 
+from data_pipelines.settings import settings
 from data_pipelines.utils.flood.config import USE_CONTROL_MEMBER_IN_ENSEMBLE
 
-from .rio_session import RIOSession
 
-
-class COGIOManager(ConfigurableIOManager):
-    rio_env: ResourceDependency[RIOSession]
-    base_path: ResourceDependency[UPath]
-
-    def get_path(self, context: InputContext | OutputContext) -> str:
-        return self.base_path.joinpath(
-            *context.asset_key.path, context.partition_key
-        ).with_suffix(".tif")
-
-    def handle_output(
-        self, context: OutputContext, data: xr.DataArray | xr.Dataset | None
-    ) -> None:
-        context.log.debug("COGIOManager was used.")
-        if data is None:
-            context.log.info(
-                "Received value of None for the data argument in COGIOManager.handle_output. "
-                "Skipping output handling, assuming that the output was handled within the asset definition."
+def get_path_in_asset(
+    context: AssetExecutionContext, base_path: UPath, extension: str
+) -> UPath:
+    path = base_path.joinpath(*context.asset_key.path)
+    if context.has_partition_key:
+        if len(context.partition_keys) == 1:
+            path = path / context.partition_key
+        else:
+            raise NotImplementedError(
+                "get_path_in_asset does not support multi-partition runs."
             )
-            return
+    return path.with_suffix(extension)
 
-        path = self.get_path(context)
-        data.to_raster(path)
 
-    def load_input(self, context: InputContext) -> xr.DataArray:
+class COGIOManager(UPathIOManager):
+    extension: str = ".tif"
+
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
+
+    def get_path_in_asset(self, context: AssetExecutionContext) -> UPath:
+        path = self._base_path.joinpath(context.asset_key.path)
+        if context.has_partition_key:
+            if len(context.partition_key) == 1:
+                path = path / context.partition_key
+            else:
+                raise NotImplementedError(
+                    "get_path_in_asset does not support multi-partition runs."
+                )
+        return path.with_suffix(self.extension)
+
+    def dump_to_path(
+        self, context: OutputContext, obj: xr.DataArray | xr.Dataset | None, path: UPath
+    ) -> None:
+        obj.to_raster(path)
+
+    def load_from_path(self, context: InputContext, path: UPath) -> xr.DataArray:
         context.log.debug("Loading data using COGIOManager.")
-        path = self.get_path(context)
-        # with self.rio_env.session(context):
         return rioxarray.open_rasterio(path)
 
 
 class ZarrIOManager(UPathIOManager):
-    base_path: ResourceDependency[UPath]
     extension: str = ".zarr"
+
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
@@ -65,8 +78,10 @@ class ZarrIOManager(UPathIOManager):
 
 
 class DaskParquetIOManager(UPathIOManager):
-    base_path: ResourceDependency[UPath]
     extension: str = ".parquet"
+
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
 
     def dump_to_path(
         self, context: OutputContext, obj: pd.DataFrame | dd.DataFrame, path: UPath
@@ -94,8 +109,8 @@ class GribDischargeIOManager(UPathIOManager):
     use_control_member_in_ensemble: int = USE_CONTROL_MEMBER_IN_ENSEMBLE
     extension: str = ".grib"
 
-    def __init__(self, base_path: str):
-        super().__init__(base_path=UPath(base_path))
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
@@ -110,7 +125,9 @@ class GribDischargeIOManager(UPathIOManager):
             # The file is instead cached and read locally
             # ref: https://stackoverflow.com/questions/66229140/xarray-read-remote-grib-file-on-s3-using-cfgrib
             ds_source = fsspec.open_local(
-                f"simplecache::{path}", filecache={"cache_storage": "/tmp/files"}
+                f"simplecache::{path}",
+                filecache={"cache_storage": settings.fsspec_cache_storage},
+                **path.storage_options,
             )
 
         ds_cf = xr.open_dataset(
@@ -135,8 +152,8 @@ class GribDischargeIOManager(UPathIOManager):
 class NetdCDFIOManager(UPathIOManager):
     extension: str = ".nc"
 
-    def __init__(self, base_path: str):
-        super().__init__(base_path=UPath(base_path))
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
 
     def dump_to_path(self, context: OutputContext, obj: str, path: UPath) -> None:
         raise NotImplementedError("NetdCDFIOManager does not support writing data.")
