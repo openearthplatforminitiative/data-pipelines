@@ -11,7 +11,6 @@ from data_pipelines.utils.flood.config import UPSTREAM_URL
 
 @asset(key_prefix=["flood"], io_manager_key="netcdf_io_manager")
 def uparea_glofas_v4_0(context: AssetExecutionContext) -> None:
-
     out_path = get_path_in_asset(context, settings.base_data_path, ".nc")
     out_path.mkdir(parents=True, exist_ok=True)
 
