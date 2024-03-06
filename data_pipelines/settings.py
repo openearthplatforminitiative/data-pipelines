@@ -4,11 +4,15 @@ from upath import UPath
 
 class Settings(BaseSettings):
     _base_data_path: str = "s3://openepi-data/"
-    aws_access_key_id: str = ""
-    aws_secret_access_key: str = ""
     aws_region: str = "eu-north-1"
+    aws_access_key_id: str
+    aws_secret_access_key: str
+
     fsspec_cache_storage: str = "/tmp/files"
-    dask_cluster_image: str = "astangeland/data-pipelines:latest"
+
+    dask_cluster_arn: str | None = None
+    dask_scheduler_task_definition_arn: str | None = None
+    dask_worker_task_definition_arn: str | None = None
 
     @property
     def base_data_path(self) -> UPath:

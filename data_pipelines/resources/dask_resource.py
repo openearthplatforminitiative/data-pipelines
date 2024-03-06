@@ -1,12 +1,10 @@
 from abc import abstractmethod
 from contextlib import contextmanager
 
-from dagster import ConfigurableResource, InitResourceContext, ResourceDependency
+from dagster import ConfigurableResource, InitResourceContext
 from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster
 from pydantic import PrivateAttr
-
-from data_pipelines.settings import settings
 
 
 class DaskResource(ConfigurableResource):
@@ -38,18 +36,45 @@ class DaskLocalResource(DaskResource):
 
 
 class DaskFargateResource(DaskResource):
+    region_name: str
     n_workers: int = 4
-    region: str = settings.aws_region
+    cluster_arn: str | None = None
+    scheduler_task_definition_arn: str | None = None
+    worker_task_definition_arn: str | None = None
+    image: str | None
+    task_role_policies: list[str] | None = None
+
+    @property
+    def arn_config_provided(self) -> bool:
+        return not None in [
+            self.cluster_arn,
+            self.scheduler_task_definition_arn,
+            self.worker_task_definition_arn,
+        ]
 
     @contextmanager
     def _provision_cluster(self, context: InitResourceContext):
-        context.log.debug(
-            "Launching Dask cluster with %s workers with AWS Fargate.", self.n_workers
-        )
-        with FargateCluster(
-            image=settings.dask_cluster_image,
-            n_workers=self.n_workers,
-            region_name=self.region,
-            task_role_policies=["arn:aws:iam::aws:policy/AmazonS3FullAccess"],
-        ) as cluster:
-            yield cluster
+        if self.arn_config_provided:
+            context.log.info(
+                "Launching Dask cluster with %s workers with AWS Fargate.",
+                self.n_workers,
+            )
+            with FargateCluster(
+                n_workers=self.n_workers,
+                region_name=self.region_name,
+                cluster_arn=self.cluster_arn,
+                scheduler_task_definition_arn=self.scheduler_task_definition_arn,
+                worker_task_definition_arn=self.worker_task_definition_arn,
+            ) as cluster:
+                yield cluster
+        else:
+            context.log.warn(
+                "Dask cluster ARN config could not be found. Launching ephemeral Dask cluster on AWS Fargate."
+            )
+            with FargateCluster(
+                n_workers=self.n_workers,
+                region_name=self.region_name,
+                image=self.image,
+                task_role_policies=self.task_role_policies,
+            ) as cluster:
+                yield cluster

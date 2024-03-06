@@ -1,20 +1,26 @@
 from dagster import EnvVar
-from upath import UPath
 
+from data_pipelines.resources.dask_resource import (
+    DaskFargateResource,
+    DaskLocalResource,
+)
 from data_pipelines.resources.glofas_resource import CDSClient
-
-from ..settings import settings
-from .dask_resource import DaskFargateResource, DaskLocalResource
-from .io_managers import (
+from data_pipelines.resources.io_managers import (
     COGIOManager,
     DaskParquetIOManager,
     GribDischargeIOManager,
     NetdCDFIOManager,
     ZarrIOManager,
 )
+from data_pipelines.settings import settings
 
 RESOURCES = {
-    "dask_resource": DaskFargateResource(),
+    "dask_resource": DaskFargateResource(
+        region_name=settings.aws_region,
+        cluster_arn=settings.dask_cluster_arn,
+        scheduler_task_definition_arn=settings.dask_scheduler_task_definition_arn,
+        worker_task_definition_arn=settings.dask_worker_task_definition_arn,
+    ),
     "cog_io_manager": COGIOManager(base_path=settings.base_data_path),
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),
     "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_path),
