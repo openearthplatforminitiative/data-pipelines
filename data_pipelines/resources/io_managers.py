@@ -42,15 +42,7 @@ class COGIOManager(UPathIOManager):
         super().__init__(base_path=base_path)
 
     def get_path_in_asset(self, context: AssetExecutionContext) -> UPath:
-        path = self._base_path.joinpath(context.asset_key.path)
-        if context.has_partition_key:
-            if len(context.partition_key) == 1:
-                path = path / context.partition_key
-            else:
-                raise NotImplementedError(
-                    "get_path_in_asset does not support multi-partition runs."
-                )
-        return path.with_suffix(self.extension)
+        return get_path_in_asset(context, self._base_path, self.extension)
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray | xr.Dataset | None, path: UPath

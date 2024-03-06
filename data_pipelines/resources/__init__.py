@@ -14,7 +14,7 @@ from .io_managers import (
 )
 
 RESOURCES = {
-    "dask_resource": DaskLocalResource(),
+    "dask_resource": DaskFargateResource(),
     "cog_io_manager": COGIOManager(base_path=settings.base_data_path),
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),
     "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_path),

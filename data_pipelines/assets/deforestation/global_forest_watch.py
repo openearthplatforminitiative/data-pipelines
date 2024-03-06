@@ -62,7 +62,6 @@ def treeloss_per_year(
     dask_resource: DaskResource,
 ) -> xr.DataArray:
     lossyear = lossyear.chunk({"y": 4096, "x": 4096})
-    # lossyear = lossyear.chunk({"y": 1024, "x": 1024})
     year_masks = [
         (lossyear == y).expand_dims({"year": [y + 2000]}) for y in range(1, 23)
     ]
