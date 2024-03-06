@@ -41,15 +41,19 @@ class DaskFargateResource(DaskResource):
     cluster_arn: str | None = None
     scheduler_task_definition_arn: str | None = None
     worker_task_definition_arn: str | None = None
+    security_groups: str | None = None
+    execution_role_arn: str | None = None
     image: str | None
     task_role_policies: list[str] | None = None
 
     @property
-    def arn_config_provided(self) -> bool:
+    def aws_resources_provided(self) -> bool:
         return not None in [
             self.cluster_arn,
             self.scheduler_task_definition_arn,
             self.worker_task_definition_arn,
+            self.security_groups,
+            self.execution_role_arn,
         ]
 
     @contextmanager
@@ -65,6 +69,9 @@ class DaskFargateResource(DaskResource):
                 cluster_arn=self.cluster_arn,
                 scheduler_task_definition_arn=self.scheduler_task_definition_arn,
                 worker_task_definition_arn=self.worker_task_definition_arn,
+                execution_role_arn=self.execution_role_arn,
+                security_groups=self.security_groups,
+                skip_cleanup=True,
             ) as cluster:
                 yield cluster
         else:

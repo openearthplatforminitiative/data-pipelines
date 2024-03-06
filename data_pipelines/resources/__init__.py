@@ -20,6 +20,8 @@ RESOURCES = {
         cluster_arn=settings.dask_cluster_arn,
         scheduler_task_definition_arn=settings.dask_scheduler_task_definition_arn,
         worker_task_definition_arn=settings.dask_worker_task_definition_arn,
+        execution_role_arn=settings.dask_execution_role_arn,
+        security_groups=[settings.dask_security_group_id],
     ),
     "cog_io_manager": COGIOManager(base_path=settings.base_data_path),
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),

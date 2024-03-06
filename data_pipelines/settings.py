@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     dask_cluster_arn: str | None = None
     dask_scheduler_task_definition_arn: str | None = None
     dask_worker_task_definition_arn: str | None = None
+    dask_security_group_id: str | None = None
+    dask_execution_role_arn: str | None = None
 
     @property
     def base_data_path(self) -> UPath:
