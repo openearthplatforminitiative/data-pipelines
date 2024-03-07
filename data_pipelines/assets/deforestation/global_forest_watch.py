@@ -20,20 +20,13 @@ from upath import UPath
 
 from data_pipelines.partitions import gfc_area_partitions
 from data_pipelines.resources.dask_resource import DaskResource
+from data_pipelines.resources.io_managers import get_path_in_asset
 from data_pipelines.settings import settings
 
 GLOBAL_FOREST_WATCH_URL_TEMPLATE = (
     "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10/"
     "Hansen_GFC-2022-v1.10_{product}_{area}.tif"
 )
-
-
-def get_path(base_path: str, context: AssetExecutionContext) -> str:
-    return os.path.join(
-        base_path,
-        *context.asset_key.path,
-        f"{context.partition_key}.tif",
-    )
 
 
 @asset(
@@ -46,13 +39,15 @@ def lossyear(context: AssetExecutionContext) -> None:
         product="lossyear", area=context.partition_key
     )
 
-    path = get_path(settings.base_data_path, context)
+    path = get_path_in_asset(context, settings.base_data_path, ".tif")
+    path.mkdir(parents=True, exist_ok=True)
+
     context.log.debug("Reading GeoTIFF from %s", url)
     with NamedTemporaryFile() as tmp_file:
         urlretrieve(url, tmp_file.name)
-        context.log.debug("Writing COG to %s", path)
         cog_translate(tmp_file.name, tmp_file.name, cog_profiles["deflate"])
-        with UPath(path).open("wb") as out_file:
+        context.log.debug("Writing COG to %s", path)
+        with path.open("wb") as out_file:
             out_file.write(tmp_file.read())
 
 

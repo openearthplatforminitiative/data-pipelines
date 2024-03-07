@@ -1,28 +1,30 @@
 from dagster import EnvVar
 
+from data_pipelines.resources.dask_resource import (
+    DaskFargateResource,
+    DaskLocalResource,
+)
 from data_pipelines.resources.glofas_resource import CDSClient
-
-from ..settings import settings
-from .dask_resource import DaskFargateResource, DaskLocalResource
-from .io_managers import (
+from data_pipelines.resources.io_managers import (
     COGIOManager,
     DaskParquetIOManager,
     GribDischargeIOManager,
     NetdCDFIOManager,
     ZarrIOManager,
 )
-from .rio_session import RIOAWSSession
+from data_pipelines.settings import settings
 
 RESOURCES = {
-    "dask_resource": DaskFargateResource(),
-    "cog_io_manager": COGIOManager(
-        base_path=settings.base_data_path,
-        rio_session=RIOAWSSession(
-            aws_access_key_id=EnvVar("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=EnvVar("AWS_SECRET_ACCESS_KEY"),
-            aws_session_token=EnvVar("AWS_SESSION_TOKEN"),
-        ),
+    "dask_resource": DaskFargateResource(
+        region_name=settings.aws_region,
+        scheduler_task_definition_arn=settings.dask_scheduler_task_definition_arn,
+        worker_task_definition_arn=settings.dask_worker_task_definition_arn,
+        cluster_arn=settings.dask_cluster_arn,
+        execution_role_arn=settings.dask_execution_role_arn,
+        security_groups=settings.dask_security_groups,
+        task_role_arn=settings.dask_task_role_arn,
     ),
+    "cog_io_manager": COGIOManager(base_path=settings.base_data_path),
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),
     "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_path),
     "cds_client": CDSClient(
