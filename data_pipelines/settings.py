@@ -5,8 +5,8 @@ from upath import UPath
 class Settings(BaseSettings):
     _base_data_path: str = "s3://openepi-data/"
     aws_region: str = "eu-north-1"
-    aws_access_key_id: str
-    aws_secret_access_key: str
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
 
     fsspec_cache_storage: str = "/tmp/files"
 
