@@ -10,11 +10,19 @@ class Settings(BaseSettings):
 
     fsspec_cache_storage: str = "/tmp/files"
 
-    dask_cluster_arn: str | None = None
     dask_scheduler_task_definition_arn: str | None = None
     dask_worker_task_definition_arn: str | None = None
-    dask_security_group_id: str | None = None
+    dask_cluster_arn: str | None = None
     dask_execution_role_arn: str | None = None
+    dask_task_role_arn: str | None = None
+    dask_security_group_id: str | None = None
+
+    @property
+    def dask_security_groups(self) -> list[str] | None:
+        if self.dask_security_group_id is not None:
+            return [self.dask_security_group_id]
+        else:
+            return None
 
     @property
     def base_data_path(self) -> UPath:

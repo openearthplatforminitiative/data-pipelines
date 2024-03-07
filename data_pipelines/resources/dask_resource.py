@@ -38,11 +38,12 @@ class DaskLocalResource(DaskResource):
 class DaskFargateResource(DaskResource):
     region_name: str
     n_workers: int = 4
-    cluster_arn: str | None = None
     scheduler_task_definition_arn: str | None = None
     worker_task_definition_arn: str | None = None
-    security_groups: str | None = None
+    cluster_arn: str | None = None
     execution_role_arn: str | None = None
+    task_role_arn: str | None = None
+    security_groups: list[str] | None = None
     image: str | None
     task_role_policies: list[str] | None = None
 
@@ -54,6 +55,7 @@ class DaskFargateResource(DaskResource):
             self.worker_task_definition_arn,
             self.security_groups,
             self.execution_role_arn,
+            self.task_role_arn,
         ]
 
     @contextmanager
@@ -66,10 +68,11 @@ class DaskFargateResource(DaskResource):
             with FargateCluster(
                 n_workers=self.n_workers,
                 region_name=self.region_name,
-                cluster_arn=self.cluster_arn,
                 scheduler_task_definition_arn=self.scheduler_task_definition_arn,
                 worker_task_definition_arn=self.worker_task_definition_arn,
+                cluster_arn=self.cluster_arn,
                 execution_role_arn=self.execution_role_arn,
+                task_role_arn=self.task_role_arn,
                 security_groups=self.security_groups,
                 skip_cleanup=True,
             ) as cluster:
