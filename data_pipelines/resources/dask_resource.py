@@ -60,7 +60,7 @@ class DaskFargateResource(DaskResource):
 
     @contextmanager
     def _provision_cluster(self, context: InitResourceContext):
-        if self.arn_config_provided:
+        if self.aws_resources_provided:
             context.log.info(
                 "Launching Dask cluster with %s workers with AWS Fargate.",
                 self.n_workers,
