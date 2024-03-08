@@ -3,7 +3,7 @@ from upath import UPath
 
 
 class Settings(BaseSettings):
-    _base_data_path: str = "s3://openepi-data/"
+    base_data_path: str = "s3://openepi-data/"
     aws_region: str = "eu-north-1"
     aws_access_key_id: str = ""
     aws_secret_access_key: str = ""
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
             return None
 
     @property
-    def base_data_path(self) -> UPath:
+    def base_data_path_with_credentials(self) -> UPath:
         return UPath(
             self._base_data_path,
             key=self.aws_access_key_id,
