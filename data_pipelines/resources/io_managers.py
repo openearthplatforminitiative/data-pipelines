@@ -1,4 +1,3 @@
-import os
 from typing import Sequence
 
 import dask.dataframe as dd
@@ -6,14 +5,7 @@ import fsspec
 import pandas as pd
 import rioxarray
 import xarray as xr
-from dagster import (
-    AssetExecutionContext,
-    ConfigurableIOManager,
-    InputContext,
-    OutputContext,
-    ResourceDependency,
-    UPathIOManager,
-)
+from dagster import AssetExecutionContext, InputContext, OutputContext, UPathIOManager
 from fsspec.implementations.local import LocalFileSystem
 from upath import UPath
 

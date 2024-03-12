@@ -1,4 +1,3 @@
-import os
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 
@@ -16,7 +15,6 @@ from dagster import (
 from flox.xarray import xarray_reduce
 from geocube.api.core import make_geocube
 from rio_cogeo import cog_profiles, cog_translate
-from upath import UPath
 
 from data_pipelines.partitions import gfc_area_partitions
 from data_pipelines.resources.dask_resource import DaskResource
@@ -39,7 +37,7 @@ def lossyear(context: AssetExecutionContext) -> None:
         product="lossyear", area=context.partition_key
     )
 
-    path = get_path_in_asset(context, settings.base_data_path, ".tif")
+    path = get_path_in_asset(context, settings.base_data_upath, ".tif")
     path.mkdir(parents=True, exist_ok=True)
 
     context.log.debug("Reading GeoTIFF from %s", url)

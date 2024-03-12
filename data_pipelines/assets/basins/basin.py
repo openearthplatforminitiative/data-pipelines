@@ -10,7 +10,7 @@ from dagster import (
     multi_asset,
 )
 
-from data_pipelines.resources import BASE_DATA_PATH
+from data_pipelines.settings import settings
 
 HYDROSHEDS_URL = (
     "https://data.hydrosheds.org/file/hydrobasins/standard/hybas_af_lev01-12_v1c.zip"
@@ -31,7 +31,7 @@ def basins(context: AssetExecutionContext):
         file_name = f"hybas_af_lev{level:02}_v1c"
         asset_name = f"basins_level{level:02}"
         for extension in ["dbf", "prj", "sbn", "sbx", "shp", "shp.xml", "shx"]:
-            out_path = BASE_DATA_PATH.joinpath(
+            out_path = settings.base_data_upath.joinpath(
                 "basin", "basins", asset_name
             ).with_suffix(extension)
             print(out_path)
