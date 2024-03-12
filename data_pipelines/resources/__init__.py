@@ -14,7 +14,7 @@ from data_pipelines.resources.io_managers import (
 )
 from data_pipelines.settings import settings
 
-BASE_DATA_PATH = settings.base_data_path_with_credentials
+BASE_DATA_PATH = settings.base_data_upath
 
 RESOURCES = {
     "dask_resource": DaskFargateResource(

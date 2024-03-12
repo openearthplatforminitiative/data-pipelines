@@ -25,9 +25,9 @@ class Settings(BaseSettings):
             return None
 
     @property
-    def base_data_path_with_credentials(self) -> UPath:
+    def base_data_upath(self) -> UPath:
         return UPath(
-            self._base_data_path,
+            self.base_data_path,
             key=self.aws_access_key_id,
             secret=self.aws_secret_access_key,
         )
