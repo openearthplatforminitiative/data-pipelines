@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import dask.dataframe as dd
 import pandas as pd
 import xarray as xr
-from dagster import AssetExecutionContext, asset
+from dagster import AssetExecutionContext, AssetIn, asset
 
 from data_pipelines.partitions import discharge_partitions
 from data_pipelines.resources.dask_resource import DaskResource
@@ -75,6 +75,10 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 
 
 @asset(
+    ins={
+        "raw_discharge": AssetIn(key_prefix="flood"),
+        "uparea_glofas_v4_0": AssetIn(key_prefix="flood"),
+    },
     key_prefix=["flood"],
     compute_kind="xarray",
     partitions_def=discharge_partitions,
@@ -127,6 +131,10 @@ def transformed_discharge(
 
 
 @asset(
+    ins={
+        "transformed_discharge": AssetIn(key_prefix="flood"),
+        "rp_combined_thresh_pq": AssetIn(key_prefix="flood"),
+    },
     key_prefix=["flood"],
     compute_kind="dask",
     io_manager_key="parquet_io_manager",
@@ -180,6 +188,9 @@ def detailed_forecast(
 
 
 @asset(
+    ins={
+        "detailed_forecast": AssetIn(key_prefix="flood"),
+    },
     key_prefix=["flood"],
     compute_kind="dask",
     io_manager_key="parquet_io_manager",

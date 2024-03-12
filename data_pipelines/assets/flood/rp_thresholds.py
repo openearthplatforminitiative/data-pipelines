@@ -1,5 +1,5 @@
 import xarray as xr
-from dagster import AssetExecutionContext, asset
+from dagster import AssetExecutionContext, AssetIn, asset
 
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.utils.flood.config import (
@@ -26,7 +26,14 @@ def RP20ythresholds_GloFASv40(context) -> None:
     return None
 
 
-@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="parquet_io_manager")
+@asset(
+    ins={
+        "RP2ythresholds_GloFASv40": AssetIn(key_prefix="flood"),
+    },
+    key_prefix=["flood"],
+    compute_kind="xarray",
+    io_manager_key="parquet_io_manager",
+)
 def rp_2y_thresh_pq(context, RP2ythresholds_GloFASv40: xr.Dataset):
     threshold = GLOFAS_RET_PRD_THRESH_VALS[0]
     ds = RP2ythresholds_GloFASv40
@@ -42,7 +49,14 @@ def rp_2y_thresh_pq(context, RP2ythresholds_GloFASv40: xr.Dataset):
     return df
 
 
-@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="parquet_io_manager")
+@asset(
+    ins={
+        "RP5ythresholds_GloFASv40": AssetIn(key_prefix="flood"),
+    },
+    key_prefix=["flood"],
+    compute_kind="xarray",
+    io_manager_key="parquet_io_manager",
+)
 def rp_5y_thresh_pq(context, RP5ythresholds_GloFASv40: xr.Dataset):
     threshold = GLOFAS_RET_PRD_THRESH_VALS[1]
     ds = RP5ythresholds_GloFASv40
@@ -58,7 +72,14 @@ def rp_5y_thresh_pq(context, RP5ythresholds_GloFASv40: xr.Dataset):
     return df
 
 
-@asset(key_prefix=["flood"], compute_kind="xarray", io_manager_key="parquet_io_manager")
+@asset(
+    ins={
+        "RP20ythresholds_GloFASv40": AssetIn(key_prefix="flood"),
+    },
+    key_prefix=["flood"],
+    compute_kind="xarray",
+    io_manager_key="parquet_io_manager",
+)
 def rp_20y_thresh_pq(context, RP20ythresholds_GloFASv40: xr.Dataset):
     threshold = GLOFAS_RET_PRD_THRESH_VALS[2]
     ds = RP20ythresholds_GloFASv40
@@ -75,6 +96,11 @@ def rp_20y_thresh_pq(context, RP20ythresholds_GloFASv40: xr.Dataset):
 
 
 @asset(
+    ins={
+        "rp_2y_thresh_pq": AssetIn(key_prefix="flood"),
+        "rp_5y_thresh_pq": AssetIn(key_prefix="flood"),
+        "rp_20y_thresh_pq": AssetIn(key_prefix="flood"),
+    },
     key_prefix=["flood"],
     compute_kind="dask",
     io_manager_key="parquet_io_manager",

@@ -50,6 +50,7 @@ def lossyear(context: AssetExecutionContext) -> None:
 
 
 @asset(
+    ins={"lossyear": AssetIn(key_prefix="deforestation")},
     io_manager_key="zarr_io_manager",
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
@@ -67,34 +68,6 @@ def treeloss_per_year(
     treecover_by_year = treecover_by_year.coarsen(x=200, y=200).sum()
     treecover_by_year = treecover_by_year.chunk({"year": 22, "x": 200, "y": 200})
     return treecover_by_year
-
-
-@asset(
-    ins={
-        "lossyear": AssetIn(
-            key_prefix="deforestation", partition_mapping=AllPartitionMapping()
-        )
-    },
-    io_manager_key="parquet_io_manager",
-    key_prefix=["deforestation"],
-    compute_kind="dask",
-)
-def lossyear_points(
-    context: AssetExecutionContext,
-    lossyear: dict[str, xr.DataArray],
-    dask_resource: DaskResource,
-) -> list[dd.DataFrame]:
-    out_data = []
-    for lossyear_tile in lossyear.values():
-        lossyear_tile = lossyear_tile.squeeze(drop=True).chunk({"y": 512, "x": 40_000})
-        df = (
-            lossyear_tile.drop_vars(["spatial_ref"])
-            .rename("lossyear")
-            .to_dask_dataframe(dim_order=["y", "x"])
-        )
-        df = df.loc[df["lossyear"] > 0].repartition(partition_size="100MB")
-        out_data.append(df)
-    return out_data
 
 
 def make_geocube_like_dask(
@@ -138,6 +111,7 @@ basins = SourceAsset(key=AssetKey(["basins", "basins"]))
 
 
 @asset(
+    ins={"lossyear": AssetIn(key_prefix="deforestation")},
     io_manager_key="parquet_io_manager",
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
