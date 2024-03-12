@@ -107,15 +107,12 @@ def get_bbox_from_GFC_area(area: str) -> tuple[int, int, int, int]:
     return lon, lat, lon + 10, lat - 10
 
 
-basins = SourceAsset(key=AssetKey(["basins", "basins"]))
-
-
 @asset(
     ins={"lossyear": AssetIn(key_prefix="deforestation")},
     io_manager_key="parquet_io_manager",
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
-    deps=[basins],
+    deps=[SourceAsset(key=AssetKey(["basin", "basins"]))],
     compute_kind="dask",
 )
 def treeloss_per_basin(
@@ -123,14 +120,12 @@ def treeloss_per_basin(
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
 ) -> dd.DataFrame:
-    lossyear = lossyear.chunk({"y": 200, "x": 40_000}).rename("lossyear")
+    lossyear = lossyear.chunk({"y": 4096, "x": 4096}).rename("lossyear")
     bbox = get_bbox_from_GFC_area(context.asset_partition_key_for_input("lossyear"))
 
     # Open basin data
-    basins = gpd.read_file(
-        "/home/aleks/projects/OpenEPI/data-pipelines/data/basins/hybas_af_lev08_v1c.shp",
-        bbox=bbox,
-    )
+    basin_path = settings.base_data_upath.joinpath("basin", "basins")
+    basins = gpd.read_file(basin_path, bbox=bbox)
 
     # Rasterize basin data to lossyear grid and combine into dataset
     basin_zones = make_geocube_like_dask(basins, "HYBAS_ID", lossyear).to_dataset()
