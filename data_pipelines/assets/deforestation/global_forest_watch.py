@@ -4,14 +4,7 @@ from urllib.request import urlretrieve
 import dask.dataframe as dd
 import geopandas as gpd
 import xarray as xr
-from dagster import (
-    AllPartitionMapping,
-    AssetExecutionContext,
-    AssetIn,
-    AssetKey,
-    SourceAsset,
-    asset,
-)
+from dagster import AssetExecutionContext, AssetIn, AssetKey, SourceAsset, asset
 from flox.xarray import xarray_reduce
 from geocube.api.core import make_geocube
 from rio_cogeo import cog_profiles, cog_translate
@@ -112,7 +105,7 @@ def get_bbox_from_GFC_area(area: str) -> tuple[int, int, int, int]:
     io_manager_key="parquet_io_manager",
     partitions_def=gfc_area_partitions,
     key_prefix=["deforestation"],
-    deps=[SourceAsset(key=AssetKey(["basin", "basins"]))],
+    deps=[SourceAsset(key=AssetKey(["basin", "hydrobasins"]))],
     compute_kind="dask",
 )
 def treeloss_per_basin(
@@ -124,8 +117,11 @@ def treeloss_per_basin(
     bbox = get_bbox_from_GFC_area(context.asset_partition_key_for_input("lossyear"))
 
     # Open basin data
-    basin_path = settings.base_data_upath.joinpath("basin", "basins")
-    basins = gpd.read_file(basin_path, bbox=bbox)
+    basin_path = settings.base_data_upath.joinpath(
+        "basin", "hydrobasins", "hydrobasins.shp"
+    )
+
+    basins = gpd.read_file(basin_path.as_uri(), bbox=bbox)
 
     # Rasterize basin data to lossyear grid and combine into dataset
     basin_zones = make_geocube_like_dask(basins, "HYBAS_ID", lossyear).to_dataset()

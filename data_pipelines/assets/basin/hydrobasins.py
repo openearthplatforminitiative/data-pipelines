@@ -13,15 +13,14 @@ HYDROSHEDS_BASIN_LEVEL = 7
 
 
 @asset(key_prefix="basin")
-def basins(context: AssetExecutionContext):
+def hydrobasins(context: AssetExecutionContext) -> MaterializeResult:
     r = httpx.get(HYDROSHEDS_URL)
     z = zipfile.ZipFile(io.BytesIO(r.content))
     file_name = f"hybas_af_lev{HYDROSHEDS_BASIN_LEVEL:02}_v1c"
-    asset_name = "basins"
-    for extension in ["dbf", "prj", "sbn", "sbx", "shp", "shp.xml", "shx"]:
+    asset_name = "hydrobasins"
+    for extension in [".dbf", ".prj", ".sbn", ".sbx", ".shp", ".shp.xml", ".shx"]:
         out_path = settings.base_data_upath.joinpath(
-            "basin", "basins", asset_name
+            "basin", "hydrobasins", asset_name
         ).with_suffix(extension)
-        print(out_path)
-        out_path.write_bytes(z.read(file_name))
-    return MaterializeResult(AssetKey(["basin", asset_name]))
+        out_path.write_bytes(z.read(file_name + extension))
+    return MaterializeResult(asset_key=AssetKey(["basin", asset_name]))

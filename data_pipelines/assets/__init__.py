@@ -1,15 +1,15 @@
 from dagster import load_assets_from_package_module
 
-from . import basins, deforestation, flood
+from . import basin, deforestation, flood
 
 DEFORESTATION = "deforestation"
-BASINS = "basin"
+BASIN = "basin"
 FLOOD = "flood"
 
 deforestation_assets = load_assets_from_package_module(
     package_module=deforestation, group_name=DEFORESTATION
 )
-basin_assets = load_assets_from_package_module(package_module=basins, group_name=BASINS)
+basin_assets = load_assets_from_package_module(package_module=basin, group_name=BASIN)
 
 flood_assets = load_assets_from_package_module(package_module=flood, group_name=FLOOD)
 
