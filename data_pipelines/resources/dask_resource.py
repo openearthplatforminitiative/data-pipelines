@@ -78,7 +78,7 @@ class DaskFargateResource(DaskResource):
             ) as cluster:
                 yield cluster
         else:
-            context.log.warn(
+            context.log.warning(
                 "Dask cluster ARN config could not be found. Launching ephemeral Dask cluster on AWS Fargate."
             )
             with FargateCluster(
