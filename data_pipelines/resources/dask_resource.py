@@ -49,7 +49,7 @@ class DaskFargateResource(DaskResource):
 
     @property
     def aws_resources_provided(self) -> bool:
-        return not None in [
+        return None not in [
             self.cluster_arn,
             self.scheduler_task_definition_arn,
             self.worker_task_definition_arn,

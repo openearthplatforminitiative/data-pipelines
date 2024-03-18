@@ -1,9 +1,6 @@
 from dagster import EnvVar
 
-from data_pipelines.resources.dask_resource import (
-    DaskFargateResource,
-    DaskLocalResource,
-)
+from data_pipelines.resources.dask_resource import DaskFargateResource
 from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.resources.io_managers import (
     COGIOManager,
@@ -24,12 +21,12 @@ RESOURCES = {
         security_groups=settings.dask_security_groups,
         task_role_arn=settings.dask_task_role_arn,
     ),
-    "cog_io_manager": COGIOManager(base_path=settings.base_data_path),
-    "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_path),
-    "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_path),
+    "cog_io_manager": COGIOManager(base_path=settings.base_data_upath),
+    "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_upath),
+    "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_upath),
     "cds_client": CDSClient(
         user_id=EnvVar("CDS_USER_ID"), api_key=EnvVar("CDS_API_KEY")
     ),
-    "grib_io_manager": GribDischargeIOManager(base_path=settings.base_data_path),
-    "netcdf_io_manager": NetdCDFIOManager(base_path=settings.base_data_path),
+    "grib_io_manager": GribDischargeIOManager(base_path=settings.base_data_upath),
+    "netcdf_io_manager": NetdCDFIOManager(base_path=settings.base_data_upath),
 }

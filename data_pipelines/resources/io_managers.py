@@ -1,4 +1,3 @@
-import os
 from typing import Sequence
 
 import dask.dataframe as dd
@@ -6,14 +5,7 @@ import fsspec
 import pandas as pd
 import rioxarray
 import xarray as xr
-from dagster import (
-    AssetExecutionContext,
-    ConfigurableIOManager,
-    InputContext,
-    OutputContext,
-    ResourceDependency,
-    UPathIOManager,
-)
+from dagster import AssetExecutionContext, InputContext, OutputContext, UPathIOManager
 from fsspec.implementations.local import LocalFileSystem
 from upath import UPath
 
@@ -63,7 +55,7 @@ class ZarrIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
     ) -> None:
-        obj.to_zarr(path, mode="w")
+        obj.to_zarr(path, mode="w", storage_options=path.storage_options)
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.DataArray:
         return xr.open_dataarray(path)
@@ -79,9 +71,9 @@ class DaskParquetIOManager(UPathIOManager):
         self, context: OutputContext, obj: pd.DataFrame | dd.DataFrame, path: UPath
     ):
         if isinstance(obj, pd.DataFrame):
-            obj.to_parquet(path)
+            obj.to_parquet(path, storage_options=path.storage_options)
         else:
-            obj.to_parquet(path, overwrite=True)
+            obj.to_parquet(path, overwrite=True, storage_options=path.storage_options)
 
     def load_from_path(
         self, context: InputContext, path: UPath | Sequence[UPath]
