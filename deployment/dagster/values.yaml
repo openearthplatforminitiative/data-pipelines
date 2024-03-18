@@ -1,20 +1,76 @@
 dagster-user-deployments:
   enabled: true
   deployments:
-    - name: "k8s-example-user-code-1"
+    - name: "data-pipelines"
       image:
-        repository: "docker.io/dagster/user-code-example"
+        repository: "ghcr.io/openearthplatforminitiative/data-pipelines"
         tag: latest
         pullPolicy: Always
       dagsterApiGrpcArgs:
-        - "--python-file"
-        - "/example_project/example_repo/repo.py"
+        - "--module-name"
+        - "data_pipelines"
       port: 3030
+      envSecrets:
+        - name: "dagster-aws-credentials"
+      envConfigMaps:
+        - name: "dagster-config"
+
+dagsterWebserver:
+  pathPrefix: "/dagster"
+  readinessProbe:
+    httpGet:
+      path: "/dagster/server_info"
+      port: 80
+    periodSeconds: 20
+    timeoutSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+dagsterDaemon:
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+  runCoordinator:
+    enabled: true
+    type: QueuedRunCoordinator
+    config:
+      queuedRunCoordinator:
+        maxConcurrentRuns: 3
+
+
+runLauncher:
+  type: K8sRunLauncher
+  config:
+    k8sRunLauncher:
+      runK8sConfig:
+        containerConfig:
+          resources:
+            requests:
+              memory: 1024Mi
+              cpu: 250m
+            limits:
+              memory: 1024Mi
+              cpu: 250m
+      envSecrets:
+        - name: "dagster-aws-credentials"
+      envConfigMaps:
+        - name: "dagster-config"
 
 postgresql:
+  # set postgresql.enabled to be false to disable deploy of a PostgreSQL database and use an
+  # existing external PostgreSQL database
   enabled: false
 
-  # Used by init container to check that db is running. (Even if enabled:false)
-  image:
-    repository: "library/postgres"
-    pullPolicy: IfNotPresent
+generatePostgresqlPasswordSecret: false
