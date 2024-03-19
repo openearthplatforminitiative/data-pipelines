@@ -30,6 +30,7 @@ class Settings(BaseSettings):
             self.base_data_path,
             key=self.aws_access_key_id,
             secret=self.aws_secret_access_key,
+            client_kwargs={"region_name": self.aws_region},
         )
 
 
