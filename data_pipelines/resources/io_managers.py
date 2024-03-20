@@ -56,7 +56,7 @@ class ZarrIOManager(UPathIOManager):
         self, context: OutputContext, obj: xr.DataArray, path: UPath
     ) -> None:
         obj.to_zarr(
-            str(path),
+            path.as_uri(),
             mode="w",
             storage_options=dict(path.storage_options),
         )
@@ -77,12 +77,12 @@ class DaskParquetIOManager(UPathIOManager):
         match obj:
             case pd.DataFrame:
                 obj.to_parquet(
-                    str(path),
+                    path.as_uri(),
                     storage_options=path.storage_options,
                 )
             case dd.DataFrame:
                 obj.to_parquet(
-                    str(path),
+                    path.as_uri(),
                     storage_options=path.storage_options,
                 )
             case _:
@@ -91,7 +91,7 @@ class DaskParquetIOManager(UPathIOManager):
     def load_from_path(
         self, context: InputContext, path: UPath | Sequence[UPath]
     ) -> dd.DataFrame:
-        return dd.read_parquet(str(path))
+        return dd.read_parquet(path.as_uri())
 
     def load_input(self, context: InputContext) -> dd.DataFrame:
         if not context.has_asset_partitions:
