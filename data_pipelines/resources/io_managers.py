@@ -55,7 +55,11 @@ class ZarrIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
     ) -> None:
-        obj.to_zarr(path, mode="w", storage_options=path.storage_options)
+        obj.to_zarr(
+            path.as_uri(),
+            mode="w",
+            storage_options=dict(path.storage_options),
+        )
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.DataArray:
         return xr.open_dataarray(path)
@@ -70,15 +74,24 @@ class DaskParquetIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: pd.DataFrame | dd.DataFrame, path: UPath
     ):
-        if isinstance(obj, pd.DataFrame):
-            obj.to_parquet(path, storage_options=path.storage_options)
-        else:
-            obj.to_parquet(path, overwrite=True, storage_options=path.storage_options)
+        match obj:
+            case pd.DataFrame:
+                obj.to_parquet(
+                    path.as_uri(),
+                    storage_options=path.storage_options,
+                )
+            case dd.DataFrame:
+                obj.to_parquet(
+                    path.as_uri(),
+                    storage_options=path.storage_options,
+                )
+            case _:
+                raise TypeError("Must be either a Pandas or Dask DataFrame.")
 
     def load_from_path(
         self, context: InputContext, path: UPath | Sequence[UPath]
     ) -> dd.DataFrame:
-        return dd.read_parquet(path)
+        return dd.read_parquet(path.as_uri())
 
     def load_input(self, context: InputContext) -> dd.DataFrame:
         if not context.has_asset_partitions:

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
 
     dask_scheduler_task_definition_arn: str | None = None
     dask_worker_task_definition_arn: str | None = None
-    dask_cluster_arn: str | None = None
+    dask_ecs_cluster_arn: str | None = None
     dask_execution_role_arn: str | None = None
     dask_task_role_arn: str | None = None
     dask_security_group_id: str | None = None
@@ -30,6 +30,7 @@ class Settings(BaseSettings):
             self.base_data_path,
             key=self.aws_access_key_id,
             secret=self.aws_secret_access_key,
+            client_kwargs={"region_name": self.aws_region},
         )
 
 
