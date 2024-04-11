@@ -10,20 +10,20 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   # The following environment variables are set to avoid pydantic raising a validation error when running tests.
   # They are not actually used for running the tests.
-  base_data_path:
-  aws_region:
-  aws_access_key_id:
-  aws_secret_access_key:
+  BASE_DATA_PATH: "test"
+  AWS_REGION: "test"
+  AWS_ACCESS_KEY_ID: "test"
+  AWS_SECRET_ACCESS_KEY: "test"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
