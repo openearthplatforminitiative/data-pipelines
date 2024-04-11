@@ -34,6 +34,13 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      # The following environment variables are set to avoid pydantic raising a validation error when running tests.
+      # They are not actually used for running the tests.
+      BASE_DATA_PATH: "test"
+      AWS_REGION: "test"
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
