@@ -20,6 +20,7 @@ jobs:
         with:
           context: .
           push: false
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -30,3 +31,23 @@ jobs:
         uses: rickstaa/action-black@v1
         with:
           black_args: ". --check"
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install dependencies
+        run: poetry install --no-root
+
+      - name: Run pytest
+        run: poetry run pytest
