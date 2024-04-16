@@ -75,7 +75,6 @@ class DaskFargateResource(DaskResource):
                 task_role_arn=self.task_role_arn,
                 security_groups=self.security_groups,
                 skip_cleanup=True,
-                fargate_use_private_ip=True,
             ) as cluster:
                 yield cluster
         else:
@@ -87,6 +86,5 @@ class DaskFargateResource(DaskResource):
                 region_name=self.region_name,
                 image=self.image,
                 task_role_policies=self.task_role_policies,
-                fargate_use_private_ip=True,
             ) as cluster:
                 yield cluster
