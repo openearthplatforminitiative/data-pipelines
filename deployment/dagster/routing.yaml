@@ -13,3 +13,5 @@ spec:
     - kind: Service
       name: dagster-dagster-webserver
       port: 80
+    middlewares:
+    - name: forward-auth-forward-auth@kubernetescrd
