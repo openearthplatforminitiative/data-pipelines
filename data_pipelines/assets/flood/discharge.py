@@ -69,7 +69,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         "product_type": product_type,
     }
 
-    out_path = get_path_in_asset(context, settings.base_data_path, ".grib")
+    out_path = get_path_in_asset(context, settings.base_data_upath, ".grib")
     out_path.mkdir(parents=True, exist_ok=True)
     cds_client.fetch_data(request_params, out_path)
 
