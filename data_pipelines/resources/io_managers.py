@@ -82,6 +82,7 @@ class DaskParquetIOManager(UPathIOManager):
         elif isinstance(obj, dd.DataFrame):
             obj.to_parquet(
                 path.as_uri(),
+                overwrite=True,
                 storage_options=path.storage_options,
             )
         else:
