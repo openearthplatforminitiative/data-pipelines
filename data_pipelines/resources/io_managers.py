@@ -74,19 +74,19 @@ class DaskParquetIOManager(UPathIOManager):
     def dump_to_path(
         self, context: OutputContext, obj: pd.DataFrame | dd.DataFrame, path: UPath
     ):
-        match obj:
-            case pd.DataFrame:
-                obj.to_parquet(
-                    path.as_uri(),
-                    storage_options=path.storage_options,
-                )
-            case dd.DataFrame:
-                obj.to_parquet(
-                    path.as_uri(),
-                    storage_options=path.storage_options,
-                )
-            case _:
-                raise TypeError("Must be either a Pandas or Dask DataFrame.")
+        if isinstance(obj, pd.DataFrame):
+            obj.to_parquet(
+                path.as_uri(),
+                storage_options=path.storage_options,
+            )
+        elif isinstance(obj, dd.DataFrame):
+            obj.to_parquet(
+                path.as_uri(),
+                overwrite=True,
+                storage_options=path.storage_options,
+            )
+        else:
+            raise TypeError("Must be either a Pandas or Dask DataFrame.")
 
     def load_from_path(
         self, context: InputContext, path: UPath | Sequence[UPath]
