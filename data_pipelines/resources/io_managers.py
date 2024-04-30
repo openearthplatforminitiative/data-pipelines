@@ -91,7 +91,18 @@ class DaskParquetIOManager(UPathIOManager):
     def load_from_path(
         self, context: InputContext, path: UPath | Sequence[UPath]
     ) -> dd.DataFrame:
-        return dd.read_parquet(path.as_uri())
+        if isinstance(path, UPath):
+            return dd.read_parquet(path.as_uri(), storage_options=path.storage_options)
+        elif isinstance(path, (list, tuple)):
+            # Assume all elements in the list are UPath instances
+            uris = [p.as_uri() for p in path]
+            return dd.read_parquet(
+                uris, storage_options=path[0].storage_options if path else {}
+            )
+        else:
+            raise ValueError(
+                "Path must be a UPath instance or a sequence of UPath instances"
+            )
 
     def load_input(self, context: InputContext) -> dd.DataFrame:
         if not context.has_asset_partitions:
