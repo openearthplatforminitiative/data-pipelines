@@ -1,4 +1,5 @@
 import logging
+import os
 
 import cdsapi
 import fsspec
@@ -24,11 +25,4 @@ class CDSClient(ConfigurableResource):
         self._client = cdsapi.Client(url=self.api_url, key=self._user_key)
 
     def fetch_data(self, request_params, output_path: UPath):
-        cached_output_path = fsspec.open_local(
-            f"simplecache::{output_path}",
-            filecache={"cache_storage": settings.fsspec_cache_storage},
-            **output_path.storage_options,
-        )
-        self._client.retrieve(
-            "cems-glofas-forecast", request_params, cached_output_path
-        )
+        self._client.retrieve("cems-glofas-forecast", request_params, output_path)
