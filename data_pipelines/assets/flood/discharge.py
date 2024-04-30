@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 import dask.dataframe as dd
@@ -183,6 +182,9 @@ def detailed_forecast(
     detailed_forecast_df = add_geometry(
         detailed_forecast_df, GLOFAS_RESOLUTION / 2, GLOFAS_PRECISION
     )
+
+    detailed_forecast_df["issued_on"] = detailed_forecast_df["issued_on"].astype(str)
+    detailed_forecast_df["valid_for"] = detailed_forecast_df["valid_for"].astype(str)
 
     return detailed_forecast_df
 
