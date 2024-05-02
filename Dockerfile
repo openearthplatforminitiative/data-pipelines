@@ -1,6 +1,7 @@
 FROM python:3.11.6-slim
 
 RUN mkdir -p /opt/dagster/dagster_home /opt/dagster/app
+RUN apt-get update && apt-get install -y libeccodes-tools
 
 ENV POETRY_VIRTUALENVS_CREATE=false
 WORKDIR /opt/dagster/app
