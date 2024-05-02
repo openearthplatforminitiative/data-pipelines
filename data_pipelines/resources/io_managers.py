@@ -27,6 +27,15 @@ def get_path_in_asset(
     return path.with_suffix(extension)
 
 
+def get_path_in_io_manager(
+    context: InputContext, base_path: UPath, extension: str
+) -> UPath:
+    path = base_path.joinpath(*context.asset_key.path)
+    if context.has_partition_key:
+        path = path / context.asset_partition_key
+    return path.with_suffix(extension)
+
+
 class COGIOManager(UPathIOManager):
     extension: str = ".tif"
 
@@ -129,13 +138,8 @@ class GribDischargeIOManager(UPathIOManager):
         if isinstance(self.fs, LocalFileSystem):
             ds_source = path
         else:
-            # grib files can not be read directly from cloud storage.
-            # The file is instead cached and read locally
-            # ref: https://stackoverflow.com/questions/66229140/xarray-read-remote-grib-file-on-s3-using-cfgrib
-            ds_source = fsspec.open_local(
-                f"simplecache::{path}",
-                filecache={"cache_storage": settings.fsspec_cache_storage},
-                **path.storage_options,
+            ds_source = get_path_in_io_manager(
+                context, UPath(settings.fsspec_cache_storage), self.extension
             )
 
         ds_cf = xr.open_dataset(
