@@ -145,11 +145,13 @@ class GribDischargeIOManager(UPathIOManager):
             ds_source,
             engine="cfgrib",
             backend_kwargs={"filter_by_keys": {"dataType": "cf"}},
+            chunks=-1,
         )
         ds_pf = xr.open_dataset(
             ds_source,
             engine="cfgrib",
             backend_kwargs={"filter_by_keys": {"dataType": "pf"}},
+            chunks=-1,
         )
 
         if self.use_control_member_in_ensemble:
@@ -170,4 +172,4 @@ class NetdCDFIOManager(UPathIOManager):
         raise NotImplementedError("NetdCDFIOManager does not support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
-        return xr.open_dataset(path.open("rb"))
+        return xr.open_dataset(path.open("rb"), chunks=-1)
