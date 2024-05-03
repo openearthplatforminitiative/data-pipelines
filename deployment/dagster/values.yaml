@@ -48,6 +48,9 @@ dagsterDaemon:
     config:
       queuedRunCoordinator:
         maxConcurrentRuns: 3
+        tagConcurrencyLimits:
+        - key: "sequential_backfill"
+          limit: 1
 
 
 runLauncher:
