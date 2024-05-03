@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     aws_access_key_id: str
     aws_secret_access_key: str
 
-    fsspec_cache_storage: str = "/tmp/files"
+    tmp_storage: UPath = UPath("/tmp/files")
 
     dask_scheduler_task_definition_arn: str | None = None
     dask_worker_task_definition_arn: str | None = None
