@@ -128,6 +128,7 @@ class GribDischargeIOManager(UPathIOManager):
 
     def __init__(self, base_path: UPath):
         super().__init__(base_path=base_path)
+        self.base_path = base_path
 
     def dump_to_path(
         self, context: OutputContext, obj: xr.DataArray, path: UPath
@@ -138,9 +139,7 @@ class GribDischargeIOManager(UPathIOManager):
         if isinstance(self.fs, LocalFileSystem):
             ds_source = path
         else:
-            ds_source = get_path_in_io_manager(
-                context, UPath(settings.fsspec_cache_storage), self.extension
-            )
+            ds_source = get_path_in_io_manager(context, self.base_path, self.extension)
 
         ds_cf = xr.open_dataset(
             ds_source,

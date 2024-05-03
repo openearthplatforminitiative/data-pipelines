@@ -4,7 +4,6 @@ import dask.dataframe as dd
 import pandas as pd
 import xarray as xr
 from dagster import AssetExecutionContext, AssetIn, asset
-from upath import UPath
 
 from data_pipelines.partitions import discharge_partitions
 from data_pipelines.resources.dask_resource import DaskResource
@@ -69,7 +68,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         "product_type": product_type,
     }
 
-    out_path = get_path_in_asset(context, UPath(settings.fsspec_cache_storage), ".grib")
+    out_path = get_path_in_asset(context, settings.tmp_storage, ".grib")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     cds_client.fetch_data(request_params, out_path)
 
