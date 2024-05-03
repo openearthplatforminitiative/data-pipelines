@@ -62,10 +62,10 @@ runLauncher:
           resources:
             requests:
               memory: 2048Mi
-              cpu: 500m
+              cpu: 250m
             limits:
               memory: 2048Mi
-              cpu: 500m
+              cpu: 250m
       envSecrets:
         - name: "dagster-aws-credentials"
       envConfigMaps:
