@@ -36,6 +36,13 @@ def get_path_in_io_manager(
     return path.with_suffix(extension)
 
 
+def copy_local_file_to_s3(local_file_path: str, target_upath: UPath):
+    # Use UPath to copy the local file to the S3 bucket
+    with open(local_file_path, "rb") as f:
+        with target_upath.open("wb") as s3_f:
+            s3_f.write(f.read())
+
+
 class COGIOManager(UPathIOManager):
     extension: str = ".tif"
 
@@ -139,7 +146,15 @@ class GribDischargeIOManager(UPathIOManager):
         if isinstance(self.fs, LocalFileSystem):
             ds_source = path
         else:
-            ds_source = get_path_in_io_manager(context, self.base_path, self.extension)
+            # grib files can not be read directly from cloud storage.
+            # The file is instead cached and read locally
+            # ref: https://stackoverflow.com/questions/66229140/xarray-read-remote-grib-file-on-s3-using-cfgrib
+            ds_source = fsspec.open_local(
+                f"simplecache::{path}",
+                filecache={"cache_storage": "/tmp/files"},
+                **path.storage_options,
+            )
+        context.log.info(f"Reading raw discharge data from {ds_source}")
 
         ds_cf = xr.open_dataset(
             ds_source,
