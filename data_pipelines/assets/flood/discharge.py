@@ -85,7 +85,6 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 )
 def transformed_discharge(
     context: AssetExecutionContext,
-    dask_resource: DaskResource,
     raw_discharge: xr.Dataset,
     uparea_glofas_v4_0: xr.Dataset,
 ) -> pd.DataFrame:
