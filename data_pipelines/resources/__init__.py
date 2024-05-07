@@ -27,6 +27,6 @@ RESOURCES = {
     "cds_client": CDSClient(
         user_id=EnvVar("CDS_USER_ID"), api_key=EnvVar("CDS_API_KEY")
     ),
-    "grib_io_manager": GribDischargeIOManager(base_path=settings.base_data_upath),
+    "grib_io_manager": GribDischargeIOManager(base_path=settings.tmp_storage),
     "netcdf_io_manager": NetdCDFIOManager(base_path=settings.base_data_upath),
 }
