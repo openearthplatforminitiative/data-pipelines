@@ -82,7 +82,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 @asset(
     ins={
         "raw_discharge": AssetIn(key_prefix="flood"),
-        "uparea_glofas_v4_0": AssetIn(key_prefix="flood"),
+        "restricted_uparea_glofas_v4_0": AssetIn(key_prefix="flood"),
     },
     key_prefix=["flood"],
     compute_kind="xarray",
@@ -92,7 +92,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 def transformed_discharge(
     context: AssetExecutionContext,
     raw_discharge: xr.Dataset,
-    uparea_glofas_v4_0: xr.Dataset,
+    restricted_uparea_glofas_v4_0: xr.Dataset,
 ) -> pd.DataFrame:
     buffer = GLOFAS_RESOLUTION / GLOFAS_BUFFER_DIV
     lat_min = GLOFAS_ROI_CENTRAL_AFRICA["lat_min"]
@@ -100,7 +100,12 @@ def transformed_discharge(
     lon_min = GLOFAS_ROI_CENTRAL_AFRICA["lon_min"]
     lon_max = GLOFAS_ROI_CENTRAL_AFRICA["lon_max"]
 
-    ds_upstream = uparea_glofas_v4_0
+    lat_min = 0
+    lat_max = 2
+    lon_min = 20
+    lon_max = 22
+
+    ds_upstream = restricted_uparea_glofas_v4_0
 
     if USE_CONTROL_MEMBER_IN_ENSEMBLE:
         print("Combining control and ensemble")
@@ -110,6 +115,15 @@ def transformed_discharge(
     # Restrict discharge data to area of interest
     ds_discharge = restrict_dataset_area(
         raw_discharge,
+        lat_min,
+        lat_max,
+        lon_min,
+        lon_max,
+        buffer,
+    )
+
+    ds_upstream = restrict_dataset_area(
+        ds_upstream,
         lat_min,
         lat_max,
         lon_min,
