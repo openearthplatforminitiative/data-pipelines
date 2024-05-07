@@ -100,11 +100,6 @@ def transformed_discharge(
     lon_min = GLOFAS_ROI_CENTRAL_AFRICA["lon_min"]
     lon_max = GLOFAS_ROI_CENTRAL_AFRICA["lon_max"]
 
-    lat_min = 0
-    lat_max = 2
-    lon_min = 20
-    lon_max = 22
-
     ds_upstream = restricted_uparea_glofas_v4_0
 
     if USE_CONTROL_MEMBER_IN_ENSEMBLE:
