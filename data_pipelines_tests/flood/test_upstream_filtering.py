@@ -65,7 +65,7 @@ class TestUpstreamFiltering(unittest.TestCase):
         )
 
         filtered_df = dataset_to_dataframe(
-            filtered_ds["dis24"], drop_na_subset=["dis24"], drop_index=False
+            filtered_ds["dis24"], drop_na_subset=["dis24"], drop_index=False, in_chunks=True
         )
 
         filtered_df = filtered_df.sort_values(
