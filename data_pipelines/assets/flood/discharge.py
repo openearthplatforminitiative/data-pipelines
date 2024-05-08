@@ -197,6 +197,12 @@ def detailed_forecast(
     detailed_forecast_df["issued_on"] = detailed_forecast_df["issued_on"].astype(str)
     detailed_forecast_df["valid_for"] = detailed_forecast_df["valid_for"].astype(str)
 
+    context.log.info(f"Starting computing detailed forecast")
+
+    detailed_forecast_df.compute()
+
+    context.log.info(f"Finished computing detailed forecast")
+
     return detailed_forecast_df
 
 
