@@ -8,10 +8,7 @@ from dagster import AssetExecutionContext, AssetIn, asset
 from data_pipelines.partitions import discharge_partitions
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.resources.glofas_resource import CDSClient
-from data_pipelines.resources.io_managers import (
-    copy_local_file_to_s3,
-    get_path_in_asset,
-)
+from data_pipelines.resources.io_managers import get_path_in_asset
 from data_pipelines.settings import settings
 from data_pipelines.utils.flood.config import *
 from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
@@ -73,10 +70,8 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 
     out_path = get_path_in_asset(context, settings.tmp_storage, ".grib")
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    context.log.info(f"Fetching data for {request_params}")
     cds_client.fetch_data(request_params, out_path)
-    target_path = get_path_in_asset(context, settings.base_data_upath, ".grib")
-    target_path.mkdir(parents=True, exist_ok=True)
-    copy_local_file_to_s3(out_path, target_path)
 
 
 @asset(
@@ -140,6 +135,7 @@ def transformed_discharge(
         cols_to_drop=["surface"],
         drop_na_subset=["dis24"],
         drop_index=False,
+        in_chunks=True,
     )
     return filtered_df
 
