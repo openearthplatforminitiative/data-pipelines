@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, timedelta
 
 import dask.dataframe as dd
 import pandas as pd
@@ -158,7 +158,9 @@ def detailed_forecast(
     rp_combined_thresh_pq: dd.DataFrame,
 ) -> dd.DataFrame:
     client = dask_resource._client
-    forecast_df = transformed_discharge
+    forecast_df = transformed_discharge.persist()
+    wait(forecast_df)
+    context.log.info(f"Has what: {client.has_what()}")
 
     # Perform operations on the columns
     forecast_df["latitude"] = forecast_df["latitude"].round(GLOFAS_PRECISION)
@@ -176,7 +178,9 @@ def detailed_forecast(
     # Drop unnecessary columns
     forecast_df = forecast_df.drop(columns=["time", "valid_time"])
 
-    threshold_df = rp_combined_thresh_pq
+    threshold_df = rp_combined_thresh_pq.persist()
+    wait(threshold_df)
+    context.log.info(f"Has what: {client.has_what()}")
 
     detailed_forecast_df = compute_flood_threshold_percentages(
         forecast_df, threshold_df
@@ -201,7 +205,10 @@ def detailed_forecast(
     detailed_forecast_df["valid_for"] = detailed_forecast_df["valid_for"].astype(str)
 
     context.log.info(f"Started computing detailed forecast")
-    detailed_forecast_df = client.compute(detailed_forecast_df).result()
+    context.log.info(f"Has what: {client.has_what()}")
+    detailed_forecast_df = detailed_forecast_df.persist()
+    wait(detailed_forecast_df)
+    context.log.info(f"Has what: {client.has_what()}")
     context.log.info(f"Finished computing detailed forecast")
 
     return detailed_forecast_df
