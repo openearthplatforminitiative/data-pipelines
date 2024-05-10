@@ -4,6 +4,7 @@ import dask.dataframe as dd
 import pandas as pd
 import xarray as xr
 from dagster import AssetExecutionContext, AssetIn, asset
+from distributed import futures_of, wait
 
 from data_pipelines.partitions import discharge_partitions
 from data_pipelines.resources.dask_resource import DaskResource
@@ -200,6 +201,46 @@ def detailed_forecast(
 
     context.log.info(f"Started computing detailed forecast")
     detailed_forecast_df = client.compute(detailed_forecast_df).result()
+    context.log.info(f"Finished computing detailed forecast")
+
+    return detailed_forecast_df
+
+
+@asset(
+    ins={
+        "transformed_discharge": AssetIn(key_prefix="flood"),
+        "rp_combined_thresh_pq": AssetIn(key_prefix="flood"),
+    },
+    key_prefix=["flood"],
+    compute_kind="dask",
+    io_manager_key="parquet_io_manager",
+)
+def dummy_detailed_forecast(
+    context: AssetExecutionContext,
+    dask_resource: DaskResource,
+    transformed_discharge: dd.DataFrame,
+    rp_combined_thresh_pq: dd.DataFrame,
+) -> dd.DataFrame:
+    client = dask_resource._client
+    forecast_df = client.persist(transformed_discharge)
+    wait(forecast_df)
+
+    # Perform operations on the columns
+    forecast_df["latitude"] = forecast_df["latitude"].round(GLOFAS_PRECISION)
+    forecast_df["longitude"] = forecast_df["longitude"].round(GLOFAS_PRECISION)
+
+    context.log.info(f"Has what: {client.has_what()}")
+    context.log.info(f"Who has: {client.who_has()}")
+    context.log.info(f"Who has futures of: {client.who_has(futures_of(forecast_df))}")
+    context.log.info(f"Finished computing detailed forecast")
+
+    detailed_forecast_df = forecast_df.persist()
+
+    context.log.info(f"Has what: {client.has_what()}")
+    context.log.info(f"Who has: {client.who_has()}")
+    context.log.info(
+        f"Who has futures of: {client.who_has(futures_of(detailed_forecast_df))}"
+    )
     context.log.info(f"Finished computing detailed forecast")
 
     return detailed_forecast_df
