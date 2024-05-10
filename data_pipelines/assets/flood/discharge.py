@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import time
 
 import dask.dataframe as dd
 import pandas as pd
@@ -222,7 +223,8 @@ def dummy_detailed_forecast(
     rp_combined_thresh_pq: dd.DataFrame,
 ) -> dd.DataFrame:
     client = dask_resource._client
-    forecast_df = client.persist(transformed_discharge)
+    # forecast_df = client.persist(transformed_discharge)
+    forecast_df = transformed_discharge.persist()
     wait(forecast_df)
 
     # Perform operations on the columns
@@ -235,6 +237,8 @@ def dummy_detailed_forecast(
     context.log.info(f"Finished computing detailed forecast")
 
     detailed_forecast_df = forecast_df.persist()
+    # detailed_forecast_df = client.persist(forecast_df)
+    wait(detailed_forecast_df)
 
     context.log.info(f"Has what: {client.has_what()}")
     context.log.info(f"Who has: {client.who_has()}")
@@ -242,6 +246,8 @@ def dummy_detailed_forecast(
         f"Who has futures of: {client.who_has(futures_of(detailed_forecast_df))}"
     )
     context.log.info(f"Finished computing detailed forecast")
+
+    time.sleep(30)
 
     return detailed_forecast_df
 
