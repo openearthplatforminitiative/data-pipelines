@@ -14,9 +14,14 @@ from data_pipelines.utils.flood.config import USE_CONTROL_MEMBER_IN_ENSEMBLE
 
 
 def get_path_in_asset(
-    context: AssetExecutionContext, base_path: UPath, extension: str
+    context: AssetExecutionContext,
+    base_path: UPath,
+    extension: str,
+    additional_path: str = "",
 ) -> UPath:
     path = base_path.joinpath(*context.asset_key.path)
+    if additional_path:
+        path = path / additional_path
     if context.has_partition_key:
         if len(context.partition_keys) == 1:
             path = path / context.partition_key
@@ -60,6 +65,19 @@ class COGIOManager(UPathIOManager):
     def load_from_path(self, context: InputContext, path: UPath) -> xr.DataArray:
         context.log.debug("Loading data using COGIOManager.")
         return rioxarray.open_rasterio(path)
+
+
+class DummyIOManager(UPathIOManager):
+    extension: str = ""
+
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
+
+    def dump_to_path(self, context: OutputContext, obj: None, path: UPath) -> None:
+        pass
+
+    def load_from_path(self, context: InputContext, path: UPath) -> int:
+        return 1
 
 
 class ZarrIOManager(UPathIOManager):
@@ -126,18 +144,7 @@ class DaskParquetIOManager(UPathIOManager):
             return self._load_single_input(path, context)
         else:
             paths = self._get_paths_for_partitions(context)
-            path_values = list(paths.values())
-            context.log.info(f"Paths: {path_values}")
-            # keep S3Paths paths that contain "24.parquet", "48.parquet", and "72.parquet"
-            path_values = [
-                path
-                for path in path_values
-                if "24.parquet" in str(path)
-                or "48.parquet" in str(path)
-                or "72.parquet" in str(path)
-            ]
-            context.log.info(f"Loading data from {path_values}")
-            return self.load_from_path(context, path_values)
+            return self.load_from_path(context, list(paths.values()))
 
 
 class GribDischargeIOManager(UPathIOManager):

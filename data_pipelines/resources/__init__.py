@@ -5,6 +5,7 @@ from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.resources.io_managers import (
     COGIOManager,
     DaskParquetIOManager,
+    DummyIOManager,
     GribDischargeIOManager,
     NetdCDFIOManager,
     ZarrIOManager,
@@ -29,4 +30,5 @@ RESOURCES = {
     ),
     "grib_io_manager": GribDischargeIOManager(base_path=settings.tmp_storage),
     "netcdf_io_manager": NetdCDFIOManager(base_path=settings.base_data_upath),
+    "dummy_io_manager": DummyIOManager(base_path=settings.base_data_upath),
 }
