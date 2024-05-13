@@ -248,8 +248,13 @@ def detailed_forecast_subarea(
                 ".parquet",
             )
 
-            read_name = subarea_path.name.replace("detailed_forecast_subarea.parquet", f"split_discharge_by_area/{subarea_key}.parquet")
-            write_name = subarea_path.name.replace(".parquet", f"/{subarea_key}.parquet")
+            read_name = subarea_path.name.replace(
+                "detailed_forecast_subarea.parquet",
+                f"split_discharge_by_area/{subarea_key}.parquet",
+            )
+            write_name = subarea_path.name.replace(
+                ".parquet", f"/{subarea_key}.parquet"
+            )
             subarea_read_path = subarea_path.parent / read_name
             subarea_write_path = subarea_path.parent / write_name
 
@@ -257,7 +262,8 @@ def detailed_forecast_subarea(
 
             # Load the subarea discharge data
             sub_discharge = dd.read_parquet(
-                subarea_read_path, storage_options=settings.base_data_upath.storage_options
+                subarea_read_path,
+                storage_options=settings.base_data_upath.storage_options,
             )
 
             # If the subarea discharge data has no rows, skip the computation
@@ -329,9 +335,7 @@ def detailed_forecast_subarea(
                 overwrite=True,
                 storage_options=subarea_write_path.storage_options,
             )
-            context.log.info(
-                f"Saved detailed forecast data to {subarea_write_path}"
-            )
+            context.log.info(f"Saved detailed forecast data to {subarea_write_path}")
 
             del sub_discharge
             del detailed_forecast_df
@@ -500,6 +504,7 @@ def summary_forecast(
 
     return summary_forecast_df
 
+
 # This asset will open the detailed forecast data for each subarea and compute the summary forecast sequentially
 @asset(
     ins={
@@ -523,8 +528,13 @@ def summary_forecast_subarea(
                 ".parquet",
             )
 
-            read_name = subarea_path.name.replace("summary_forecast_subarea.parquet", f"detailed_forecast_subarea/{subarea_key}.parquet")
-            write_name = subarea_path.name.replace(".parquet", f"/{subarea_key}.parquet")
+            read_name = subarea_path.name.replace(
+                "summary_forecast_subarea.parquet",
+                f"detailed_forecast_subarea/{subarea_key}.parquet",
+            )
+            write_name = subarea_path.name.replace(
+                ".parquet", f"/{subarea_key}.parquet"
+            )
             subarea_read_path = subarea_path.parent / read_name
             subarea_write_path = subarea_path.parent / write_name
 
@@ -536,7 +546,9 @@ def summary_forecast_subarea(
                     storage_options=settings.base_data_upath.storage_options,
                 )
             else:
-                context.log.info(f"Skipping subarea {subarea_read_path} as it has no data")
+                context.log.info(
+                    f"Skipping subarea {subarea_read_path} as it has no data"
+                )
                 continue
 
             detailed_forecast_df = detailed_forecast_df.drop(columns=["wkt"])
