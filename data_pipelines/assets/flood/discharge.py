@@ -198,13 +198,13 @@ def detailed_forecast(
     )
 
     new_meta = detailed_forecast_df._meta.copy()
-    new_meta['wkt'] = 'str'  
+    new_meta["wkt"] = "str"
 
     detailed_forecast_df = detailed_forecast_df.map_partitions(
         add_geometry,
         half_grid_size=GLOFAS_RESOLUTION / 2,
         precision=GLOFAS_PRECISION,
-        meta=new_meta
+        meta=new_meta,
     )
 
     detailed_forecast_df["issued_on"] = detailed_forecast_df["issued_on"].astype(str)
