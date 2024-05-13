@@ -137,7 +137,7 @@ class DaskParquetIOManager(UPathIOManager):
                 or "72.parquet" in str(path)
             ]
             context.log.info(f"Loading data from {path_values}")
-            return self.load_from_path(context, list(paths.values()))
+            return self.load_from_path(context, path_values)
 
 
 class GribDischargeIOManager(UPathIOManager):
