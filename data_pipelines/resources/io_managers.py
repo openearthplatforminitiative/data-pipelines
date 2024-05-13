@@ -126,6 +126,17 @@ class DaskParquetIOManager(UPathIOManager):
             return self._load_single_input(path, context)
         else:
             paths = self._get_paths_for_partitions(context)
+            path_values = list(paths.values())
+            context.log.info(f"Paths: {path_values}")
+            # keep S3Paths paths that contain "24.parquet", "48.parquet", and "72.parquet"
+            path_values = [
+                path
+                for path in path_values
+                if "24.parquet" in str(path)
+                or "48.parquet" in str(path)
+                or "72.parquet" in str(path)
+            ]
+            context.log.info(f"Loading data from {path_values}")
             return self.load_from_path(context, list(paths.values()))
 
 
