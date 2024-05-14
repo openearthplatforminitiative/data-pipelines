@@ -321,7 +321,6 @@ def detailed_forecast_subarea(
                 precision=GLOFAS_PRECISION,
                 meta=new_meta,
             )
-            detailed_forecast_df = detailed_forecast_df.persist()
 
             detailed_forecast_df["issued_on"] = detailed_forecast_df[
                 "issued_on"
@@ -329,6 +328,11 @@ def detailed_forecast_subarea(
             detailed_forecast_df["valid_for"] = detailed_forecast_df[
                 "valid_for"
             ].astype(str)
+
+            detailed_forecast_df = detailed_forecast_df.persist()
+            wait(detailed_forecast_df)
+
+            context.log.info(f"Done computing detailed forecast")
 
             detailed_forecast_df.to_parquet(
                 subarea_write_path,
@@ -574,6 +578,11 @@ def summary_forecast_subarea(
                 precision=GLOFAS_PRECISION,
                 meta=new_meta,
             )
+
+            summary_forecast_df = summary_forecast_df.persist()
+            wait(summary_forecast_df)
+
+            context.log.info("Done computing summary forecast")
 
             # write the summary forecast data to a parquet file
             summary_forecast_df.to_parquet(
