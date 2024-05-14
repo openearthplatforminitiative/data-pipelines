@@ -5,8 +5,8 @@ from upath import UPath
 class Settings(BaseSettings):
     base_data_path: str
     aws_region: str
-    aws_access_key_id: str
-    aws_secret_access_key: str
+    aws_access_key_id: str | None
+    aws_secret_access_key: str | None
 
     tmp_storage: UPath = UPath("/tmp/files")
 
