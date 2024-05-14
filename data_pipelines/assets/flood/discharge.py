@@ -311,15 +311,21 @@ def detailed_forecast_subarea(
                 how="left",
             )
 
-            new_meta = detailed_forecast_df._meta.copy()
-            new_meta["wkt"] = "str"
+            # new_meta = detailed_forecast_df._meta.copy()
+            # new_meta["wkt"] = "str"
 
-            # Apply this optimized function
-            detailed_forecast_df = detailed_forecast_df.map_partitions(
-                add_geometry,
+            # # Apply this optimized function
+            # detailed_forecast_df = detailed_forecast_df.map_partitions(
+            #     add_geometry,
+            #     half_grid_size=GLOFAS_RESOLUTION / 2,
+            #     precision=GLOFAS_PRECISION,
+            #     meta=new_meta,
+            # )
+
+            detailed_forecast_df = add_geometry(
+                detailed_forecast_df,
                 half_grid_size=GLOFAS_RESOLUTION / 2,
                 precision=GLOFAS_PRECISION,
-                meta=new_meta,
             )
 
             detailed_forecast_df["issued_on"] = detailed_forecast_df[
