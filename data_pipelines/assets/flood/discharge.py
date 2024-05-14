@@ -485,6 +485,8 @@ def summary_forecast(
 ) -> dd.DataFrame:
     client = dask_resource._client
     detailed_forecast_df = detailed_forecast.drop(columns=["wkt"])
+    detailed_forecast_df = detailed_forecast_df.persist()
+    wait(detailed_forecast_df)
 
     peak_timing_df = compute_flood_peak_timing(detailed_forecast_df)
     tendency_df = compute_flood_tendency(detailed_forecast_df)
@@ -498,12 +500,18 @@ def summary_forecast(
         intermediate_df, intensity_df, on=["latitude", "longitude"], how="left"
     )
 
-    summary_forecast_df = add_geometry(
-        summary_forecast_df, GLOFAS_RESOLUTION / 2, GLOFAS_PRECISION
+    new_meta = summary_forecast_df._meta.copy()
+    new_meta["wkt"] = "str"
+
+    summary_forecast_df = summary_forecast_df.map_partitions(
+        add_geometry,
+        half_grid_size=GLOFAS_RESOLUTION / 2,
+        precision=GLOFAS_PRECISION,
+        meta=new_meta,
     )
 
-    context.log.info(f"Started computing summary forecast")
-    summary_forecast_df = client.compute(summary_forecast_df).result()
+    summary_forecast_df = summary_forecast_df.persist()
+    wait(summary_forecast_df)
     context.log.info(f"Finished computing summary forecast")
 
     return summary_forecast_df
