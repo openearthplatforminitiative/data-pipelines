@@ -22,6 +22,8 @@ class DaskResource(ConfigurableResource):
             self._cluster = cluster
             with Client(cluster) as client:
                 self._client = client
+                versions = client.get_versions(check=True)
+                context.log.info(f"Dask version: {versions}")
                 context.log.info("Dask dashboard link: %s", client.dashboard_link)
                 yield self
             context.log.debug("Shutting down Dask cluster.")
