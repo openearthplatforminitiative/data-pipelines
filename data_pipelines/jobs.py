@@ -99,6 +99,12 @@ def downstream_asset_sensor(context):
         RunRequest: The RunRequest to materialize the downstream asset.
     """
     instance = DagsterInstance.get()  # Get the current Dagster instance
+    context.log.info(f"Sensor execution context: {context}")
+    context.log.info(f"Dagster Instance str: {instance.info_str()}")
+    all_events = instance.get_event_records(
+        EventRecordsFilter(DagsterEventType.ASSET_MATERIALIZATION)
+    )
+    context.log.info(f"All events: {all_events}")
     upstream_asset_key = AssetKey(["flood", "transformed_discharge"])
     partition_keys = discharge_partitions.get_partition_keys()
     current_day = datetime.now().date()  # Get the current day
