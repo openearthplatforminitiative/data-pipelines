@@ -8,9 +8,14 @@ from dagster import AssetExecutionContext, AssetIn, asset
 from distributed import wait
 
 from data_pipelines.partitions import discharge_partitions
+from data_pipelines.resources import RESOURCES
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.resources.glofas_resource import CDSClient
-from data_pipelines.resources.io_managers import DaskParquetIOManager, GribDischargeIOManager, get_path_in_asset
+from data_pipelines.resources.io_managers import (
+    DaskParquetIOManager,
+    GribDischargeIOManager,
+    get_path_in_asset,
+)
 from data_pipelines.settings import settings
 from data_pipelines.utils.flood.config import *
 from data_pipelines.utils.flood.filter_by_upstream import apply_upstream_threshold
@@ -23,7 +28,6 @@ from data_pipelines.utils.flood.transforms import (
     compute_flood_threshold_percentages,
 )
 from data_pipelines.utils.flood.utils import restrict_dataset_area
-from data_pipelines.resources import RESOURCES
 
 
 # This is the non-partitioned version of the raw_discharge asset
@@ -58,7 +62,6 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
         print("Retrieving only ensemble")
 
     for leadtime_hour in discharge_partitions.get_partition_keys():
-
         request_params = {
             "system_version": "operational",
             "hydrological_model": "lisflood",
@@ -72,13 +75,16 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
             "product_type": product_type,
         }
 
-        out_path = get_path_in_asset(context, settings.tmp_storage, ".grib", additional_path=f"{leadtime_hour}")
+        out_path = get_path_in_asset(
+            context, settings.tmp_storage, ".grib", additional_path=f"{leadtime_hour}"
+        )
         out_path.parent.mkdir(parents=True, exist_ok=True)
         context.log.info(f"Fetching data for {request_params}")
         cds_client.fetch_data(request_params, out_path)
         context.log.info(f"Saved raw discharge data to {out_path}")
 
     return None
+
 
 # This is the non-partitioned version of the transformed_discharge asset.
 # It restricts the upstream area to the area of interest and applies the upstream threshold
@@ -163,7 +169,12 @@ def transformed_discharge(
         )
 
         # Save the filtered dataframe to a parquet file
-        out_path = get_path_in_asset(context, settings.base_data_upath, ".parquet", additional_path=f"{leadtime_hour}")
+        out_path = get_path_in_asset(
+            context,
+            settings.base_data_upath,
+            ".parquet",
+            additional_path=f"{leadtime_hour}",
+        )
         parquet_io_manager.dump_to_path(context, filtered_df, out_path)
         context.log.info(f"Saved transformed discharge data to {out_path}")
 
@@ -184,15 +195,20 @@ def split_discharge_by_area(
     parquet_io_manager: DaskParquetIOManager = RESOURCES["parquet_io_manager"]
 
     # define a list of paths to the transformed discharge data
-    transformed_discharge_paths = [get_path_in_asset(
-        context,
-        settings.base_data_upath,
-        ".parquet",
-        input_asset_key="transformed_discharge",
-        additional_path=f"{leadtime_hour}",
-    ) for leadtime_hour in discharge_partitions.get_partition_keys()]
+    transformed_discharge_paths = [
+        get_path_in_asset(
+            context,
+            settings.base_data_upath,
+            ".parquet",
+            input_asset_key="transformed_discharge",
+            additional_path=f"{leadtime_hour}",
+        )
+        for leadtime_hour in discharge_partitions.get_partition_keys()
+    ]
 
-    transformed_discharge = parquet_io_manager.load_from_path(context, transformed_discharge_paths)
+    transformed_discharge = parquet_io_manager.load_from_path(
+        context, transformed_discharge_paths
+    )
     transformed_discharge = transformed_discharge.persist()
     wait(transformed_discharge)
 
@@ -371,7 +387,9 @@ def detailed_forecast_subarea(
                 overwrite=True,
                 storage_options=detailed_forecast_path.storage_options,
             )
-            context.log.info(f"Saved detailed forecast data to {detailed_forecast_path}")
+            context.log.info(
+                f"Saved detailed forecast data to {detailed_forecast_path}"
+            )
 
             del sub_discharge
             del detailed_forecast_df
@@ -448,7 +466,7 @@ def summary_forecast_subarea(
                 ".parquet",
                 additional_path=subarea_key,
             )
-            
+
             # write the summary forecast data to a parquet file
             summary_forecast_df.to_parquet(
                 summary_forecast_path,
@@ -471,19 +489,15 @@ def summary_forecast_subarea(
 # create a test asset which opens the detailed and summary subarea forecast data from the parquet files and print out the first 5 rows
 # and columns
 @asset(
-    # ins={
-    #     "detailed_forecast_subarea": AssetIn(key_prefix="flood"),
-    #     "summary_forecast_subarea": AssetIn(key_prefix="flood"),
-    # },
     key_prefix=["flood"],
     compute_kind="dask",
-    deps={"detailed_forecast_subarea": detailed_forecast_subarea, "summary_forecast_subarea": summary_forecast_subarea},
-    # io_manager_key="dummy_io_manager",
+    deps={
+        "detailed_forecast_subarea": detailed_forecast_subarea,
+        "summary_forecast_subarea": summary_forecast_subarea,
+    },
 )
 def test(
     context: AssetExecutionContext,
-    # detailed_forecast_subarea,
-    # summary_forecast_subarea,
 ) -> None:
     subarea_path = get_path_in_asset(
         context,
@@ -511,7 +525,9 @@ def test(
             storage_options=settings.base_data_upath.storage_options,
         )
         # log row count
-        context.log.info(f"Row count of detailed forecast data: {detailed_forecast_df.shape[0].compute()}")
+        context.log.info(
+            f"Row count of detailed forecast data: {detailed_forecast_df.shape[0].compute()}"
+        )
         context.log.info(f"First 5 rows of detailed forecast data")
         context.log.info(detailed_forecast_df.head())
         context.log.info(
@@ -540,7 +556,9 @@ def test(
             storage_options=settings.base_data_upath.storage_options,
         )
         # log row count
-        context.log.info(f"Row count of summary forecast data: {summary_forecast_df.shape[0].compute()}")
+        context.log.info(
+            f"Row count of summary forecast data: {summary_forecast_df.shape[0].compute()}"
+        )
         context.log.info(f"First 5 rows of summary forecast data")
         context.log.info(summary_forecast_df.head())
         context.log.info(

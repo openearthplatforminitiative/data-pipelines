@@ -21,11 +21,11 @@ def get_path_in_asset(
     input_asset_key: str = "",
 ) -> UPath:
     """
-    Get the path to the asset in the asset store. 
-    If an input asset key is provided, the path will be based on the 
-    input (upstream dependency) asset key. Otherwise, the path will be 
+    Get the path to the asset in the asset store.
+    If an input asset key is provided, the path will be based on the
+    input (upstream dependency) asset key. Otherwise, the path will be
     based on the asset key.
-    
+
     Args:
         context (AssetExecutionContext): The asset execution context.
         base_path (UPath): The base path to the asset store.

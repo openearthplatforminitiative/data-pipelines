@@ -1,10 +1,9 @@
 from dagster import ScheduleDefinition, define_asset_job
 
-
 # build a job that materializes all assets
 all_flood_assets_job = define_asset_job(
     "all_assets_job",
-    selection=["flood/raw_discharge", "flood/transformed_discharge", "flood/split_discharge_by_area*"],
+    selection="flood/raw_discharge*",
 )
 
 # define a schedule that runs the all_assets_job every day at 11:00 UTC
