@@ -6,6 +6,7 @@ from dagster import (
     DagsterInstance,
     EventRecordsFilter,
     RunRequest,
+    SensorEvaluationContext,
     build_schedule_from_partitioned_job,
     define_asset_job,
     sensor,
@@ -87,7 +88,7 @@ def _are_all_partitions_materialized(
 
 
 @sensor(job=downstream_assets_job)
-def downstream_asset_sensor(context):
+def downstream_asset_sensor(context: SensorEvaluationContext):
     """
     Sensor to check if all partitions of the upstream asset have been materialized today.
     If all partitions have been materialized, yield a RunRequest to materialize the downstream asset.
@@ -98,7 +99,8 @@ def downstream_asset_sensor(context):
     Yields:
         RunRequest: The RunRequest to materialize the downstream asset.
     """
-    instance = DagsterInstance.get()  # Get the current Dagster instance
+    context.log.info(f"Context Type: {type(context)}")
+    instance = context.instance
     context.log.info(f"Sensor execution context: {context}")
     context.log.info(f"Dagster Instance str: {instance.info_str()}")
     all_events = instance.get_event_records(
