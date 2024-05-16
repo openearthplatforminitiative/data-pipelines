@@ -18,8 +18,29 @@ def get_path_in_asset(
     base_path: UPath,
     extension: str,
     additional_path: str = "",
+    input_asset_key: str = "",
 ) -> UPath:
-    path = base_path.joinpath(*context.asset_key.path)
+    """
+    Get the path to the asset in the asset store. 
+    If an input asset key is provided, the path will be based on the 
+    input (upstream dependency) asset key. Otherwise, the path will be 
+    based on the asset key.
+    
+    Args:
+        context (AssetExecutionContext): The asset execution context.
+        base_path (UPath): The base path to the asset store.
+        extension (str): The extension of the file.
+        additional_path (str, optional): Additional path to append to the base path. Defaults to "".
+        input_asset_key (str, optional): The input asset key. Defaults to "".
+
+    Returns:
+        UPath: The path to the asset in the asset store.
+    """
+    if input_asset_key:
+        upstream = context.asset_key_for_input(input_asset_key)
+        path = base_path.joinpath(*upstream.path)
+    else:
+        path = base_path.joinpath(*context.asset_key.path)
     if additional_path:
         path = path / additional_path
     if context.has_partition_key:
@@ -165,8 +186,6 @@ class GribDischargeIOManager(UPathIOManager):
             ds_source = path
         else:
             ds_source = get_path_in_io_manager(context, self.base_path, self.extension)
-
-        context.log.info(f"Reading raw discharge data from {ds_source}")
 
         ds_cf = xr.open_dataset(
             ds_source,
