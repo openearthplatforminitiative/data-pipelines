@@ -56,10 +56,8 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 
     if USE_CONTROL_MEMBER_IN_ENSEMBLE:
         product_type = ["control_forecast", "ensemble_perturbed_forecasts"]
-        print("Retrieving both control and ensemble")
     else:
         product_type = "ensemble_perturbed_forecasts"
-        print("Retrieving only ensemble")
 
     for leadtime_hour in discharge_partitions.get_partition_keys():
         request_params = {
@@ -114,11 +112,6 @@ def transformed_discharge(
     lon_max = GLOFAS_ROI_CENTRAL_AFRICA["lon_max"]
 
     ds_upstream = restricted_uparea_glofas_v4_0
-
-    if USE_CONTROL_MEMBER_IN_ENSEMBLE:
-        context.log.info("Combining control and ensemble")
-    else:
-        context.log.info("Using only ensemble")
 
     ds_upstream = restrict_dataset_area(
         ds_upstream,
@@ -214,7 +207,7 @@ def split_discharge_by_area(
 
     # Determine the unique areas in the transformed discharge data
     total_roi = GLOFAS_ROI_CENTRAL_AFRICA
-    n_subareas = 4
+    n_subareas = N_SUBAREAS
     lat_min = total_roi["lat_min"]
     lat_max = total_roi["lat_max"]
     lon_min = total_roi["lon_min"]
@@ -391,9 +384,6 @@ def detailed_forecast_subarea(
                 f"Saved detailed forecast data to {detailed_forecast_path}"
             )
 
-            del sub_discharge
-            del detailed_forecast_df
-
     return None
 
 
@@ -474,14 +464,6 @@ def summary_forecast_subarea(
                 storage_options=summary_forecast_path.storage_options,
             )
             context.log.info(f"Saved summary forecast data to {summary_forecast_path}")
-
-            # delete the detailed forecast variable
-            del detailed_forecast_df
-            del summary_forecast_df
-            del peak_timing_df
-            del tendency_df
-            del intensity_df
-            del intermediate_df
 
     return None
 

@@ -1,4 +1,4 @@
-TIMEDELTA = 1
+TIMEDELTA = 0
 GLOFAS_API_URL = "https://cds.climate.copernicus.eu/api/v2"
 UPSTREAM_URL = "https://confluence.ecmwf.int/download/attachments/242067380/uparea_glofas_v4_0.nc?version=2&modificationDate=1668604690076&api=v2"
 GLOFAS_RET_PRD_THRESH_VALS = [2, 5, 20]

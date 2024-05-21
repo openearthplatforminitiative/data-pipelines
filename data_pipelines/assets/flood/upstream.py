@@ -3,7 +3,6 @@ import os
 import httpx
 import xarray as xr
 from dagster import AssetExecutionContext, AssetIn, asset
-from upath import UPath
 
 from data_pipelines.resources.io_managers import (
     copy_local_file_to_s3,
