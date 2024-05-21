@@ -182,18 +182,13 @@ class GribDischargeIOManager(UPathIOManager):
         raise NotImplementedError("GribIOManager does not support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
-        if isinstance(self.fs, LocalFileSystem):
-            ds_source = path
-        else:
-            ds_source = get_path_in_io_manager(context, self.base_path, self.extension)
-
         ds_cf = xr.open_dataset(
-            ds_source,
+            path,
             engine="cfgrib",
             backend_kwargs={"filter_by_keys": {"dataType": "cf"}},
         )
         ds_pf = xr.open_dataset(
-            ds_source,
+            path,
             engine="cfgrib",
             backend_kwargs={"filter_by_keys": {"dataType": "pf"}},
         )
