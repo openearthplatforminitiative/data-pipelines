@@ -88,19 +88,6 @@ class COGIOManager(UPathIOManager):
         return rioxarray.open_rasterio(path)
 
 
-class DummyIOManager(UPathIOManager):
-    extension: str = ""
-
-    def __init__(self, base_path: UPath):
-        super().__init__(base_path=base_path)
-
-    def dump_to_path(self, context: OutputContext, obj: None, path: UPath) -> None:
-        pass
-
-    def load_from_path(self, context: InputContext, path: UPath) -> int:
-        return 1
-
-
 class ZarrIOManager(UPathIOManager):
     extension: str = ".zarr"
 
