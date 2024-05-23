@@ -81,7 +81,7 @@ def basins(context: AssetExecutionContext) -> MaterializeResult:
     basins: gpd.GeoDataFrame = basins.rename(
         columns={
             "HYBAS_ID": "id",
-            "NEXT_DOWN": "downstream",
+            "NEXT_DOWN": "downstream_id",
             "SUB_AREA": "basin_area",
             "UP_AREA": "upstream_area",
         }
