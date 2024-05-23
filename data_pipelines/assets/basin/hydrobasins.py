@@ -91,7 +91,9 @@ def basins(context: AssetExecutionContext) -> MaterializeResult:
         "basin", "basins"
     ).with_suffix(".parquet")
 
-    basins[["id", "downstream", "basin_area", "upstream_area", "geometry"]].to_parquet(
+    basins[
+        ["id", "downstream_id", "basin_area", "upstream_area", "geometry"]
+    ].to_parquet(
         basins_output_path.as_uri(),
         index=False,
     )
