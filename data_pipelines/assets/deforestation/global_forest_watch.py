@@ -153,7 +153,7 @@ def treeloss_per_basin(
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
 ) -> dd.DataFrame:
-    lossyear = lossyear.chunk({"y": 512, "x": 512}).rename("lossyear")
+    lossyear = lossyear.chunk({"y": 4096, "x": 4096}).rename("lossyear")
     # reduce to a smaller region of interest
     # lat_min, lat_max, lon_min, lon_max = 1.0, 0.0, 20.0, 21.0
     # lossyear = lossyear.sel(
@@ -175,32 +175,92 @@ def treeloss_per_basin(
 
     # Rasterize basin data to lossyear grid and combine into dataset
     basin_zones = make_geocube_like_dask(basins, "HYBAS_ID", lossyear).to_dataset()
+    if "HYBAS_ID" in basin_zones:
+        basin_zones["HYBAS_ID"] = basin_zones["HYBAS_ID"].astype("int64")
 
-    context.log.info(f"Basin zones: {basin_zones}")
+    # print dtypes of basin_zones
+    context.log.info(f"Basin zones dtypes: {basin_zones.dtypes}")
+
+    basin_df = basin_zones.drop_vars("spatial_ref").to_dask_dataframe().reset_index()
+    # cast HYBAS ID to int
+    # basin_zones["HYBAS_ID"] = basin_zones["HYBAS_ID"].astype(int)
+    # basin_zones = basin_zones.compute()
+
+    context.log.info(f"Basin zones: {basin_df}")
 
     # Calculate cell area
     pixel_size = get_resolution(lossyear)
     context.log.info(f"Pixel size: {pixel_size}")
-    cell_areas = calculate_pixel_area(basin_zones.y, basin_zones.x, pixel_size)
-    context.log.info(f"Cell areas: {cell_areas}")
 
-    basin_zones["cell_area"] = (["y", "x"], cell_areas.data)
-
-    context.log.info(f"Basin zones: {basin_zones}")
-
-    # Compute the mean of cell areas per basin
-    cell_area_da = basin_zones["cell_area"]
-    grouped_areas = (
-        cell_area_da.groupby(basin_zones["HYBAS_ID"])
-        .mean()
-        .rename("mean_cell_area")
-        .drop_vars("spatial_ref")
+    # group the dataframe by 'HYBAS_ID' and calculate the mean cell area
+    grouped_areas_df = basin_df.groupby("HYBAS_ID").first()
+    context.log.info(f"Mean cell df: {grouped_areas_df}")
+    grouped_areas_df["mean_cell_area"] = calculate_pixel_area(
+        grouped_areas_df["y"], grouped_areas_df["x"], pixel_size
     )
+    grouped_areas_df = grouped_areas_df.drop(columns=["x", "y", "index"])
 
-    context.log.info(f"Grouped areas: {grouped_areas}")
+    context.log.info(f"Mean cell df: {grouped_areas_df}")
 
-    # drop the cell area from the dataset
-    basin_zones = basin_zones.drop_vars("cell_area")
+    # Assuming basin_zones is your xarray Dataset
+    # Convert 'x' and 'y' from coordinates to data variables
+    # basin_zones = basin_zones.assign(x=basin_zones.x, y=basin_zones.y)
+
+    # Now perform the groupby operation and select the first 'x' and 'y' for each 'HYBAS_ID'
+    # context.log.info(f"Basin zones: {basin_zones}")
+    # grouped_data = basin_zones.groupby('HYBAS_ID').first()
+    # context.log.info(f"Grouped data: {grouped_data}")
+    # first_x = grouped_data['x']
+    # first_y = grouped_data['y']
+
+    # def compute_representative_area(basin_zones: xr.DataArray, pixel_size):
+    #     # Group by 'HYBAS_ID' and get the first 'x' and 'y' values
+    #     grouped_x = basin_zones.groupby(basin_zones['HYBAS_ID']).first()
+    #     context.log.info(f"Grouped x: {grouped_x}")
+    #     grouped_y = basin_zones.y.groupby(basin_zones['HYBAS_ID']).first()
+
+    #     # Compute the area for these coordinates
+    #     areas = calculate_pixel_area(grouped_y, grouped_x, pixel_size)
+
+    #     return areas
+
+    # # Usage:
+    # mean_cell_areas = compute_representative_area(basin_zones, pixel_size)
+
+    # # You can convert this to a DataArray and attach it back to your dataset if needed
+    # mean_cell_areas_da = xr.DataArray(mean_cell_areas, dims=["HYBAS_ID"])
+    # mean_cell_areas_da.name = "mean_cell_area"
+    # basin_zones['mean_cell_area'] = basin_zones['HYBAS_ID'].map(mean_cell_areas_da)
+
+    # areas = calculate_pixel_area(first_y, first_x, pixel_size)
+
+    # Convert areas to a DataArray (if necessary) and attach back to the dataset
+    # mean_cell_areas = xr.DataArray(areas, dims=["HYBAS_ID"])
+    # mean_cell_areas.name = "mean_cell_area"
+    # basin_zones['mean_cell_area'] = mean_cell_areas
+
+    # context.log.info(f"Basin zones: {basin_zones}")
+
+    # cell_areas = calculate_pixel_area(basin_zones.y, basin_zones.x, pixel_size)
+    # context.log.info(f"Cell areas: {cell_areas}")
+
+    # basin_zones["cell_area"] = (["y", "x"], cell_areas.data)
+
+    # context.log.info(f"Basin zones: {basin_zones}")
+
+    # # Compute the mean of cell areas per basin
+    # cell_area_da = basin_zones["cell_area"]
+    # grouped_areas = (
+    #     cell_area_da.groupby(basin_zones["HYBAS_ID"])
+    #     .mean()
+    #     .rename("mean_cell_area")
+    #     .drop_vars("spatial_ref")
+    # )
+
+    # context.log.info(f"Grouped areas: {grouped_areas}")
+
+    # # drop the cell area from the dataset
+    # basin_zones = basin_zones.drop_vars("cell_area")
 
     basin_zones["year"] = lossyear.where(lossyear > 0).squeeze(drop=True)
     basin_zones["tree_loss_incidents"] = xr.ones_like(basin_zones["year"])
@@ -218,7 +278,7 @@ def treeloss_per_basin(
 
     # The resulting dataframe has 3 columns: "HYBAS_ID", "year" and "tree_loss_incidents"
     loss_per_basin_df = loss_per_basin.drop_vars("spatial_ref").to_dask_dataframe()
-    grouped_areas_df = grouped_areas.to_dask_dataframe()
+    # grouped_areas_df = grouped_areas.to_dask_dataframe()
 
     context.log.info(f"Loss per basin df: {loss_per_basin_df}")
     context.log.info(f"Grouped areas df: {grouped_areas_df}")
