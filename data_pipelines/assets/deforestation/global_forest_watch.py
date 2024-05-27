@@ -160,6 +160,7 @@ def treeloss_per_basin(
     #     y=slice(lat_min, lat_max),
     #     x=slice(lon_min, lon_max),
     # )
+
     # context.log.info(f"Lossyear: {lossyear}")
     bbox = get_bbox_from_GFC_area(context.asset_partition_key_for_input("lossyear"))
 
