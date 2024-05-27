@@ -192,15 +192,15 @@ def treeloss_per_basin(
     pixel_size = get_resolution(lossyear)
     context.log.info(f"Pixel size: {pixel_size}")
 
-    # group the dataframe by 'HYBAS_ID' and calculate the mean cell area
+    # group the dataframe by 'HYBAS_ID' and calculate the first cell area
     grouped_areas_df = basin_df.groupby("HYBAS_ID").first()
-    context.log.info(f"Mean cell df: {grouped_areas_df}")
-    grouped_areas_df["mean_cell_area"] = calculate_pixel_area(
+    context.log.info(f"first cell: {grouped_areas_df}")
+    grouped_areas_df["first_cell_area"] = calculate_pixel_area(
         grouped_areas_df["y"], grouped_areas_df["x"], pixel_size
     )
     grouped_areas_df = grouped_areas_df.drop(columns=["x", "y", "index"])
 
-    context.log.info(f"Mean cell df: {grouped_areas_df}")
+    context.log.info(f"First cell df: {grouped_areas_df}")
 
     # Assuming basin_zones is your xarray Dataset
     # Convert 'x' and 'y' from coordinates to data variables
@@ -274,16 +274,25 @@ def treeloss_per_basin(
         expected_groups=(basins.HYBAS_ID.unique(), list(range(1, 23))),
     )
 
+    # add 2000 to the year index
+    loss_per_basin["year"] = loss_per_basin["year"] + 2000
+
     context.log.info(f"Loss per basin: {loss_per_basin}")
 
     # The resulting dataframe has 3 columns: "HYBAS_ID", "year" and "tree_loss_incidents"
     loss_per_basin_df = loss_per_basin.drop_vars("spatial_ref").to_dask_dataframe()
+    context.log.info(f"Loss per basin df: {loss_per_basin_df}")
+    aggregated_df = (
+        loss_per_basin_df.groupby(["HYBAS_ID", "year"])
+        .agg({"tree_loss_incidents": "sum"})
+        .reset_index()
+    )
     # grouped_areas_df = grouped_areas.to_dask_dataframe()
 
-    context.log.info(f"Loss per basin df: {loss_per_basin_df}")
+    context.log.info(f"Loss per basin df: {aggregated_df}")
     context.log.info(f"Grouped areas df: {grouped_areas_df}")
 
-    result_df = loss_per_basin_df.merge(grouped_areas_df, on="HYBAS_ID", how="left")
+    result_df = aggregated_df.merge(grouped_areas_df, on="HYBAS_ID", how="left")
 
     context.log.info(f"Result df: {result_df}")
 
