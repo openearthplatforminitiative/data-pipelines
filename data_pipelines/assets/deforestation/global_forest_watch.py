@@ -153,7 +153,7 @@ def treeloss_per_basin(
     lossyear: xr.DataArray,
     dask_resource: DaskResource,
 ) -> dd.DataFrame:
-    lossyear = lossyear.chunk({"y": 4096, "x": 4096}).rename("lossyear")
+    lossyear = lossyear.chunk({"y": 512, "x": 512}).rename("lossyear")
     # reduce to a smaller region of interest
     # lat_min, lat_max, lon_min, lon_max = 1.0, 0.0, 20.0, 21.0
     # lossyear = lossyear.sel(
