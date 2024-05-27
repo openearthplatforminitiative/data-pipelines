@@ -1,8 +1,10 @@
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 
+import dask.array as da
 import dask.dataframe as dd
 import geopandas as gpd
+import rio_cogeo
 import xarray as xr
 from dagster import AssetExecutionContext, AssetIn, AssetKey, SourceAsset, asset
 from flox.xarray import xarray_reduce
@@ -18,6 +20,14 @@ GLOBAL_FOREST_WATCH_URL_TEMPLATE = (
     "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2022-v1.10/"
     "Hansen_GFC-2022-v1.10_{product}_{area}.tif"
 )
+
+
+def get_resolution(raster_src: str | xr.DataArray | xr.Dataset) -> float:
+    """Return the resoluton of a GeoTIFF given by path or an open xarray object."""
+    if isinstance(raster_src, str):
+        return abs(rio_cogeo.cog_info(raster_src).GEO.Resolution[0])
+    else:
+        return abs(raster_src.rio.resolution()[0])
 
 
 @asset(
@@ -100,6 +110,36 @@ def get_bbox_from_GFC_area(area: str) -> tuple[int, int, int, int]:
     return lon, lat, lon + 10, lat - 10
 
 
+def haversine(lat1, lon1, lat2, lon2):
+    """Calculate the haversine distance between two geographical points in meters."""
+    R = 6371  # radius of Earth in km
+    phi_1 = da.radians(lat1)
+    phi_2 = da.radians(lat2)
+    delta_phi = da.radians(lat2 - lat1)
+    delta_lambda = da.radians(lon2 - lon1)
+    a = (
+        da.sin(delta_phi / 2.0) ** 2
+        + da.cos(phi_1) * da.cos(phi_2) * da.sin(delta_lambda / 2.0) ** 2
+    )
+    c = 2 * da.arctan2(da.sqrt(a), da.sqrt(1 - a))
+    meters = R * c  # output distance in km
+    return meters
+
+
+def calculate_pixel_area(lat, lon, pixel_size):
+    """Calculate the pixel area using haversine formula based on latitude and longitude."""
+    lat_north = lat + pixel_size / 2
+    lat_south = lat - pixel_size / 2
+    lon_east = lon + pixel_size / 2
+    lon_west = lon - pixel_size / 2
+
+    # Calculate distances using haversine formula
+    height = haversine(lat_south, lon, lat_north, lon)
+    width = haversine(lat, lon_west, lat, lon_east)
+
+    return height * width
+
+
 @asset(
     ins={"lossyear": AssetIn(key_prefix="deforestation")},
     io_manager_key="parquet_io_manager",
@@ -114,6 +154,13 @@ def treeloss_per_basin(
     dask_resource: DaskResource,
 ) -> dd.DataFrame:
     lossyear = lossyear.chunk({"y": 4096, "x": 4096}).rename("lossyear")
+    # reduce to a smaller region of interest
+    # lat_min, lat_max, lon_min, lon_max = 1.0, 0.0, 20.0, 21.0
+    # lossyear = lossyear.sel(
+    #     y=slice(lat_min, lat_max),
+    #     x=slice(lon_min, lon_max),
+    # )
+    # context.log.info(f"Lossyear: {lossyear}")
     bbox = get_bbox_from_GFC_area(context.asset_partition_key_for_input("lossyear"))
 
     # Open basin data
@@ -121,14 +168,43 @@ def treeloss_per_basin(
         "basin", "hydrobasins", "hydrobasins.shp"
     )
 
-    basins = gpd.read_file(basin_path.as_uri(), bbox=bbox)
+    basins = gpd.read_file(
+        basin_path.as_uri(), bbox=bbox
+    )  # (lon_min, lat_min, lon_max, lat_max))
 
     # Rasterize basin data to lossyear grid and combine into dataset
     basin_zones = make_geocube_like_dask(basins, "HYBAS_ID", lossyear).to_dataset()
+
+    context.log.info(f"Basin zones: {basin_zones}")
+
+    # Calculate cell area
+    pixel_size = get_resolution(lossyear)
+    context.log.info(f"Pixel size: {pixel_size}")
+    cell_areas = calculate_pixel_area(basin_zones.y, basin_zones.x, pixel_size)
+    context.log.info(f"Cell areas: {cell_areas}")
+
+    basin_zones["cell_area"] = (["y", "x"], cell_areas.data)
+
+    context.log.info(f"Basin zones: {basin_zones}")
+
+    # Compute the mean of cell areas per basin
+    cell_area_da = basin_zones["cell_area"]
+    grouped_areas = (
+        cell_area_da.groupby(basin_zones["HYBAS_ID"])
+        .mean()
+        .rename("mean_cell_area")
+        .drop_vars("spatial_ref")
+    )
+
+    context.log.info(f"Grouped areas: {grouped_areas}")
+
+    # drop the cell area from the dataset
+    basin_zones = basin_zones.drop_vars("cell_area")
+
     basin_zones["year"] = lossyear.where(lossyear > 0).squeeze(drop=True)
     basin_zones["tree_loss_incidents"] = xr.ones_like(basin_zones["year"])
 
-    # Calculate number of deforestation events per basin and year
+    # Calculate number of deforestation events per basin and yea
     loss_per_basin = xarray_reduce(
         basin_zones.tree_loss_incidents,
         basin_zones.HYBAS_ID,
@@ -137,6 +213,17 @@ def treeloss_per_basin(
         expected_groups=(basins.HYBAS_ID.unique(), list(range(1, 23))),
     )
 
+    context.log.info(f"Loss per basin: {loss_per_basin}")
+
     # The resulting dataframe has 3 columns: "HYBAS_ID", "year" and "tree_loss_incidents"
     loss_per_basin_df = loss_per_basin.drop_vars("spatial_ref").to_dask_dataframe()
-    return loss_per_basin_df
+    grouped_areas_df = grouped_areas.to_dask_dataframe()
+
+    context.log.info(f"Loss per basin df: {loss_per_basin_df}")
+    context.log.info(f"Grouped areas df: {grouped_areas_df}")
+
+    result_df = loss_per_basin_df.merge(grouped_areas_df, on="HYBAS_ID", how="left")
+
+    context.log.info(f"Result df: {result_df}")
+
+    return result_df
