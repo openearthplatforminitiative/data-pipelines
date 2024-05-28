@@ -1,11 +1,12 @@
 from dagster import ScheduleDefinition, define_asset_job
+from dagster import MAX_RUNTIME_SECONDS_TAG
 
 # build a job that materializes all flood assets
 # should timeout after 1 hour
 all_flood_assets_job = define_asset_job(
     "all_flood_assets_job",
     selection="flood/raw_discharge*",
-    tags={"dagster/max_runtime": 3600},
+    tags={MAX_RUNTIME_SECONDS_TAG: 60},
 )
 
 # define a schedule that runs the all_assets_job every day at 09:30 UTC
