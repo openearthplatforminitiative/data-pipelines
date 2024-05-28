@@ -96,7 +96,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
     },
     key_prefix=["flood"],
     compute_kind="xarray",
-    deps=[SourceAsset(key=AssetKey(["flood", "raw_discharge"]))],
+    deps={"raw_discharge": raw_discharge},
 )
 def transformed_discharge(
     context: AssetExecutionContext,
@@ -179,7 +179,7 @@ def transformed_discharge(
 @asset(
     key_prefix=["flood"],
     compute_kind="dask",
-    deps=[SourceAsset(key=AssetKey(["flood", "transformed_discharge"]))],
+    deps={"transformed_discharge": transformed_discharge},
 )
 def split_discharge_by_area(
     context: AssetExecutionContext,
@@ -268,7 +268,7 @@ def split_discharge_by_area(
     ins={
         "rp_combined_thresh_pq": AssetIn(key_prefix="flood"),
     },
-    deps=[SourceAsset(key=AssetKey(["flood", "split_discharge_by_area"]))],
+    deps={"split_discharge_by_area": split_discharge_by_area},
     key_prefix=["flood"],
     compute_kind="dask",
 )
@@ -391,7 +391,7 @@ def detailed_forecast_subarea(
 @asset(
     key_prefix=["flood"],
     compute_kind="dask",
-    deps=[SourceAsset(key=AssetKey(["flood", "detailed_forecast_subarea"]))],
+    deps={"detailed_forecast_subarea": detailed_forecast_subarea},
 )
 def summary_forecast_subarea(
     context: AssetExecutionContext,
