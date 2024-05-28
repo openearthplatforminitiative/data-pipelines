@@ -1,5 +1,4 @@
-from dagster import ScheduleDefinition, define_asset_job
-from dagster import MAX_RUNTIME_SECONDS_TAG
+from dagster import MAX_RUNTIME_SECONDS_TAG, ScheduleDefinition, define_asset_job
 
 # build a job that materializes all flood assets
 # should timeout after 1 hour
