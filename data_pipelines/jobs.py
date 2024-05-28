@@ -5,7 +5,7 @@ from dagster import MAX_RUNTIME_SECONDS_TAG, ScheduleDefinition, define_asset_jo
 all_flood_assets_job = define_asset_job(
     "all_flood_assets_job",
     selection="flood/raw_discharge*",
-    tags={MAX_RUNTIME_SECONDS_TAG: 60},
+    tags={MAX_RUNTIME_SECONDS_TAG: 3600},
 )
 
 # define a schedule that runs the all_assets_job every day at 09:30 UTC
