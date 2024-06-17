@@ -592,17 +592,6 @@ def forecast(
                 how="left",
             )
 
-            new_meta = detailed_forecast_df._meta.copy()
-            new_meta["wkt"] = "str"
-
-            # Apply this optimized function
-            detailed_forecast_df = detailed_forecast_df.map_partitions(
-                add_geometry,
-                half_grid_size=GLOFAS_RESOLUTION / 2,
-                precision=GLOFAS_PRECISION,
-                meta=new_meta,
-            )
-
             detailed_forecast_df["issued_on"] = detailed_forecast_df[
                 "issued_on"
             ].astype(str)
@@ -624,8 +613,6 @@ def forecast(
             )
 
             # Compute summary forecast
-
-            detailed_forecast_df = detailed_forecast_df.drop(columns=["wkt"])
 
             peak_timing_df = compute_flood_peak_timing(detailed_forecast_df)
             tendency_df = compute_flood_tendency(detailed_forecast_df)
@@ -652,6 +639,20 @@ def forecast(
                 on=["latitude", "longitude"],
                 how="inner",
             )
+
+            new_meta = detailed_forecast_df._meta.copy()
+            new_meta["wkt"] = "str"
+
+            # Apply this optimized function
+            detailed_forecast_df = detailed_forecast_df.map_partitions(
+                add_geometry,
+                half_grid_size=GLOFAS_RESOLUTION / 2,
+                precision=GLOFAS_PRECISION,
+                meta=new_meta,
+            )
+
+            detailed_forecast_df = detailed_forecast_df.persist()
+            wait(detailed_forecast_df)
 
             # Save the detailed forecast data to a parquet file
             detailed_forecast_df.to_parquet(
