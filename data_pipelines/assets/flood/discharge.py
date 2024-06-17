@@ -468,7 +468,6 @@ def transformed_discharge(
 #     return None
 
 
-
 # Combine split_discharge_by_area, detailed_forecast_subarea, and summary_forecast_subarea assets into a single asset
 # This will ensure that the dask resource is shared across the three assets
 @asset(
