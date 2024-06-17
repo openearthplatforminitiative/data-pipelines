@@ -19,6 +19,7 @@ def get_path_in_asset(
     extension: str,
     additional_path: str = "",
     input_asset_key: str = "",
+    replace_asset_key: str = "",
 ) -> UPath:
     """
     Get the path to the asset in the asset store.
@@ -41,6 +42,10 @@ def get_path_in_asset(
         path = base_path.joinpath(*upstream.path)
     else:
         path = base_path.joinpath(*context.asset_key.path)
+        if replace_asset_key:
+            # if the asset key contains the replace_asset_key
+            # replace the last part of the path with the replace_asset_key
+            path = path.parent / replace_asset_key
     if additional_path:
         path = path / additional_path
     if context.has_partition_key:
