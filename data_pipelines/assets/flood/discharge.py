@@ -317,7 +317,7 @@ def forecast(
                 settings.base_data_upath,
                 ".parquet",
                 additional_path=subarea_key,
-                replace_asset_key="detailed_forecast_subarea_new",
+                replace_asset_key="detailed_forecast_subarea",
             )
 
             # Compute summary forecast
@@ -392,7 +392,7 @@ def forecast(
                 settings.base_data_upath,
                 ".parquet",
                 additional_path=subarea_key,
-                replace_asset_key="summary_forecast_subarea_new",
+                replace_asset_key="summary_forecast_subarea",
             )
 
             # write the summary forecast data to a parquet file
