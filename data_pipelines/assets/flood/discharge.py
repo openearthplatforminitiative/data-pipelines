@@ -592,12 +592,14 @@ def forecast(
                 how="left",
             )
 
+            # convert issued_on and valid_for from date to timestamp
+            # saving as date will cause issues when saving to parquet
             detailed_forecast_df["issued_on"] = detailed_forecast_df[
                 "issued_on"
-            ].astype(str)
+            ].astype("datetime64[ns]")
             detailed_forecast_df["valid_for"] = detailed_forecast_df[
                 "valid_for"
-            ].astype(str)
+            ].astype("datetime64[ns]")
 
             detailed_forecast_df = detailed_forecast_df.persist()
             wait(detailed_forecast_df)
