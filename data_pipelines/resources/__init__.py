@@ -1,6 +1,9 @@
 from dagster import EnvVar
 
-from data_pipelines.resources.dask_resource import DaskFargateResource
+from data_pipelines.resources.dask_resource import (
+    DaskFargateResource,
+    DaskLocalResource,
+)
 from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.resources.io_managers import (
     COGIOManager,
@@ -12,7 +15,9 @@ from data_pipelines.resources.io_managers import (
 from data_pipelines.settings import settings
 
 RESOURCES = {
-    "dask_resource": DaskFargateResource(
+    "dask_resource": DaskLocalResource()
+    if settings.run_local
+    else DaskFargateResource(
         region_name=settings.aws_region,
         scheduler_task_definition_arn=settings.dask_scheduler_task_definition_arn,
         worker_task_definition_arn=settings.dask_worker_task_definition_arn,
