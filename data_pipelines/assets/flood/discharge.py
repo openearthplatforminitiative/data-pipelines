@@ -177,6 +177,9 @@ def transformed_discharge(
 # Combine split_discharge_by_area, detailed_forecast_subarea, and summary_forecast_subarea assets into a single asset
 # This will ensure that the dask resource is shared across the three assets
 @asset(
+    ins={
+        "rp_combined_thresh_pq": AssetIn(key_prefix="flood"),
+    },
     key_prefix=["flood"],
     compute_kind="dask",
     deps={"transformed_discharge": transformed_discharge},
