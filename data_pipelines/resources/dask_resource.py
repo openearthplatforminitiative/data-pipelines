@@ -6,6 +6,8 @@ from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster
 from pydantic import PrivateAttr
 
+from data_pipelines.settings import settings
+
 
 class DaskResource(ConfigurableResource):
     _cluster = PrivateAttr()
@@ -19,6 +21,8 @@ class DaskResource(ConfigurableResource):
     @contextmanager
     def yield_for_execution(self, context: InitResourceContext):
         with self._provision_cluster(context) as cluster:
+            if settings.run_local and settings.custom_local_dask_cluster:
+                cluster = settings.custom_local_dask_cluster_address
             self._cluster = cluster
             with Client(cluster) as client:
                 self._client = client
@@ -32,8 +36,11 @@ class DaskLocalResource(DaskResource):
     @contextmanager
     def _provision_cluster(self, context: InitResourceContext, *args, **kwargs):
         context.log.debug("Launching local Dask cluster.")
-        with LocalCluster(*args, **kwargs) as cluster:
-            yield cluster
+        if settings.run_local and settings.custom_local_dask_cluster:
+            yield 1
+        else:
+            with LocalCluster(*args, **kwargs) as cluster:
+                yield cluster
 
 
 class DaskFargateResource(DaskResource):

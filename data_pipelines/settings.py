@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     aws_region: str
     aws_access_key_id: str | None = None
     aws_secret_access_key: str | None = None
+    run_local: bool = False
+    custom_local_dask_cluster: bool = False
+    custom_local_dask_cluster_address: str = "tcp://127.0.0.1:8787"
 
     tmp_storage: UPath = UPath("/tmp/files")
 
@@ -26,11 +29,14 @@ class Settings(BaseSettings):
 
     @property
     def base_data_upath(self) -> UPath:
+        client_kwargs = {"region_name": self.aws_region}
+        if self.run_local:
+            client_kwargs["endpoint_url"] = "http://host.docker.internal:9000"
         return UPath(
             self.base_data_path,
             key=self.aws_access_key_id,
             secret=self.aws_secret_access_key,
-            client_kwargs={"region_name": self.aws_region},
+            client_kwargs=client_kwargs,
         )
 
 
