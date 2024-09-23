@@ -61,16 +61,16 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
 
     for leadtime_hour in discharge_partitions.get_partition_keys():
         request_params = {
-            "system_version": "operational",
-            "hydrological_model": "lisflood",
+            "system_version": ["operational"],
+            "hydrological_model": ["lisflood"],
+            "product_type": product_type,
             "variable": "river_discharge_in_the_last_24_hours",
-            "format": "grib",
             "year": date_for_request.year,
             "month": date_for_request.month,
             "day": date_for_request.day,
             "leadtime_hour": leadtime_hour,
+            "format": "grib",
             "area": area,
-            "product_type": product_type,
         }
 
         out_path = get_path_in_asset(
