@@ -4,7 +4,7 @@ dagster-user-deployments:
     - name: "data-pipelines"
       image:
         repository: "ghcr.io/openearthplatforminitiative/data-pipelines"
-        tag: dan-test-1
+        tag: dan-test-2
         pullPolicy: Always
       dagsterApiGrpcArgs:
         - "--module-name"
