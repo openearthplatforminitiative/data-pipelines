@@ -8,7 +8,6 @@ Locally, we can simulate an S3 bucket using [MinIO](https://min.io). Additionall
 
 A first requirement to running locally is an `.env` file located at the root of this project with the following fields:
 ```
-CDS_USER_ID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 CDS_API_KEY=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 base_data_path=s3://my-bucket/my-data-folder
 aws_region=foo
@@ -18,7 +17,7 @@ run_local=True
 custom_local_dask_cluster=False
 custom_local_dask_cluster_address=tcp://127.0.0.1:8787
 ```
-The `CDS_USER_ID` and `CDS_API_KEY` are required to run the flood pipeline which makes requests to the [CDS API](https://cds-beta.climate.copernicus.eu/how-to-api). These two environment variables are read when initalizing the CDS resource upon Dagster startup, so even if the flood pipeline isn't run, they need to be at least defined (e.g., `CDS_USER_ID=foo` and `CDS_API_KEY=bar`). To obtain your own credentials, simply [create your free CDS account](https://cds.climate.copernicus.eu/user/register) and find the `UID` and `API Key` fields on your user [profile page](https://cds-beta.climate.copernicus.eu/profile) when logged in.
+The `CDS_API_KEY` is required to run the flood pipeline which makes requests to the [CDS API](https://cds-beta.climate.copernicus.eu/how-to-api). This environment variable are read when initalizing the CDS resource upon Dagster startup, so even if the flood pipeline isn't run, it needs to be at least defined (e.g. `CDS_API_KEY=bar`). To obtain your own credentials, simply [create your free CDS account](https://cds.climate.copernicus.eu/user/register) and find `Personal Access Token` field on your user [profile page](https://cds-beta.climate.copernicus.eu/profile) when logged in.
 
 Next, the fields `base_data_path`, `aws_region`, `aws_access_key_id`, and `aws_secret_access_key` can be set to your liking.
 
