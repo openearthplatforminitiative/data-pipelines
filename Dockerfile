@@ -17,7 +17,10 @@ WORKDIR /opt/dagster/app
 RUN pip install poetry
 COPY pyproject.toml poetry.lock /opt/dagster/app/
 
+# Prevent installing binaries for the packages rasterio and fiona
+# as they make building on arm macs crash.
 RUN poetry config --local installer.no-binary rasterio,fiona
+
 RUN poetry install --without dev
 
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/
