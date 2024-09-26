@@ -33,11 +33,10 @@ dask-cloudprovider = "^2022.10.0"
 cryptography = "^42.0.2"
 pydantic-settings = "^2.2.0"
 dagster-postgres = "^0.22.5"
-cdsapi = "^0.6.1"
+cdsapi = "^0.7.3"
 netcdf4 = "^1.6.5"
 eccodes = "^1.6.1"
 cfgrib = "^0.9.10.4"
-ecmwflibs = "^0.6.3"
 pytest = "^8.0.0"
 
 
@@ -52,7 +51,7 @@ isort = "^5.13.2"
 module_name = "data_pipelines"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
