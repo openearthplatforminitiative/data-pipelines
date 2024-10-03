@@ -18,7 +18,7 @@ local hostMatch = std.extVar('hostMatch');
         port: 80,
       }],
       middlewares: [{
-        name: 'dagster-oauth2-proxy@kubernetescrd',
+        name: 'oauth2-proxy',
       }],
     }],
   },
