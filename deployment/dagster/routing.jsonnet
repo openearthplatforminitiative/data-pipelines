@@ -18,7 +18,7 @@ local hostMatch = std.extVar('hostMatch');
         port: 80,
       }],
       middlewares: [{
-        name: 'forward-auth-forward-auth@kubernetescrd',
+        name: 'oauth2-proxy',
       }],
     }],
   },
