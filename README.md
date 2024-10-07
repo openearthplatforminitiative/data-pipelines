@@ -17,7 +17,7 @@ run_local=True
 custom_local_dask_cluster=False
 custom_local_dask_cluster_address=tcp://127.0.0.1:8787
 ```
-The `CDS_API_KEY` is required to run the flood pipeline which makes requests to the [CDS API](https://cds-beta.climate.copernicus.eu/how-to-api). This environment variable are read when initalizing the CDS resource upon Dagster startup, so even if the flood pipeline isn't run, it needs to be at least defined (e.g. `CDS_API_KEY=bar`). To obtain your own credentials, simply [create your free CDS account](https://cds.climate.copernicus.eu/user/register) and find `Personal Access Token` field on your user [profile page](https://cds-beta.climate.copernicus.eu/profile) when logged in.
+The `CDS_API_KEY` is required to run the flood pipeline which makes requests to the [CDS API](https://cds.climate.copernicus.eu/how-to-api). This environment variable are read when initalizing the CDS resource upon Dagster startup, so even if the flood pipeline isn't run, it needs to be at least defined (e.g. `CDS_API_KEY=bar`). To obtain your own credentials, simply [create your free CDS account](https://cds.climate.copernicus.eu/user/register) and find `Personal Access Token` field on your user [profile page](https://cds.climate.copernicus.eu/profile) when logged in.
 
 Next, the fields `base_data_path`, `aws_region`, `aws_access_key_id`, and `aws_secret_access_key` can be set to your liking.
 
