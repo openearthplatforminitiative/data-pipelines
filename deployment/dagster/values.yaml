@@ -66,6 +66,8 @@ runLauncher:
             limits:
               memory: 2048Mi
               cpu: 250m
+        jobSpecConfig:
+          ttlSecondsAfterFinished: 7200
       envSecrets:
         - name: "dagster-aws-credentials"
       envConfigMaps:
