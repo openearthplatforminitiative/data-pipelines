@@ -21,7 +21,7 @@ COPY pyproject.toml poetry.lock /opt/dagster/app/
 # as they make building on arm macs crash.
 RUN poetry config --local installer.no-binary rasterio,fiona
 
-RUN poetry install --without dev
+RUN poetry install --without dev --no-root
 
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/
 COPY data_pipelines/ /opt/dagster/app/data_pipelines/
