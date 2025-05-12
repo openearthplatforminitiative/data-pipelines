@@ -53,6 +53,12 @@ jobs:
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 -
 
+      - name: Add Backports
+        run: printf "deb http://deb.debian.org/debian/ unstable main contrib non-free" > /etc/apt/sources.list.d/backports.list
+
+      - name: Install GDAL
+        run: apt-get update && apt-get install -y -t unstable gdal-bin libgdal-dev
+
       - name: Install dependencies
         run: poetry install --no-root
 
