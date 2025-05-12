@@ -53,6 +53,12 @@ jobs:
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 -
 
+      - name: Add Backports
+        run: >  
+          sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable &&
+          sudo apt-get update &&
+          sudo apt-get install gdal-bin libgdal-dev
+
       - name: Install dependencies
         run: poetry install --no-root
 
