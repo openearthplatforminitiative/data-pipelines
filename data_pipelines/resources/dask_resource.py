@@ -31,6 +31,10 @@ class DaskResource(ConfigurableResource):
                 yield self
             context.log.debug("Shutting down Dask cluster.")
 
+    def submit_subtasks(self, tasks: list, handler) -> list:
+        futures = [self._client.submit(handler, task) for task in tasks]
+        return self._client.gather(futures)
+
 
 class DaskLocalResource(DaskResource):
     @contextmanager
@@ -39,7 +43,7 @@ class DaskLocalResource(DaskResource):
         if settings.run_local and settings.custom_local_dask_cluster:
             yield 1
         else:
-            with LocalCluster(*args, **kwargs) as cluster:
+            with LocalCluster(n_workers=1, threads_per_worker=1, memory_limit='4GB', **kwargs) as cluster:
                 yield cluster
 
 

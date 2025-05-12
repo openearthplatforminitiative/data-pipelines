@@ -8,6 +8,7 @@ import xarray as xr
 from dagster import AssetExecutionContext, InputContext, OutputContext, UPathIOManager
 from fsspec.implementations.local import LocalFileSystem
 from upath import UPath
+import json
 
 from data_pipelines.settings import settings
 from data_pipelines.utils.flood.config import USE_CONTROL_MEMBER_IN_ENSEMBLE
@@ -194,7 +195,7 @@ class GribDischargeIOManager(UPathIOManager):
 
 
 class NetdCDFIOManager(UPathIOManager):
-    extension: str = ".nc"
+    extension: str = ".nc"''
 
     def __init__(self, base_path: UPath):
         super().__init__(base_path=base_path)
@@ -204,3 +205,16 @@ class NetdCDFIOManager(UPathIOManager):
 
     def load_from_path(self, context: InputContext, path: UPath) -> xr.Dataset:
         return xr.open_dataset(path.open("rb"))
+
+
+class JSONIOManager(UPathIOManager):
+    extension: str = ".json"
+
+    def __init__(self, base_path: UPath):
+        super().__init__(base_path=base_path)
+
+    def dump_to_path(self, context: OutputContext, obj: str, path: UPath) -> None:
+        json.dump(obj, path.open(mode="w"), indent=4, sort_keys=True, default=str)
+
+    def load_from_path(self, context: InputContext, path: UPath) -> dict:
+        return json.load(path.open())

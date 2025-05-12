@@ -5,12 +5,14 @@ from data_pipelines.resources.dask_resource import (
     DaskLocalResource,
 )
 from data_pipelines.resources.glofas_resource import CDSClient
+from data_pipelines.resources.copernicus_resource import CopernicusClient
 from data_pipelines.resources.io_managers import (
     COGIOManager,
     DaskParquetIOManager,
     GribDischargeIOManager,
     NetdCDFIOManager,
     ZarrIOManager,
+    JSONIOManager
 )
 from data_pipelines.settings import settings
 
@@ -32,6 +34,8 @@ RESOURCES = {
     "zarr_io_manager": ZarrIOManager(base_path=settings.base_data_upath),
     "parquet_io_manager": DaskParquetIOManager(base_path=settings.base_data_upath),
     "cds_client": CDSClient(api_key=EnvVar("CDS_API_KEY")),
+    "copernicus_client": CopernicusClient(user=EnvVar("COPERNICUS_USER"), password=EnvVar("COPERNICUS_PASS"), datadir=EnvVar("SENTINEL_DATA_DIR")),
     "grib_io_manager": GribDischargeIOManager(base_path=settings.tmp_storage),
     "netcdf_io_manager": NetdCDFIOManager(base_path=settings.base_data_upath),
+    "json_io_manager": JSONIOManager(base_path=settings.base_data_upath)
 }
