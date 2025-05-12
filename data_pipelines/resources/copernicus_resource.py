@@ -21,9 +21,18 @@ class CopernicusClient(ConfigurableResource):
         return self.datadir
 
     def setup_for_execution(self, context) -> None:
-        self._client = Sentinel2Loader(self.datadir, self.user, self.password, loglevel=logging.INFO,
-                                       cloudCoverage=(0, 100), ignoreMissing=False, mosaic=True)
+        self._client = Sentinel2Loader(
+            self.datadir,
+            self.user,
+            self.password,
+            loglevel=logging.INFO,
+            cloudCoverage=(0, 100),
+            ignoreMissing=False,
+            mosaic=True,
+        )
 
     def findProducts(self, area, year, quartile):
         products = self._client.getAreaMosaics(area, year, quartile)
-        return self._client.downloadAll(products, checksum=False)  # checksum false needed for mosaics
+        return self._client.downloadAll(
+            products, checksum=False
+        )  # checksum false needed for mosaics

@@ -195,7 +195,7 @@ class GribDischargeIOManager(UPathIOManager):
 
 
 class NetdCDFIOManager(UPathIOManager):
-    extension: str = ".nc"''
+    extension: str = ".nc"
 
     def __init__(self, base_path: UPath):
         super().__init__(base_path=base_path)

@@ -6,17 +6,17 @@ import logging
 import os
 
 
-datapath = os.getenv('SENTINEL_DATA_DIR')
+datapath = os.getenv("SENTINEL_DATA_DIR")
 in_dir = f"{datapath}/processed"
 out_dir = f"{datapath}/upscaled"
 logger = logging.getLogger("upscaling")
 
 
 @asset(
-    deps={'preprocess_optimize': preprocess_optimize},
+    deps={"preprocess_optimize": preprocess_optimize},
     key_prefix=["sentinel"],
     compute_kind="dask",
-    io_manager_key="json_io_manager"
+    io_manager_key="json_io_manager",
 )
 def upscale(context: AssetExecutionContext, dask_resource: DaskResource) -> list:
     tasks = []
@@ -46,4 +46,4 @@ def upscale(context: AssetExecutionContext, dask_resource: DaskResource) -> list
 
 
 def _upscaleTile(tile):
-    return run('s2v2x2_spatrad', tile, output_dir=out_dir)
+    return run("s2v2x2_spatrad", tile, output_dir=out_dir)

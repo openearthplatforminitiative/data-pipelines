@@ -94,7 +94,7 @@ Now, whenever an asset requiring Dask is materialized, it will use the custom cl
 
 When a Dask asset is materialized, the following line is logged to the Dagster UI:
 ```
-    Dask dashboard link: http://127.0.0.1:8787/status
+Dask dashboard link: http://127.0.0.1:8787/status
 ```
 The Dask dashboard contains relevant information about the progress and metrics related to Dask-specific computations.
 

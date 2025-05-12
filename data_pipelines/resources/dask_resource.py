@@ -43,7 +43,9 @@ class DaskLocalResource(DaskResource):
         if settings.run_local and settings.custom_local_dask_cluster:
             yield 1
         else:
-            with LocalCluster(n_workers=1, threads_per_worker=1, memory_limit='4GB', **kwargs) as cluster:
+            with LocalCluster(
+                n_workers=1, threads_per_worker=1, memory_limit="4GB", **kwargs
+            ) as cluster:
                 yield cluster
 
 
