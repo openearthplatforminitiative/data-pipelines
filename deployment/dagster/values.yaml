@@ -15,6 +15,13 @@ dagster-user-deployments:
         - name: "dagster-cds-key"
       envConfigMaps:
         - name: "dagster-config"
+      volumes:
+        - name: "dagster-storage"
+          persistentVolumeClaim:
+            claimName: "dagster-storage-pvc"
+      volumeMounts:
+        - name: "dagster-storage"
+          mountPath: "/opt/dagster/storage"
 
 dagsterWebserver:
   pathPrefix: "/dagster"
@@ -50,9 +57,8 @@ dagsterDaemon:
       queuedRunCoordinator:
         maxConcurrentRuns: 3
         tagConcurrencyLimits:
-        - key: "sequential_backfill"
-          limit: 1
-
+          - key: "sequential_backfill"
+            limit: 1
 
 runLauncher:
   type: K8sRunLauncher
