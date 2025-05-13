@@ -13,6 +13,7 @@ dagster-user-deployments:
       envSecrets:
         - name: "dagster-aws-credentials"
         - name: "dagster-cds-key"
+        - name: "dagster-copernicus-credentials"
       envConfigMaps:
         - name: "dagster-config"
       volumes:
