@@ -13,3 +13,7 @@ class CutlineConfig(Config):
 
 class PyramidConfig(Config):
     pyramid_folder: str
+
+
+class UpscaleConfig(Config):
+    model: str

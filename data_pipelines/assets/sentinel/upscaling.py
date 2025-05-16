@@ -1,4 +1,6 @@
 from dagster import asset, AssetExecutionContext
+
+from data_pipelines.assets.sentinel.config import UpscaleConfig
 from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.assets.sentinel.preprocessing import preprocess_optimize
 from sentinel2sr import run
@@ -18,7 +20,7 @@ logger = logging.getLogger("upscaling")
     compute_kind="dask",
     io_manager_key="json_io_manager",
 )
-def upscale(context: AssetExecutionContext, dask_resource: DaskResource) -> list:
+def upscale(context: AssetExecutionContext, config: UpscaleConfig, dask_resource: DaskResource) -> list:
     tasks = []
     completed_tasks = []
 
@@ -37,7 +39,7 @@ def upscale(context: AssetExecutionContext, dask_resource: DaskResource) -> list
         if filename not in completed_tasks:
             tasks.append(f"{in_dir}/{filename}")
 
-    result = dask_resource.submit_subtasks(tasks, _upscaleTile)
+    result = dask_resource.submit_subtasks(tasks, _upscaleTile, model=config.model)
 
     for file in completed_tasks:
         result.append(f"{out_dir}/{file}")
@@ -45,5 +47,5 @@ def upscale(context: AssetExecutionContext, dask_resource: DaskResource) -> list
     return result
 
 
-def _upscaleTile(tile):
-    return run("s2v2x2_spatrad", tile, output_dir=out_dir)
+def _upscaleTile(tile, model):
+    return run(model, tile, output_dir=out_dir)

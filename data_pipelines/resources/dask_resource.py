@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 from dagster import ConfigurableResource, InitResourceContext
 from dask.distributed import Client, LocalCluster
-from dask_cloudprovider.aws import FargateCluster
+from dask_cloudprovider.aws import FargateCluster, EC2Cluster
 from pydantic import PrivateAttr
 
 from data_pipelines.settings import settings
@@ -20,6 +20,7 @@ class DaskResource(ConfigurableResource):
 
     @contextmanager
     def yield_for_execution(self, context: InitResourceContext):
+        print(context.all_resource_defs)
         with self._provision_cluster(context) as cluster:
             if settings.run_local and settings.custom_local_dask_cluster:
                 cluster = settings.custom_local_dask_cluster_address
@@ -31,8 +32,8 @@ class DaskResource(ConfigurableResource):
                 yield self
             context.log.debug("Shutting down Dask cluster.")
 
-    def submit_subtasks(self, tasks: list, handler) -> list:
-        futures = [self._client.submit(handler, task) for task in tasks]
+    def submit_subtasks(self, tasks: list, handler, **kwargs) -> list:
+        futures = [self._client.submit(handler, task, kwargs['model']) for task in tasks]
         return self._client.gather(futures)
 
 
@@ -102,3 +103,26 @@ class DaskFargateResource(DaskResource):
                 task_role_policies=self.task_role_policies,
             ) as cluster:
                 yield cluster
+
+
+class DaskEC2Resource(DaskResource):
+    region: str = "eu-central-1"
+    n_workers: int = 4
+    ami: str | None = None
+    instance_type: str | None = None
+    docker_image: str | None = None
+    worker_module: str | None = None
+    boostrap: bool | None = None
+
+    @contextmanager
+    def _provision_cluster(self, context: InitResourceContext):
+        with EC2Cluster(
+            region=self.region,
+            n_workers=self.n_workers,
+            ami=self.ami,
+            instance_type=self.instance_type,
+            docker_image=self.docker_image,
+            worker_module=self.worker_module,
+            boostrap=self.boostrap,
+        ) as cluster:
+            yield cluster

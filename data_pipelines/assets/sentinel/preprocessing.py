@@ -41,11 +41,10 @@ def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
     },
     deps={"preprocess_extract": preprocess_extract},
     io_manager_key="json_io_manager",
-    compute_kind="dask",
     key_prefix=["sentinel"],
 )
 def preprocess_reproject(
-    context: AssetExecutionContext, dask_resource: DaskResource, raw_imagery: dict
+    context: AssetExecutionContext, raw_imagery: dict
 ) -> list:
     virts = []
 
@@ -80,8 +79,9 @@ def preprocess_reproject(
         "preprocess_reproject": AssetIn(key_prefix="sentinel"),
     },
     key_prefix=["sentinel"],
+    compute_kind="dask"
 )
-def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list):
+def preprocess_retile(context: AssetExecutionContext, dask_resource: DaskResource, preprocess_reproject: list):
     overlap = 86
     virts = preprocess_reproject
     source_tiles = " ".join(virts)
