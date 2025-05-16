@@ -69,10 +69,10 @@ runLauncher:
         containerConfig:
           resources:
             requests:
-              memory: 2048Mi
+              memory: 4048Mi
               cpu: 250m
             limits:
-              memory: 2048Mi
+              memory: 4048Mi
               cpu: 250m
         jobSpecConfig:
           ttlSecondsAfterFinished: 7200
