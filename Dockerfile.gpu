@@ -1,0 +1,33 @@
+FROM rapidsai/base:25.04-cuda12.0-py3.10
+
+USER root
+# Some poetry packages require the following installations
+RUN apt-get update && apt-get install -y \
+    libeccodes-tools \
+    zip \
+    gcc \
+    g++ \
+    binutils \
+    libproj-dev \
+    gdal-bin \
+    wget \
+    libgdal-dev
+
+# Need to install CuDNN manually
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+RUN dpkg -i cuda-keyring_1.1-1_all.deb
+RUN apt-get update && apt-get install -y cudnn9-cuda-12
+
+ENV POETRY_VIRTUALENVS_CREATE=false
+WORKDIR /home/rapids
+RUN pip install poetry
+COPY pyproject.toml poetry.lock /home/rapids
+
+# Prevent installing binaries for the packages rasterio and fiona
+# as they make building on arm macs crash.
+RUN poetry config --local installer.no-binary rasterio,fiona,shapely
+RUN poetry install --without dev --no-root
+
+# Install gpu frameworks for python
+RUN pip install onnxruntime-gpu nvidia-cudnn-cu12
+

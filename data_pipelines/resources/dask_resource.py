@@ -9,6 +9,12 @@ from pydantic import PrivateAttr
 from data_pipelines.settings import settings
 
 
+def _installDeps():
+    import os
+
+    os.system("pip install dagster")
+
+
 class DaskResource(ConfigurableResource):
     _cluster = PrivateAttr()
     _client: Client = PrivateAttr()
@@ -20,20 +26,22 @@ class DaskResource(ConfigurableResource):
 
     @contextmanager
     def yield_for_execution(self, context: InitResourceContext):
-        print(context.all_resource_defs)
         with self._provision_cluster(context) as cluster:
             if settings.run_local and settings.custom_local_dask_cluster:
                 cluster = settings.custom_local_dask_cluster_address
             self._cluster = cluster
             with Client(cluster) as client:
                 self._client = client
+                # client.run_on_scheduler(_installDeps)
                 client.upload_file("data_pipelines.zip")
                 context.log.info("Dask dashboard link: %s", client.dashboard_link)
                 yield self
             context.log.debug("Shutting down Dask cluster.")
 
     def submit_subtasks(self, tasks: list, handler, **kwargs) -> list:
-        futures = [self._client.submit(handler, task, kwargs['model']) for task in tasks]
+        futures = [
+            self._client.submit(handler, task, kwargs["model"]) for task in tasks
+        ]
         return self._client.gather(futures)
 
 
@@ -45,7 +53,7 @@ class DaskLocalResource(DaskResource):
             yield 1
         else:
             with LocalCluster(
-                n_workers=1, threads_per_worker=1, memory_limit="4GB", **kwargs
+                n_workers=1, threads_per_worker=1, memory_limit="8GB", **kwargs
             ) as cluster:
                 yield cluster
 
@@ -106,23 +114,42 @@ class DaskFargateResource(DaskResource):
 
 
 class DaskEC2Resource(DaskResource):
-    region: str = "eu-central-1"
+    region: str
     n_workers: int = 4
+    filesystem_size: int = 128
     ami: str | None = None
+    security_groups: list[str] | None = None
     instance_type: str | None = None
     docker_image: str | None = None
-    worker_module: str | None = None
-    boostrap: bool | None = None
+    key_name: str | None = None
+    bootstrap: bool | None = None
+    base_data_path: str | None = None
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
 
     @contextmanager
     def _provision_cluster(self, context: InitResourceContext):
+        context.log.info(
+            "Launching Dask cluster with %s workers with AWS EC2.",
+            self.n_workers,
+        )
         with EC2Cluster(
             region=self.region,
             n_workers=self.n_workers,
+            security_groups=self.security_groups,
             ami=self.ami,
             instance_type=self.instance_type,
             docker_image=self.docker_image,
-            worker_module=self.worker_module,
-            boostrap=self.boostrap,
+            docker_args="-p 8787:8787 -p 8786:8786",
+            bootstrap=self.bootstrap,
+            key_name=self.key_name,
+            filesystem_size=self.filesystem_size,
+            security=False,
+            env_vars={
+                "aws_secret_access_key": self.aws_secret_access_key,
+                "aws_access_key_id": self.aws_access_key_id,
+                "aws_region": self.region,
+                "base_data_path": self.base_data_path,
+            },
         ) as cluster:
             yield cluster

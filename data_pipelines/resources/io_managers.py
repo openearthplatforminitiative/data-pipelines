@@ -75,6 +75,17 @@ def copy_local_file_to_s3(local_file_path: str, target_upath: UPath):
             s3_f.write(f.read())
 
 
+def copy_s3_to_disk(target_upath: UPath, local_file_path: str):
+    # Use UPath to copy S3 bucket file to disk
+    with target_upath.open("rb") as s3_f:
+        with open(local_file_path, "wb") as f:
+            f.write(s3_f.read())
+
+
+def list_s3_files(target_upath: UPath):
+    return list(target_upath.glob("*.tif"))
+
+
 class COGIOManager(UPathIOManager):
     extension: str = ".tif"
 
