@@ -20,9 +20,14 @@ dagster-user-deployments:
         - name: "dagster-work-storage"
           persistentVolumeClaim:
             claimName: "dagster-work-storage-pvc"
+        - name: "dagster-result-storage"
+          persistentVolumeClaim:
+            claimName: "dagster-result-storage-pvc"
       volumeMounts:
         - name: "dagster-work-storage"
           mountPath: "/opt/dagster/storage"
+        - name: "dagster-result-storage"
+          mountPath: "/opt/dagster/result_storage"
 
 dagsterWebserver:
   pathPrefix: "/dagster"
