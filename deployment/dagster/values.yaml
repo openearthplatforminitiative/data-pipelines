@@ -17,11 +17,11 @@ dagster-user-deployments:
       envConfigMaps:
         - name: "dagster-config"
       volumes:
-        - name: "dagster-storage"
+        - name: "dagster-work-storage"
           persistentVolumeClaim:
-            claimName: "dagster-storage-pvc"
+            claimName: "dagster-work-storage-pvc"
       volumeMounts:
-        - name: "dagster-storage"
+        - name: "dagster-work-storage"
           mountPath: "/opt/dagster/storage"
 
 dagsterWebserver:
