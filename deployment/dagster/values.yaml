@@ -28,6 +28,11 @@ dagster-user-deployments:
           mountPath: "/opt/dagster/storage"
         - name: "dagster-result-storage"
           mountPath: "/opt/dagster/result_storage"
+      resources:
+        requests:
+          ephemeral-storage: 30Gi
+        limits:
+          ephemeral-storage: 31Gi
 
 dagsterWebserver:
   pathPrefix: "/dagster"
