@@ -1,6 +1,7 @@
 from dagster import asset, AssetExecutionContext
 from data_pipelines.resources.copernicus_resource import CopernicusClient
 from data_pipelines.assets.sentinel.config import IngestConfig
+from data_pipelines.assets.sentinel.logging import redirect_logs_to_dagster
 from shapely.geometry import shape
 import shapefile
 import os
@@ -14,6 +15,7 @@ def raw_imagery(
     config: IngestConfig,
     copernicus_client: CopernicusClient,
 ) -> dict:
+    redirect_logs_to_dagster()
     shp = shapefile.Reader(f"{datapath}/{config.area_shp_path}")
     geo = shp.shape().__geo_interface__
     area = shape(geo)

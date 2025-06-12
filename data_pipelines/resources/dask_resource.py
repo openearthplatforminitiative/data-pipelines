@@ -116,7 +116,7 @@ class DaskFargateResource(DaskResource):
 class DaskEC2Resource(DaskResource):
     region: str
     n_workers: int = 4
-    filesystem_size: int = 128
+    filesystem_size: str | None = "128"
     ami: str | None = None
     security_groups: list[str] | None = None
     instance_type: str | None = None
@@ -138,12 +138,12 @@ class DaskEC2Resource(DaskResource):
             n_workers=self.n_workers,
             security_groups=self.security_groups,
             ami=self.ami,
-            instance_type=self.instance_type,
+            instance_type="g4dn.xlarge",
             docker_image=self.docker_image,
             docker_args="-p 8787:8787 -p 8786:8786",
             bootstrap=self.bootstrap,
             key_name=self.key_name,
-            filesystem_size=self.filesystem_size,
+            filesystem_size=int(self.filesystem_size),
             security=False,
             env_vars={
                 "aws_secret_access_key": self.aws_secret_access_key,

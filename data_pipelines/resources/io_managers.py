@@ -83,7 +83,12 @@ def copy_s3_to_disk(target_upath: UPath, local_file_path: str):
 
 
 def list_s3_files(target_upath: UPath):
-    return list(target_upath.glob("*.tif"))
+    lst = list(target_upath.glob("*.tif"))
+    return map(str, lst)
+
+
+def delete_s3_file(target_upath: UPath):
+    target_upath.unlink(missing_ok=True)
 
 
 class COGIOManager(UPathIOManager):

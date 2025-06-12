@@ -11,8 +11,8 @@ class CutlineConfig(Config):
     crop_shp_file: str
 
 
-class PyramidConfig(Config):
-    pyramid_folder: str
+class MoveFilesConfig(Config):
+    serve_disk_dir: str
 
 
 class UpscaleConfig(Config):

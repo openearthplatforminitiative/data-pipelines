@@ -2,8 +2,7 @@ from dagster import asset, AssetExecutionContext, AssetIn
 
 from data_pipelines.assets.sentinel.config import UpscaleConfig
 from data_pipelines.resources.dask_resource import DaskResource
-from data_pipelines.resources.io_managers import copy_s3_to_disk, copy_local_file_to_s3
-from data_pipelines.assets.sentinel.logging import redirect_logs_to_dagster
+from data_pipelines.resources.io_managers import copy_s3_to_disk, copy_local_file_to_s3, list_s3_files, delete_s3_file
 from data_pipelines.settings import settings
 from sentinel2sr import run
 import os
@@ -21,29 +20,10 @@ def upscale(
     dask_resource_gpu: DaskResource,
     preprocess_optimize: list,
 ) -> list:
-    redirect_logs_to_dagster()
-    tasks = preprocess_optimize
-    completed_tasks = []
-
-    # Find completed tasks
-    # os.makedirs(out_dir, exist_ok=True)
-    # directory = os.fsencode(out_dir)
-    # for file in os.listdir(directory):
-    #    filename = os.fsdecode(file)
-    #    if "incomplete" not in filename:
-    #        completed_tasks.append(filename)
-
-    ## Find incomplete tasks
-    # directory = os.fsencode(in_dir)
-    # for file in os.listdir(directory):
-    #    filename = os.fsdecode(file)
-    #    if filename not in completed_tasks:
-    #        tasks.append(f"{in_dir}/{filename}")
+    taskdir = settings.base_data_upath / "sentinel" / "preprocessed_data"
+    tasks = list(list_s3_files(taskdir))
 
     result = dask_resource_gpu.submit_subtasks(tasks, _upscaleTile, model=config.model)
-
-    # for file in completed_tasks:
-    #    result.append(f"{out_dir}/{file}")
 
     return result
 
@@ -71,4 +51,6 @@ def _upscaleTile(tile, model):
         os.remove(os.path.abspath(in_file))
     if os.path.isfile(os.path.abspath(upscaled)):
         os.remove(os.path.abspath(upscaled))
+    delete_s3_file(s3tile)
+
     return s3path

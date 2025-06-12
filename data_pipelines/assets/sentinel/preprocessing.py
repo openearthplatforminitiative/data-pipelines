@@ -5,7 +5,6 @@ from data_pipelines.resources.io_managers import (
     get_path_in_asset,
 )
 from data_pipelines.settings import settings
-from data_pipelines.resources.dask_resource import DaskResource
 from data_pipelines.assets.sentinel.logging import redirect_logs_to_dagster
 from tqdm import tqdm
 import os
@@ -35,7 +34,8 @@ def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
     with tqdm(desc="Unzipping products", total=len(paths), unit="tile") as progress:
         for zipp in paths:
             ziptitle = zipp.split("/")[-1]
-            if os.path.exists(f"{zipdir}/{ziptitle}"):
+            if os.path.exists(f"{zipdir}/{ziptitle}") and not zipfile.is_zipfile(zipp):
+                progress.update()
                 continue
             with zipfile.ZipFile(zipp, "r") as zipref:
                 zipref.extractall(zipdir)
@@ -62,20 +62,32 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
             product = raw_imagery[id]
             bandpaths = f"{zipdir}/{product['title']}"
             virts.append(f"{bandpaths}/tile.tif")
-            os.system(
-                f"gdalbuildvrt -q -separate %s %s %s %s %s"
-                % (
-                    f"{bandpaths}/rgb.vrt",
-                    f"{bandpaths}/B02.tif",
-                    f"{bandpaths}/B03.tif",
-                    f"{bandpaths}/B04.tif",
-                    f"{bandpaths}/B08.tif",
+            if not os.path.exists(f"{bandpaths}/tile.tif"):
+                os.system(
+                    f"gdalbuildvrt -q -separate %s %s %s %s %s"
+                    % (
+                        f"{bandpaths}/rgb.vrt",
+                        f"{bandpaths}/B02.tif",
+                        f"{bandpaths}/B03.tif",
+                        f"{bandpaths}/B04.tif",
+                        f"{bandpaths}/B08.tif",
+                    )
                 )
-            )
-            os.system(
-                "gdalwarp -q -t_srs EPSG:3857 %s %s"
-                % (f"{bandpaths}/rgb.vrt", f"{bandpaths}/tile.tif")
-            )
+                os.system(
+                    "gdalwarp -q -t_srs EPSG:3857 %s %s"
+                    % (f"{bandpaths}/rgb.vrt", f"{bandpaths}/tile.tif")
+                )
+
+            if os.path.exists(f"{bandpaths}/B02.tif"):
+                os.remove(f"{bandpaths}/B02.tif")
+            if os.path.exists(f"{bandpaths}/B03.tif"):
+                os.remove(f"{bandpaths}/B03.tif")
+            if os.path.exists(f"{bandpaths}/B04.tif"):
+                os.remove(f"{bandpaths}/B04.tif")
+            if os.path.exists(f"{bandpaths}/B08.tif"):
+                os.remove(f"{bandpaths}/B08.tif")
+            if os.path.exists(f"{bandpaths}/observations.tif"):
+                os.remove(f"{bandpaths}/observations.tif")
             progress.update()
 
     return virts
@@ -100,9 +112,13 @@ def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list
     context.log.info("Retiling images with tilesize %s" % tilesize)
     os.makedirs(f"{datapath}/retiled", exist_ok=True)
     os.system(
-        "gdal_retile -ps %s %s -overlap %s -targetDir %s %s"
+        "gdal_retile.py -v -ps %s %s -overlap %s -resume -targetDir %s %s"
         % (tilesize, tilesize, overlap, f"{datapath}/retiled", f"{datapath}/mosaic.vrt")
     )
+    context.log.info("Deleting input images")
+    for file in preprocess_reproject:
+        if os.path.exists(file):
+            os.remove(file)
 
 
 @asset(
@@ -129,7 +145,6 @@ def preprocess_optimize(context: AssetExecutionContext) -> list:
             os.system(
                 "gdal_translate -q -of COG %s %s" % (filename_full, file_full_path)
             )
-            os.remove(filename_full)
             processpaths.append(file_full_path)
             s3path = get_path_in_asset(
                 context,
@@ -139,6 +154,8 @@ def preprocess_optimize(context: AssetExecutionContext) -> list:
             )
             s3files.append(s3path)
             copy_local_file_to_s3(file_full_path, s3path)
+            if os.path.exists(file_full_path):
+                os.remove(file_full_path)
             progress.update()
 
     return s3files
