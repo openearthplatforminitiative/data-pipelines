@@ -9,12 +9,6 @@ from pydantic import PrivateAttr
 from data_pipelines.settings import settings
 
 
-def _installDeps():
-    import os
-
-    os.system("pip install dagster")
-
-
 class DaskResource(ConfigurableResource):
     _cluster = PrivateAttr()
     _client: Client = PrivateAttr()
@@ -32,7 +26,6 @@ class DaskResource(ConfigurableResource):
             self._cluster = cluster
             with Client(cluster) as client:
                 self._client = client
-                # client.run_on_scheduler(_installDeps)
                 client.upload_file("data_pipelines.zip")
                 context.log.info("Dask dashboard link: %s", client.dashboard_link)
                 yield self
