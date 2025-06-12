@@ -1,5 +1,11 @@
 from dagster import asset, AssetExecutionContext, AssetIn
-from data_pipelines.resources.dask_resource import DaskResource
+
+from data_pipelines.resources.io_managers import (
+    copy_local_file_to_s3,
+    get_path_in_asset,
+)
+from data_pipelines.settings import settings
+from data_pipelines.assets.sentinel.logging import redirect_logs_to_dagster
 from tqdm import tqdm
 import os
 import zipfile
@@ -19,6 +25,7 @@ logger = logging.getLogger("preprocessing")
     key_prefix=["sentinel"],
 )
 def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
+    redirect_logs_to_dagster()
     paths = []
     for id in raw_imagery:
         product = raw_imagery[id]
@@ -27,7 +34,8 @@ def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
     with tqdm(desc="Unzipping products", total=len(paths), unit="tile") as progress:
         for zipp in paths:
             ziptitle = zipp.split("/")[-1]
-            if os.path.exists(f"{zipdir}/{ziptitle}"):
+            if os.path.exists(f"{zipdir}/{ziptitle}") and not zipfile.is_zipfile(zipp):
+                progress.update()
                 continue
             with zipfile.ZipFile(zipp, "r") as zipref:
                 zipref.extractall(zipdir)
@@ -41,12 +49,10 @@ def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
     },
     deps={"preprocess_extract": preprocess_extract},
     io_manager_key="json_io_manager",
-    compute_kind="dask",
     key_prefix=["sentinel"],
 )
-def preprocess_reproject(
-    context: AssetExecutionContext, dask_resource: DaskResource, raw_imagery: dict
-) -> list:
+def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> list:
+    redirect_logs_to_dagster()
     virts = []
 
     with tqdm(
@@ -56,20 +62,32 @@ def preprocess_reproject(
             product = raw_imagery[id]
             bandpaths = f"{zipdir}/{product['title']}"
             virts.append(f"{bandpaths}/tile.tif")
-            os.system(
-                f"gdalbuildvrt -q -separate %s %s %s %s %s"
-                % (
-                    f"{bandpaths}/rgb.vrt",
-                    f"{bandpaths}/B02.tif",
-                    f"{bandpaths}/B03.tif",
-                    f"{bandpaths}/B04.tif",
-                    f"{bandpaths}/B08.tif",
+            if not os.path.exists(f"{bandpaths}/tile.tif"):
+                os.system(
+                    f"gdalbuildvrt -q -separate %s %s %s %s %s"
+                    % (
+                        f"{bandpaths}/rgb.vrt",
+                        f"{bandpaths}/B02.tif",
+                        f"{bandpaths}/B03.tif",
+                        f"{bandpaths}/B04.tif",
+                        f"{bandpaths}/B08.tif",
+                    )
                 )
-            )
-            os.system(
-                "gdalwarp -q -t_srs EPSG:3857 %s %s"
-                % (f"{bandpaths}/rgb.vrt", f"{bandpaths}/tile.tif")
-            )
+                os.system(
+                    "gdalwarp -q -t_srs EPSG:3857 %s %s"
+                    % (f"{bandpaths}/rgb.vrt", f"{bandpaths}/tile.tif")
+                )
+
+            if os.path.exists(f"{bandpaths}/B02.tif"):
+                os.remove(f"{bandpaths}/B02.tif")
+            if os.path.exists(f"{bandpaths}/B03.tif"):
+                os.remove(f"{bandpaths}/B03.tif")
+            if os.path.exists(f"{bandpaths}/B04.tif"):
+                os.remove(f"{bandpaths}/B04.tif")
+            if os.path.exists(f"{bandpaths}/B08.tif"):
+                os.remove(f"{bandpaths}/B08.tif")
+            if os.path.exists(f"{bandpaths}/observations.tif"):
+                os.remove(f"{bandpaths}/observations.tif")
             progress.update()
 
     return virts
@@ -82,43 +100,65 @@ def preprocess_reproject(
     key_prefix=["sentinel"],
 )
 def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list):
+    redirect_logs_to_dagster()
     overlap = 86
     virts = preprocess_reproject
     source_tiles = " ".join(virts)
     tilesize = 10008 + overlap * 2
 
-    logger.info("Building image mosaic VRT")
+    context.log.info("Building image mosaic VRT")
     os.system("gdalbuildvrt %s %s" % (f"{datapath}/mosaic.vrt", source_tiles))
 
-    logger.info("Retiling images with tilesize %s" % tilesize)
+    context.log.info("Retiling images with tilesize %s" % tilesize)
     os.makedirs(f"{datapath}/retiled", exist_ok=True)
     os.system(
-        "gdal_retile -ps %s %s -overlap %s -targetDir %s %s"
+        "gdal_retile.py -v -ps %s %s -overlap %s -resume -targetDir %s %s"
         % (tilesize, tilesize, overlap, f"{datapath}/retiled", f"{datapath}/mosaic.vrt")
     )
+    context.log.info("Deleting input images")
+    for file in preprocess_reproject:
+        if os.path.exists(file):
+            os.remove(file)
 
 
-@asset(deps={"preprocess_retile": preprocess_retile}, key_prefix=["sentinel"])
-def preprocess_optimize(context: AssetExecutionContext):
+@asset(
+    deps={"preprocess_retile": preprocess_retile},
+    key_prefix=["sentinel"],
+    io_manager_key="json_io_manager",
+)
+def preprocess_optimize(context: AssetExecutionContext) -> list:
+    redirect_logs_to_dagster()
     directory = os.fsencode(f"{datapath}/retiled")
     dirlist = os.listdir(directory)
     processeddir = f"{datapath}/processed"
     os.makedirs(processeddir, exist_ok=True)
 
     processpaths = []
+    s3files = []
 
     with tqdm(desc="Tile optimizing", total=len(dirlist), unit="tile") as progress:
         for file in dirlist:
             filename = os.fsdecode(file)
             filename_full = f"{datapath}/retiled/{filename}"
             file_hash = hashlib.md5(filename.encode()).hexdigest()
+            file_full_path = f"{processeddir}/{file_hash}.tif"
             os.system(
-                "gdal_translate -q -of COG %s %s"
-                % (filename_full, f"{processeddir}/{file_hash}.tif")
+                "gdal_translate -q -of COG %s %s" % (filename_full, file_full_path)
             )
-            os.remove(filename_full)
-            processpaths.append(f"{processeddir}/{file_hash}.tif")
+            processpaths.append(file_full_path)
+            s3path = get_path_in_asset(
+                context,
+                settings.base_data_upath,
+                replace_asset_key=f"preprocessed_data/{file_hash}",
+                extension=".tif",
+            )
+            s3files.append(s3path)
+            copy_local_file_to_s3(file_full_path, s3path)
+            if os.path.exists(file_full_path):
+                os.remove(file_full_path)
             progress.update()
+
+    return s3files
 
 
 @asset(deps={"preprocess_optimize": preprocess_optimize}, key_prefix=["sentinel"])
@@ -129,3 +169,9 @@ def preprocess_cleanup(context: AssetExecutionContext):
         shutil.rmtree(f"{datapath}/retiled")
     if os.path.exists(f"{zipdir}"):
         shutil.rmtree(f"{zipdir}")
+    if os.path.exists(f"{datapath}/processed"):
+        shutil.rmtree(f"{datapath}/processed")
+    if os.path.exists(f"{datapath}/products"):
+        shutil.rmtree(f"{datapath}/products")
+    if os.path.exists(f"{datapath}/queries"):
+        shutil.rmtree(f"{datapath}/queries")

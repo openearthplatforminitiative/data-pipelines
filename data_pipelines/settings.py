@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     dask_task_role_arn: str | None = None
     dask_security_group_id: str | None = None
 
+    dask_ec2_filesystem_size: str | None = None
+    dask_ec2_ami: str | None = None
+    dask_ec2_instance_type: str | None = None
+    dask_ec2_docker_image: str | None = None
+    dask_ec2_bootstrap: bool | None = None
+    dask_ec2_key_name: str | None = None
+
     @property
     def dask_security_groups(self) -> list[str] | None:
         if self.dask_security_group_id is not None:

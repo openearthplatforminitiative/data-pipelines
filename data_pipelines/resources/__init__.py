@@ -3,6 +3,7 @@ from dagster import EnvVar
 from data_pipelines.resources.dask_resource import (
     DaskFargateResource,
     DaskLocalResource,
+    DaskEC2Resource,
 )
 from data_pipelines.resources.glofas_resource import CDSClient
 from data_pipelines.resources.copernicus_resource import CopernicusClient
@@ -28,6 +29,23 @@ RESOURCES = {
             execution_role_arn=settings.dask_execution_role_arn,
             security_groups=settings.dask_security_groups,
             task_role_arn=settings.dask_task_role_arn,
+        )
+    ),
+    "dask_resource_gpu": (
+        DaskLocalResource()
+        if settings.run_local
+        else DaskEC2Resource(
+            region=settings.aws_region,
+            filesystem_size=settings.dask_ec2_filesystem_size,
+            ami=settings.dask_ec2_ami,
+            security_groups=settings.dask_security_groups,
+            instance_type=settings.dask_ec2_instance_type,
+            docker_image=settings.dask_ec2_docker_image,
+            key_name=settings.dask_ec2_key_name,
+            bootstrap=settings.dask_ec2_bootstrap,
+            aws_access_key_id=settings.aws_access_key_id,
+            aws_secret_access_key=settings.aws_secret_access_key,
+            base_data_path=settings.base_data_path,
         )
     ),
     "cog_io_manager": COGIOManager(base_path=settings.base_data_upath),

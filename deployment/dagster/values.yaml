@@ -13,8 +13,21 @@ dagster-user-deployments:
       envSecrets:
         - name: "dagster-aws-credentials"
         - name: "dagster-cds-key"
+        - name: "dagster-copernicus-credentials"
       envConfigMaps:
         - name: "dagster-config"
+      volumes:
+        - name: "dagster-work-storage"
+          persistentVolumeClaim:
+            claimName: "dagster-work-storage-pvc"
+        - name: "dagster-result-storage"
+          persistentVolumeClaim:
+            claimName: "dagster-result-storage-pvc"
+      volumeMounts:
+        - name: "dagster-work-storage"
+          mountPath: "/opt/dagster/storage"
+        - name: "dagster-result-storage"
+          mountPath: "/opt/dagster/result_storage"
 
 dagsterWebserver:
   pathPrefix: "/dagster"
@@ -50,9 +63,8 @@ dagsterDaemon:
       queuedRunCoordinator:
         maxConcurrentRuns: 3
         tagConcurrencyLimits:
-        - key: "sequential_backfill"
-          limit: 1
-
+          - key: "sequential_backfill"
+            limit: 1
 
 runLauncher:
   type: K8sRunLauncher
@@ -62,11 +74,11 @@ runLauncher:
         containerConfig:
           resources:
             requests:
-              memory: 2048Mi
-              cpu: 250m
+              memory: 4048Mi
+              cpu: 500m
             limits:
-              memory: 2048Mi
-              cpu: 250m
+              memory: 4048Mi
+              cpu: 500m
         jobSpecConfig:
           ttlSecondsAfterFinished: 7200
       envSecrets:

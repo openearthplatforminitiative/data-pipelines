@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 from dagster import ConfigurableResource, InitResourceContext
 from dask.distributed import Client, LocalCluster
-from dask_cloudprovider.aws import FargateCluster
+from dask_cloudprovider.aws import FargateCluster, EC2Cluster
 from pydantic import PrivateAttr
 
 from data_pipelines.settings import settings
@@ -31,8 +31,10 @@ class DaskResource(ConfigurableResource):
                 yield self
             context.log.debug("Shutting down Dask cluster.")
 
-    def submit_subtasks(self, tasks: list, handler) -> list:
-        futures = [self._client.submit(handler, task) for task in tasks]
+    def submit_subtasks(self, tasks: list, handler, **kwargs) -> list:
+        futures = [
+            self._client.submit(handler, task, kwargs["model"]) for task in tasks
+        ]
         return self._client.gather(futures)
 
 
@@ -44,7 +46,7 @@ class DaskLocalResource(DaskResource):
             yield 1
         else:
             with LocalCluster(
-                n_workers=1, threads_per_worker=1, memory_limit="4GB", **kwargs
+                n_workers=1, threads_per_worker=1, memory_limit="8GB", **kwargs
             ) as cluster:
                 yield cluster
 
@@ -102,3 +104,45 @@ class DaskFargateResource(DaskResource):
                 task_role_policies=self.task_role_policies,
             ) as cluster:
                 yield cluster
+
+
+class DaskEC2Resource(DaskResource):
+    region: str
+    n_workers: int = 4
+    filesystem_size: str | None = "128"
+    ami: str | None = None
+    security_groups: list[str] | None = None
+    instance_type: str | None = None
+    docker_image: str | None = None
+    key_name: str | None = None
+    bootstrap: bool | None = None
+    base_data_path: str | None = None
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
+
+    @contextmanager
+    def _provision_cluster(self, context: InitResourceContext):
+        context.log.info(
+            "Launching Dask cluster with %s workers with AWS EC2.",
+            self.n_workers,
+        )
+        with EC2Cluster(
+            region=self.region,
+            n_workers=self.n_workers,
+            security_groups=self.security_groups,
+            ami=self.ami,
+            instance_type="g4dn.xlarge",
+            docker_image=self.docker_image,
+            docker_args="-p 8787:8787 -p 8786:8786",
+            bootstrap=self.bootstrap,
+            key_name=self.key_name,
+            filesystem_size=int(self.filesystem_size),
+            security=False,
+            env_vars={
+                "aws_secret_access_key": self.aws_secret_access_key,
+                "aws_access_key_id": self.aws_access_key_id,
+                "aws_region": self.region,
+                "base_data_path": self.base_data_path,
+            },
+        ) as cluster:
+            yield cluster
