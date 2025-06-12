@@ -28,7 +28,7 @@ def _to_upath(path: str) -> UPath:
     ins={
         "upscale": AssetIn(key_prefix="sentinel"),
     },
-    key_prefix=["sentinel"]
+    key_prefix=["sentinel"],
 )
 def postprocess_prepare_disk(context: AssetExecutionContext, upscale: list) -> list:
     redirect_logs_to_dagster()
@@ -84,4 +84,3 @@ def postprocess_move_files_and_cleanup(
     context.log.info("Cleaning up loose files")
     if os.path.exists(f"{datapath}/upscaled"):
         shutil.rmtree(f"{datapath}/upscaled")
-

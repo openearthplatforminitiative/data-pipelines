@@ -2,7 +2,12 @@ from dagster import asset, AssetExecutionContext, AssetIn
 
 from data_pipelines.assets.sentinel.config import UpscaleConfig
 from data_pipelines.resources.dask_resource import DaskResource
-from data_pipelines.resources.io_managers import copy_s3_to_disk, copy_local_file_to_s3, list_s3_files, delete_s3_file
+from data_pipelines.resources.io_managers import (
+    copy_s3_to_disk,
+    copy_local_file_to_s3,
+    list_s3_files,
+    delete_s3_file,
+)
 from data_pipelines.settings import settings
 from sentinel2sr import run
 import os
