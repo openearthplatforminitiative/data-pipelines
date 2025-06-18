@@ -102,18 +102,14 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
 def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list):
     redirect_logs_to_dagster()
     overlap = 86
-    virts = preprocess_reproject
-    source_tiles = " ".join(virts)
+    source_tiles = " ".join(preprocess_reproject)
     tilesize = 10008 + overlap * 2
-
-    context.log.info("Building image mosaic VRT")
-    os.system("gdalbuildvrt %s %s" % (f"{datapath}/mosaic.vrt", source_tiles))
 
     context.log.info("Retiling images with tilesize %s" % tilesize)
     os.makedirs(f"{datapath}/retiled", exist_ok=True)
     os.system(
         "gdal_retile.py -v -ps %s %s -overlap %s -resume -targetDir %s %s"
-        % (tilesize, tilesize, overlap, f"{datapath}/retiled", f"{datapath}/mosaic.vrt")
+        % (tilesize, tilesize, overlap, f"{datapath}/retiled", source_tiles)
     )
     context.log.info("Deleting input images")
     for file in preprocess_reproject:
