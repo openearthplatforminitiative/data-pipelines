@@ -53,6 +53,8 @@ def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
 )
 def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> list:
     redirect_logs_to_dagster()
+    reproject_dir = f"{datapath}/reprojected"
+    os.makedirs(reproject_dir, exist_ok=True)
     virts = []
 
     with tqdm(
@@ -61,8 +63,9 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
         for id in raw_imagery:
             product = raw_imagery[id]
             bandpaths = f"{zipdir}/{product['title']}"
-            virts.append(f"{bandpaths}/tile.tif")
-            if not os.path.exists(f"{bandpaths}/tile.tif"):
+            filename = f"{reproject_dir}/{product['title']}.tif"
+            virts.append(filename)
+            if not os.path.exists(filename):
                 os.system(
                     f"gdalbuildvrt -q -separate %s %s %s %s %s"
                     % (
@@ -75,7 +78,7 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
                 )
                 os.system(
                     "gdalwarp -q -t_srs EPSG:3857 %s %s"
-                    % (f"{bandpaths}/rgb.vrt", f"{bandpaths}/tile.tif")
+                    % (f"{bandpaths}/rgb.vrt", filename)
                 )
 
             if os.path.exists(f"{bandpaths}/B02.tif"):
@@ -102,14 +105,19 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
 def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list):
     redirect_logs_to_dagster()
     overlap = 86
-    source_tiles = " ".join(preprocess_reproject)
     tilesize = 10008 + overlap * 2
 
     context.log.info("Retiling images with tilesize %s" % tilesize)
     os.makedirs(f"{datapath}/retiled", exist_ok=True)
     os.system(
         "gdal_retile.py -v -ps %s %s -overlap %s -resume -targetDir %s %s"
-        % (tilesize, tilesize, overlap, f"{datapath}/retiled", source_tiles)
+        % (
+            tilesize,
+            tilesize,
+            overlap,
+            f"{datapath}/retiled",
+            f"{datapath}/reprojected/*.tif",
+        )
     )
     context.log.info("Deleting input images")
     for file in preprocess_reproject:
@@ -165,6 +173,8 @@ def preprocess_cleanup(context: AssetExecutionContext):
         shutil.rmtree(f"{datapath}/retiled")
     if os.path.exists(f"{zipdir}"):
         shutil.rmtree(f"{zipdir}")
+    if os.path.exists(f"{datapath}/reprojected"):
+        shutil.rmtree(f"{datapath}/reprojected")
     if os.path.exists(f"{datapath}/processed"):
         shutil.rmtree(f"{datapath}/processed")
     if os.path.exists(f"{datapath}/products"):
