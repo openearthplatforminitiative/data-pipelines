@@ -7,6 +7,8 @@ from data_pipelines.resources.io_managers import (
 from data_pipelines.settings import settings
 from data_pipelines.assets.sentinel.logging import redirect_logs_to_dagster
 from tqdm import tqdm
+import rasterio as rio
+import numpy as np
 import os
 import zipfile
 import logging
@@ -93,6 +95,8 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
                 os.remove(f"{bandpaths}/observations.tif")
             progress.update()
 
+    with open(f"{datapath}/retile_inputs.txt", "w") as outfile:
+        outfile.write("\n".join(virts))
     return virts
 
 
@@ -105,7 +109,11 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
 def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list):
     redirect_logs_to_dagster()
     overlap = 86
+    source_tiles = " ".join(preprocess_reproject)
     tilesize = 10008 + overlap * 2
+
+    context.log.info("Building image mosaic VRT")
+    os.system("gdalbuildvrt %s %s" % (f"{datapath}/mosaic.vrt", source_tiles))
 
     context.log.info("Retiling images with tilesize %s" % tilesize)
     os.makedirs(f"{datapath}/retiled", exist_ok=True)
@@ -116,7 +124,7 @@ def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list
             tilesize,
             overlap,
             f"{datapath}/retiled",
-            f"{datapath}/reprojected/*.tif",
+            f"{datapath}/mosaic.vrt",
         )
     )
     context.log.info("Deleting input images")
@@ -139,11 +147,22 @@ def preprocess_optimize(context: AssetExecutionContext) -> list:
 
     processpaths = []
     s3files = []
+    nodata_value = -32768
+    nodata_count = 0
 
     with tqdm(desc="Tile optimizing", total=len(dirlist), unit="tile") as progress:
         for file in dirlist:
             filename = os.fsdecode(file)
             filename_full = f"{datapath}/retiled/{filename}"
+
+            with rio.open(filename_full) as src:
+                data = src.read(1)
+                if np.all(data == nodata_value):
+                    os.remove(filename_full)
+                    nodata_count += 1
+                    progress.update()
+                    continue
+
             file_hash = hashlib.md5(filename.encode()).hexdigest()
             file_full_path = f"{processeddir}/{file_hash}.tif"
             os.system(

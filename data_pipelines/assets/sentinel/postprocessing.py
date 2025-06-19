@@ -50,21 +50,24 @@ def postprocess_prepare_disk(context: AssetExecutionContext, upscale: list) -> l
 
 
 @asset(
-    deps={"postprocess_prepare_disk": postprocess_prepare_disk},
+    ins={"postprocess_prepare_disk": AssetIn(key_prefix="sentinel")},
     key_prefix=["sentinel"],
 )
 def postprocess_pyramid(
     context: AssetExecutionContext,
+    postprocess_prepare_disk: list,
 ):
     redirect_logs_to_dagster()
-    input_files = f"{datapath}/upscaled/*.tif"
     pyramid_dir = f"{datapath}/pyramid"
+
+    with open(f"{datapath}/pyramid_inputs.txt", "w") as outfile:
+        outfile.write("\n".join(postprocess_prepare_disk))
 
     os.makedirs(pyramid_dir, exist_ok=True)
 
     os.system(
-        "gdal_retile.py -v -r cubic -levels 11 -ps 2048 2048 -co 'TILED=YES' -co 'COMPRESS=JPEG' -resume -targetDir %s %s"
-        % (pyramid_dir, input_files)
+        "gdal_retile.py -v -r cubic -levels 11 -ps 2048 2048 -co 'TILED=YES' -co 'COMPRESS=JPEG' -resume --optfile %s -targetDir %s"
+        % (f"{datapath}/pyramid_inputs.txt", pyramid_dir)
     )
 
 
