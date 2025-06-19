@@ -7,6 +7,8 @@ from data_pipelines.resources.io_managers import (
 from data_pipelines.settings import settings
 from data_pipelines.assets.sentinel.logging import redirect_logs_to_dagster
 from tqdm import tqdm
+import rasterio as rio
+import numpy as np
 import os
 import zipfile
 import logging
@@ -53,6 +55,8 @@ def preprocess_extract(context: AssetExecutionContext, raw_imagery: dict):
 )
 def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> list:
     redirect_logs_to_dagster()
+    reproject_dir = f"{datapath}/reprojected"
+    os.makedirs(reproject_dir, exist_ok=True)
     virts = []
 
     with tqdm(
@@ -61,8 +65,9 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
         for id in raw_imagery:
             product = raw_imagery[id]
             bandpaths = f"{zipdir}/{product['title']}"
-            virts.append(f"{bandpaths}/tile.tif")
-            if not os.path.exists(f"{bandpaths}/tile.tif"):
+            filename = f"{reproject_dir}/{product['title']}.tif"
+            virts.append(filename)
+            if not os.path.exists(filename):
                 os.system(
                     f"gdalbuildvrt -q -separate %s %s %s %s %s"
                     % (
@@ -75,7 +80,7 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
                 )
                 os.system(
                     "gdalwarp -q -t_srs EPSG:3857 %s %s"
-                    % (f"{bandpaths}/rgb.vrt", f"{bandpaths}/tile.tif")
+                    % (f"{bandpaths}/rgb.vrt", filename)
                 )
 
             if os.path.exists(f"{bandpaths}/B02.tif"):
@@ -90,6 +95,8 @@ def preprocess_reproject(context: AssetExecutionContext, raw_imagery: dict) -> l
                 os.remove(f"{bandpaths}/observations.tif")
             progress.update()
 
+    with open(f"{datapath}/retile_inputs.txt", "w") as outfile:
+        outfile.write("\n".join(virts))
     return virts
 
 
@@ -105,11 +112,20 @@ def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list
     source_tiles = " ".join(preprocess_reproject)
     tilesize = 10008 + overlap * 2
 
+    context.log.info("Building image mosaic VRT")
+    os.system("gdalbuildvrt %s %s" % (f"{datapath}/mosaic.vrt", source_tiles))
+
     context.log.info("Retiling images with tilesize %s" % tilesize)
     os.makedirs(f"{datapath}/retiled", exist_ok=True)
     os.system(
         "gdal_retile.py -v -ps %s %s -overlap %s -resume -targetDir %s %s"
-        % (tilesize, tilesize, overlap, f"{datapath}/retiled", source_tiles)
+        % (
+            tilesize,
+            tilesize,
+            overlap,
+            f"{datapath}/retiled",
+            f"{datapath}/mosaic.vrt",
+        )
     )
     context.log.info("Deleting input images")
     for file in preprocess_reproject:
@@ -131,11 +147,22 @@ def preprocess_optimize(context: AssetExecutionContext) -> list:
 
     processpaths = []
     s3files = []
+    nodata_value = -32768
+    nodata_count = 0
 
     with tqdm(desc="Tile optimizing", total=len(dirlist), unit="tile") as progress:
         for file in dirlist:
             filename = os.fsdecode(file)
             filename_full = f"{datapath}/retiled/{filename}"
+
+            with rio.open(filename_full) as src:
+                data = src.read(1)
+                if np.all(data == nodata_value):
+                    os.remove(filename_full)
+                    nodata_count += 1
+                    progress.update()
+                    continue
+
             file_hash = hashlib.md5(filename.encode()).hexdigest()
             file_full_path = f"{processeddir}/{file_hash}.tif"
             os.system(
@@ -165,6 +192,8 @@ def preprocess_cleanup(context: AssetExecutionContext):
         shutil.rmtree(f"{datapath}/retiled")
     if os.path.exists(f"{zipdir}"):
         shutil.rmtree(f"{zipdir}")
+    if os.path.exists(f"{datapath}/reprojected"):
+        shutil.rmtree(f"{datapath}/reprojected")
     if os.path.exists(f"{datapath}/processed"):
         shutil.rmtree(f"{datapath}/processed")
     if os.path.exists(f"{datapath}/products"):
