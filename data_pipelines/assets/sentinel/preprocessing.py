@@ -133,8 +133,34 @@ def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list
             os.remove(file)
 
 
+@asset(deps={"preprocess_retile": preprocess_retile}, key_prefix=["sentinel"])
+def preprocess_filter_nodata(context: AssetExecutionContext):
+    redirect_logs_to_dagster()
+    directory = os.fsencode(f"{datapath}/retiled")
+    dirlist = os.listdir(directory)
+
+    nodata_value = -32768
+    nodata_count = 0
+
+    with tqdm(
+        desc="Filtering out nodata tiles", total=len(dirlist), unit="tile"
+    ) as progress:
+        for file in dirlist:
+            filename = os.fsdecode(file)
+            filename_full = f"{datapath}/retiled/{filename}"
+
+            with rio.open(filename_full) as src:
+                data = src.read(1)
+                if np.all(data == nodata_value):
+                    os.remove(filename_full)
+                    nodata_count += 1
+                progress.update()
+
+    context.log.info(f"Filtered {nodata_count} nodata tiles")
+
+
 @asset(
-    deps={"preprocess_retile": preprocess_retile},
+    deps={"preprocess_filter_nodata": preprocess_filter_nodata},
     key_prefix=["sentinel"],
     io_manager_key="json_io_manager",
 )
@@ -147,22 +173,11 @@ def preprocess_optimize(context: AssetExecutionContext) -> list:
 
     processpaths = []
     s3files = []
-    nodata_value = -32768
-    nodata_count = 0
 
     with tqdm(desc="Tile optimizing", total=len(dirlist), unit="tile") as progress:
         for file in dirlist:
             filename = os.fsdecode(file)
             filename_full = f"{datapath}/retiled/{filename}"
-
-            with rio.open(filename_full) as src:
-                data = src.read(1)
-                if np.all(data == nodata_value):
-                    os.remove(filename_full)
-                    nodata_count += 1
-                    progress.update()
-                    continue
-
             file_hash = hashlib.md5(filename.encode()).hexdigest()
             file_full_path = f"{processeddir}/{file_hash}.tif"
             os.system(
