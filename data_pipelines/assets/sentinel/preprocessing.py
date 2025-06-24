@@ -133,10 +133,7 @@ def preprocess_retile(context: AssetExecutionContext, preprocess_reproject: list
             os.remove(file)
 
 
-@asset(
-    deps={"preprocess_retile": preprocess_retile},
-    key_prefix=["sentinel"]
-)
+@asset(deps={"preprocess_retile": preprocess_retile}, key_prefix=["sentinel"])
 def preprocess_filter_nodata(context: AssetExecutionContext):
     redirect_logs_to_dagster()
     directory = os.fsencode(f"{datapath}/retiled")
@@ -145,7 +142,9 @@ def preprocess_filter_nodata(context: AssetExecutionContext):
     nodata_value = -32768
     nodata_count = 0
 
-    with tqdm(desc="Filtering out nodata tiles", total=len(dirlist), unit="tile") as progress:
+    with tqdm(
+        desc="Filtering out nodata tiles", total=len(dirlist), unit="tile"
+    ) as progress:
         for file in dirlist:
             filename = os.fsdecode(file)
             filename_full = f"{datapath}/retiled/{filename}"
