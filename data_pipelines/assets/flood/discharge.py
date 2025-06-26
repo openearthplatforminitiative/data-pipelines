@@ -57,7 +57,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
     if USE_CONTROL_MEMBER_IN_ENSEMBLE:
         product_type = ["control_forecast", "ensemble_perturbed_forecasts"]
     else:
-        product_type = "ensemble_perturbed_forecasts"
+        product_type = ["ensemble_perturbed_forecasts"]
 
     for leadtime_hour in discharge_partitions.get_partition_keys():
         request_params = {
@@ -65,11 +65,11 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
             "hydrological_model": ["lisflood"],
             "product_type": product_type,
             "variable": "river_discharge_in_the_last_24_hours",
-            "year": date_for_request.year,
-            "month": date_for_request.month,
-            "day": date_for_request.day,
-            "leadtime_hour": leadtime_hour,
-            "format": "grib",
+            "year": [str(date_for_request.year)],
+            "month": ["{:02d}".format(date_for_request.month)],
+            "day": ["{:02d}".format(date_for_request.day)],
+            "leadtime_hour": [leadtime_hour],
+            "data_format": "grib",
             "area": area,
         }
 
