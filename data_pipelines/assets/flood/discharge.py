@@ -70,7 +70,7 @@ def raw_discharge(context: AssetExecutionContext, cds_client: CDSClient) -> None
             "day": ["{:02d}".format(date_for_request.day)],
             "leadtime_hour": [leadtime_hour],
             "data_format": "grib",
-            "area": area
+            "area": area,
         }
 
         out_path = get_path_in_asset(
