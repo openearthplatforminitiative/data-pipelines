@@ -1,6 +1,7 @@
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+from distributed import wait
 
 from data_pipelines.utils.flood.config import (
     GLOFAS_FLOOD_INTENSITIES,
@@ -104,6 +105,11 @@ def compute_flood_peak_timing(
         .rename(columns={"p_above_2y": "max_2y_start"})
         .reset_index()
     )
+
+    df_for_timing = df_for_timing.persist()
+    wait(df_for_timing)
+    max_ddf = max_ddf.persist()
+    wait(max_ddf)
 
     # 3. Join the max probabilities back to the main DataFrame
     df = dd.merge(df_for_timing, max_ddf, on=["latitude", "longitude"], how="left")
