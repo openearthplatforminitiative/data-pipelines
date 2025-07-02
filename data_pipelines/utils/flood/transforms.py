@@ -105,6 +105,9 @@ def compute_flood_peak_timing(
         .reset_index()
     )
 
+    df_for_timing = df_for_timing.persist()
+    max_ddf = max_ddf.persist()
+
     # 3. Join the max probabilities back to the main DataFrame
     df = dd.merge(df_for_timing, max_ddf, on=["latitude", "longitude"], how="left")
 
