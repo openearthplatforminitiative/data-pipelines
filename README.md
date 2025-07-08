@@ -123,3 +123,26 @@ The flood job also has a timeout of 3600 seconds (1h) to avoid running indefinit
 ### Flood running locally
 
 When running the flood pipeline locally, the MinIO bucket should be created using the [bucket creation step](#triggering-bucket-creation). After this, the files `RP20ythresholds_GloFASv40.nc`, `RP5ythresholds_GloFASv40.nc`, and `RP2ythresholds_GloFASv40.nc` need to be manually uploaded (e.g., drag and dropped in the MinIO interface) to the folder `my-bucket/my-data-folder/flood`. This is because these files currently cannot be downloaded from an open API. These files can be found in the `auxiliary_data/flood` folder at the root of this project.
+
+
+## Sentinel pipeline
+Detailed info is available in ```data_pipelines/assets/sentinel/README.md```
+
+Ensure that a data-processing disk is attached to dagster when running the pipeline. For the 
+brazil prototype, this disk needs to be at least 3TB in size. The disk can be removed after the pipeline has
+finished, but currently there is no automated way of doing this. 
+
+
+### GPU Docker image
+The upscaling step of the pipeline uses a custom docker image hosted in GitHub, with the tag 
+```ghcr.io/openearthplatforminitiative/data-pipelines:gpu```. This image is built using the ```Dockerfile.gpu```file.
+
+To rebuild this image, use the command: 
+
+```
+docker buildx build -f Dockerfile.gpu \
+  --platform linux/amd64 \
+  --tag ghcr.io/openearthplatforminitiative/data-pipelines:gpu \
+  --push \
+  .
+```
