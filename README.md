@@ -123,3 +123,37 @@ The flood job also has a timeout of 3600 seconds (1h) to avoid running indefinit
 ### Flood running locally
 
 When running the flood pipeline locally, the MinIO bucket should be created using the [bucket creation step](#triggering-bucket-creation). After this, the files `RP20ythresholds_GloFASv40.nc`, `RP5ythresholds_GloFASv40.nc`, and `RP2ythresholds_GloFASv40.nc` need to be manually uploaded (e.g., drag and dropped in the MinIO interface) to the folder `my-bucket/my-data-folder/flood`. This is because these files currently cannot be downloaded from an open API. These files can be found in the `auxiliary_data/flood` folder at the root of this project.
+
+
+## Sentinel pipeline
+Detailed info is available in ```data_pipelines/assets/sentinel/README.md```
+
+Ensure that a data-processing disk is attached to dagster when running the pipeline. For the 
+brazil prototype, this disk needs to be at least 3TB in size. The disk can be removed after the pipeline has
+finished, but currently there is no automated way of doing this. 
+
+
+### GPU Docker image
+The upscaling step of the pipeline uses a custom docker image hosted in GitHub, with the tag 
+```ghcr.io/openearthplatforminitiative/data-pipelines:gpu```. This image is built using the ```Dockerfile.gpu```file.
+
+To rebuild this image, use the command: 
+
+```
+docker buildx build -f Dockerfile.gpu \
+  --platform linux/amd64 \
+  --tag ghcr.io/openearthplatforminitiative/data-pipelines:gpu \
+  --push \
+  .
+```
+
+### Geoserver
+
+After the sentinel pipeline is done, you must login to geoserver and publish a new datastore.
+You must select the ImagePyramid plugin when creating a new datastore. Afterwards, you must write the local
+path to the folder containing all of the finished files in the "url" field of the configuration. 
+When clicking save on the datastore, the geoserver web ui will timeout after 1 minute, but be aware that the
+datastore creation process is still taking place in the background. The background process will scan the data
+and create metadata. This can take several hours, given the size of the data. Do not disrupt or kill this process while
+it is running. Alternatively, it is possible to generate the metadata yourself, which will make the datastore creation
+process very quick. After the datastore has been created, simply publish a new layer and the WMS will be ready.
