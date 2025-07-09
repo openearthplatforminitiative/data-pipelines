@@ -108,7 +108,7 @@ Expected runtime for all of brazil using cubic: 222 hours
 
 Expected runtime for all of brazil using bilinear: 120 hours
 
-Expected runtime for all of brazil using lanczos: 86 + XX hours
+Expected runtime for all of brazil using lanczos: 370 hours
 
 ### Move files and cleanup
 

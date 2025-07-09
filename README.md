@@ -146,3 +146,14 @@ docker buildx build -f Dockerfile.gpu \
   --push \
   .
 ```
+
+### Geoserver
+
+After the sentinel pipeline is done, you must login to geoserver and publish a new datastore.
+You must select the ImagePyramid plugin when creating a new datastore. Afterwards, you must write the local
+path to the folder containing all of the finished files in the "url" field of the configuration. 
+When clicking save on the datastore, the geoserver web ui will timeout after 1 minute, but be aware that the
+datastore creation process is still taking place in the background. The background process will scan the data
+and create metadata. This can take several hours, given the size of the data. Do not disrupt or kill this process while
+it is running. Alternatively, it is possible to generate the metadata yourself, which will make the datastore creation
+process very quick. After the datastore has been created, simply publish a new layer and the WMS will be ready.
