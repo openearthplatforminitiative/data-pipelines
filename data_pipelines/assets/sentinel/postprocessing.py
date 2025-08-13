@@ -29,6 +29,7 @@ def _to_upath(path: str) -> UPath:
         "upscale": AssetIn(key_prefix="sentinel"),
     },
     key_prefix=["sentinel"],
+    io_manager_key="json_io_manager",
 )
 def postprocess_prepare_disk(context: AssetExecutionContext, upscale: list) -> list:
     redirect_logs_to_dagster()
@@ -87,3 +88,7 @@ def postprocess_move_files_and_cleanup(
     context.log.info("Cleaning up loose files")
     if os.path.exists(f"{datapath}/upscaled"):
         shutil.rmtree(f"{datapath}/upscaled")
+    if os.path.exists(f"{datapath}/pyramid_inputs.txt"):
+        os.remove(f"{datapath}/pyramid_inputs.txt")
+    if os.path.exists(f"{datapath}/retile_inputs.txt"):
+        os.remove(f"{datapath}/retile_inputs.txt")

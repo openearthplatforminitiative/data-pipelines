@@ -1,4 +1,5 @@
 from dagster import asset, AssetExecutionContext, AssetIn
+from rasterio.session import DummySession
 
 from data_pipelines.resources.io_managers import (
     copy_local_file_to_s3,
@@ -142,21 +143,22 @@ def preprocess_filter_nodata(context: AssetExecutionContext):
     nodata_value = -32768
     nodata_count = 0
 
-    with tqdm(
-        desc="Filtering out nodata tiles", total=len(dirlist), unit="tile"
-    ) as progress:
-        for file in dirlist:
-            filename = os.fsdecode(file)
-            filename_full = f"{datapath}/retiled/{filename}"
+    with rio.env.Env(DummySession()):
+        with tqdm(
+            desc="Filtering out nodata tiles", total=len(dirlist), unit="tile"
+        ) as progress:
+            for file in dirlist:
+                filename = os.fsdecode(file)
+                filename_full = f"{datapath}/retiled/{filename}"
 
-            with rio.open(filename_full) as src:
-                data = src.read(1)
-                if np.all(data == nodata_value):
-                    os.remove(filename_full)
-                    nodata_count += 1
-                progress.update()
+                with rio.open(filename_full) as src:
+                    data = src.read(1)
+                    if np.all(data == nodata_value):
+                        os.remove(filename_full)
+                        nodata_count += 1
+                    progress.update()
 
-    context.log.info(f"Filtered {nodata_count} nodata tiles")
+        context.log.info(f"Filtered {nodata_count} nodata tiles")
 
 
 @asset(
